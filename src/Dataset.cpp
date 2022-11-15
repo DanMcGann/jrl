@@ -1,4 +1,3 @@
-#pragma once
 #include <sstream>
 
 #include "jrl/Dataset.h"
@@ -15,7 +14,9 @@ Dataset::Dataset(const std::string& name, std::vector<char>& robots, std::map<ch
       initial_estimates_(initial_estimates) {}
 
 /**********************************************************************************************************************/
+std::string Dataset::name() { return name_; }
 
+/**********************************************************************************************************************/
 std::vector<char> Dataset::robots() { return robots_; }
 
 /**********************************************************************************************************************/

@@ -1,5 +1,6 @@
 #pragma once
 #include <gtsam/nonlinear/NonlinearFactor.h>
+#include <gtsam/nonlinear/NonlinearFactorGraph.h>
 #include <gtsam/nonlinear/Values.h>
 
 #include <boost/optional.hpp>
@@ -15,10 +16,10 @@ namespace jrl {
  */
 struct Entry {
   uint64_t stamp;
-  std::string measurement_type;
-  gtsam::NonlinearFactor::shared_ptr measurement;
-  Entry(uint16_t& stamp, std::string& measurement_type, gtsam::NonlinearFactor::shared_ptr& measurement)
-      : stamp(stamp), measurement_type(measurement_type), measurement(measurement) {}
+  std::vector<std::string> measurement_types;
+  gtsam::NonlinearFactorGraph measurements;
+  Entry(uint64_t& stamp, std::vector<std::string>& measurement_types, gtsam::NonlinearFactorGraph& measurements)
+      : stamp(stamp), measurement_types(measurement_types), measurements(measurements) {}
 };
 
 /**
@@ -59,6 +60,10 @@ class Dataset {
           boost::optional<std::map<char, gtsam::Values>>& ground_truth,
           boost::optional<std::map<char, gtsam::Values>>& initial_estimates);
 
+
+  /// @brief returns the name of the dataset
+  std::string name();
+
   /// @brief Returns a list of the robots active in this dataset
   std::vector<char> robots();
 
@@ -94,5 +99,3 @@ class Dataset {
                        const boost::optional<char>& robot_id);
 };
 }  // namespace jrl
-
-#include "jrl/Dataset-inl.h"

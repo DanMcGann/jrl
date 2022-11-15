@@ -1,20 +1,20 @@
-#pragma once
-
 #include "jrl/Parser.h"
+
+#include "jrl/MeasurementParserFunctions.h"
 #include "jrl/ValueParserFunctions.h"
 
-using measurement_parser_functions;
-using value_parser_functions;
+using namespace jrl::measurement_parser_functions;
+using namespace jrl::value_parser_functions;
 
 namespace jrl {
 /**********************************************************************************************************************/
-std::map<std::string, ValueParser> Parser::loadDefaultValueParsers() {
+std::map<std::string, ValueParser> Parser::loadDefaultValueAccumulators() {
   std::map<std::string, ValueParser> parser_functions = {
-      {"Pose2", [](json input, gtsam::Key,
+      {"Pose2", [](json input, gtsam::Key key,
                    gtsam::Values& accum) { return valueAccumulator<gtsam::Pose2>(&parsePose2, input, key, accum); }},
-      {"Pose2", [](json input, gtsam::Key,
-                   gtsam::Values& accum) { return valueAccumulator<gtsam::Pose3>(&parsePose3, input, key, accum); }},
-  };
+      {"Pose2", [](json input, gtsam::Key key, gtsam::Values& accum) {
+         return valueAccumulator<gtsam::Pose3>(&parsePose3, input, key, accum);
+       }}};
   return parser_functions;
 }
 
@@ -24,8 +24,7 @@ std::map<std::string, MeasurementParser> Parser::loadDefaultMeasurementParsers()
       {"PriorFactorPose2", [](json input) { return parsePrior<gtsam::Pose2>(&parsePose2, input); }},
       {"PriorFactorPose3", [](json input) { return parsePrior<gtsam::Pose3>(&parsePose3, input); }},
       {"BetweenFactorPose2", [](json input) { return parseBetween<gtsam::Pose2>(&parsePose2, input); }},
-      {"BetweenFactorPose3", [](json input) { return parseBetween<gtsam::Pose3>(&parsePose3, input); }},
-  };
+      {"BetweenFactorPose3", [](json input) { return parseBetween<gtsam::Pose3>(&parsePose3, input); }}};
 
   return parser_functions;
 }
@@ -34,7 +33,7 @@ std::map<std::string, MeasurementParser> Parser::loadDefaultMeasurementParsers()
 gtsam::Values Parser::parseValues(json values_json) {
   gtsam::Values values;
   for (auto& value_element : values_json.items()) {
-    std::string type_tag = value_element["type"].get<std::string>();
+    std::string type_tag = value_element.value()["type"].get<std::string>();
     value_accumulators_[type_tag](value_element.value(), value_element.key(), values);
   }
   return values;
@@ -43,10 +42,16 @@ gtsam::Values Parser::parseValues(json values_json) {
 /**********************************************************************************************************************/
 std::vector<Entry> Parser::parseMeasurements(json measurements_json) {
   std::vector<Entry> measurements;
-  for (auto& measure_element : measurements_json.items()) {
-    uint64_t stamp = value_element["stamp"].get<uint64_t>();
-    std::string type_tag = value_element["type"].get<std::string>();
-    measurements.push_back(Entry(stamp, type_tag, measurement_parsers_[type_tag](measure_element)));
+  for (auto& entry_element : measurements_json) {
+    uint64_t stamp = entry_element["stamp"].get<uint64_t>();
+    gtsam::NonlinearFactorGraph entry_measurements;
+    std::vector<std::string> type_tags;
+    for (auto& measurement : entry_element["measurements"]) {
+      std::string tag = measurement["type"].get<std::string>();
+      type_tags.push_back(tag);
+      entry_measurements.push_back(measurement_parsers_[tag](measurement));
+    }
+    measurements.push_back(Entry(stamp, type_tags, entry_measurements));
   }
   return measurements;
 }
@@ -65,7 +70,7 @@ Dataset Parser::parse(std::string dataset_file) {
   if (dataset_json.contains("groundtruth")) {
     groundtruth = std::map<char, gtsam::Values>();
     for (auto& el : dataset_json["groundtruth"].items()) {
-      groundtruth[el.key().get<char>()] = parseValues(el.value());
+      (*groundtruth)[el.key()[0]] = parseValues(el.value());
     }
   }
 
@@ -74,14 +79,14 @@ Dataset Parser::parse(std::string dataset_file) {
   if (dataset_json.contains("initialization")) {
     initialization = std::map<char, gtsam::Values>();
     for (auto& el : dataset_json["initialization"].items()) {
-      initialization[el.key().get<char>()] = parseValues(el.value());
+      (*initialization)[el.key()[0]] = parseValues(el.value());
     }
   }
 
   // Parse Measurements if it exists
   std::map<char, std::vector<Entry>> measurements;
   for (auto& el : dataset_json["measurements"].items()) {
-    measurements[el.key().get<char>()] = parseMeasurements(el.value());
+    measurements[el.key()[0]] = parseMeasurements(el.value());
   }
 
   return Dataset(name, robots, measurements, groundtruth, initialization);
