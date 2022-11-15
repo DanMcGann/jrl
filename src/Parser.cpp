@@ -1,10 +1,10 @@
 #include "jrl/Parser.h"
 
-#include "jrl/MeasurementParserFunctions.h"
-#include "jrl/ValueParserFunctions.h"
+#include "jrl/IOMeasurements.h"
+#include "jrl/IOValues.h"
 
-using namespace jrl::measurement_parser_functions;
-using namespace jrl::value_parser_functions;
+using namespace jrl::io_measurements;
+using namespace jrl::io_values;
 
 namespace jrl {
 /**********************************************************************************************************************/
@@ -12,7 +12,7 @@ std::map<std::string, ValueParser> Parser::loadDefaultValueAccumulators() {
   std::map<std::string, ValueParser> parser_functions = {
       {"Pose2", [](json input, gtsam::Key key,
                    gtsam::Values& accum) { return valueAccumulator<gtsam::Pose2>(&parsePose2, input, key, accum); }},
-      {"Pose2", [](json input, gtsam::Key key, gtsam::Values& accum) {
+      {"Pose3", [](json input, gtsam::Key key, gtsam::Values& accum) {
          return valueAccumulator<gtsam::Pose3>(&parsePose3, input, key, accum);
        }}};
   return parser_functions;
@@ -30,13 +30,16 @@ std::map<std::string, MeasurementParser> Parser::loadDefaultMeasurementParsers()
 }
 
 /**********************************************************************************************************************/
-gtsam::Values Parser::parseValues(json values_json) {
+std::pair<gtsam::Values, ValueTypes> Parser::parseValues(json values_json) {
   gtsam::Values values;
-  for (auto& value_element : values_json.items()) {
-    std::string type_tag = value_element.value()["type"].get<std::string>();
-    value_accumulators_[type_tag](value_element.value(), value_element.key(), values);
+  ValueTypes value_types;
+  for (auto& value_element : values_json) {
+    gtsam::Key key = value_element["key"].get<uint64_t>();
+    std::string type_tag = value_element["type"].get<std::string>();
+    value_types[key] = type_tag;
+    value_accumulators_[type_tag](value_element, key, values);
   }
-  return values;
+  return std::make_pair(values, value_types);
 }
 
 /**********************************************************************************************************************/
@@ -66,18 +69,18 @@ Dataset Parser::parse(std::string dataset_file) {
   std::vector<char> robots = dataset_json["robots"].get<std::vector<char>>();
 
   // Parse Ground truth if it exists
-  boost::optional<std::map<char, gtsam::Values>> groundtruth = boost::none;
+  boost::optional<std::map<char, std::pair<gtsam::Values, ValueTypes>>> groundtruth = boost::none;
   if (dataset_json.contains("groundtruth")) {
-    groundtruth = std::map<char, gtsam::Values>();
+    groundtruth = std::map<char, std::pair<gtsam::Values, ValueTypes>>();
     for (auto& el : dataset_json["groundtruth"].items()) {
       (*groundtruth)[el.key()[0]] = parseValues(el.value());
     }
   }
 
   // Parse Initialization if it exists
-  boost::optional<std::map<char, gtsam::Values>> initialization = boost::none;
+  boost::optional<std::map<char, std::pair<gtsam::Values, ValueTypes>>> initialization = boost::none;
   if (dataset_json.contains("initialization")) {
-    initialization = std::map<char, gtsam::Values>();
+    initialization = std::map<char, std::pair<gtsam::Values, ValueTypes>>();
     for (auto& el : dataset_json["initialization"].items()) {
       (*initialization)[el.key()[0]] = parseValues(el.value());
     }

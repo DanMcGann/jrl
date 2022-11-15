@@ -1,12 +1,12 @@
-#include <sstream>
-
 #include "jrl/Dataset.h"
+
+#include <sstream>
 
 namespace jrl {
 /**********************************************************************************************************************/
 Dataset::Dataset(const std::string& name, std::vector<char>& robots, std::map<char, std::vector<Entry>> measurements,
-                 boost::optional<std::map<char, gtsam::Values>>& ground_truth,
-                 boost::optional<std::map<char, gtsam::Values>>& initial_estimates)
+        boost::optional<std::map<char, std::pair<gtsam::Values, ValueTypes>>>& ground_truth,
+        boost::optional<std::map<char, std::pair<gtsam::Values, ValueTypes>>>& initial_estimates)
     : name_(name),
       robots_(robots),
       measurements_(measurements),
@@ -21,12 +21,12 @@ std::vector<char> Dataset::robots() { return robots_; }
 
 /**********************************************************************************************************************/
 gtsam::Values Dataset::groundTruth(const boost::optional<char>& robot_id) {
-  return accessor<gtsam::Values>("groundTruth", ground_truth_, robot_id);
+  return accessor<std::pair<gtsam::Values, ValueTypes>>("groundTruth", ground_truth_, robot_id).first;
 }
 
 /**********************************************************************************************************************/
 gtsam::Values Dataset::initialization(const boost::optional<char>& robot_id) {
-  return accessor<gtsam::Values>("initialization", initial_estimates_, robot_id);
+  return accessor<std::pair<gtsam::Values, ValueTypes>>("initialization", initial_estimates_, robot_id).first;
 }
 
 /**********************************************************************************************************************/
@@ -36,8 +36,7 @@ std::vector<Entry> Dataset::measurements(const boost::optional<char>& robot_id) 
 
 /**********************************************************************************************************************/
 template <typename RETURN_TYPE>
-RETURN_TYPE Dataset::accessor(const std::string& func_name,
-                              boost::optional<std::map<char, RETURN_TYPE>> robot_mapping,
+RETURN_TYPE Dataset::accessor(const std::string& func_name, boost::optional<std::map<char, RETURN_TYPE>> robot_mapping,
                               const boost::optional<char>& robot_id) {
   if (robot_mapping == boost::none) {
     std::stringstream stream;

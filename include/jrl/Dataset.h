@@ -9,6 +9,8 @@ using json = nlohmann::json;
 
 namespace jrl {
 
+typedef std::map<gtsam::Key, std::string> ValueTypes;
+
 /**
  *
  *
@@ -41,12 +43,12 @@ class Dataset {
   /// @brief The dataset ground-truth for each robot. Each robot's ground truth should contain all values that that
   /// robot observed. This means some values may appear multiple times if multiple robots observe them. Any values
   /// appearing multiple times MUST be the same.
-  boost::optional<std::map<char, gtsam::Values>> ground_truth_;
+  boost::optional<std::map<char, std::pair<gtsam::Values, ValueTypes>>> ground_truth_;
 
   /// @brief The dataset Initialization for each robot. Each robot's initialization should contain all values that that
   /// robot observed. This means some values may appear multiple times if multiple robots observe them. Any values
   /// appearing multiple times MAY be different.
-  boost::optional<std::map<char, gtsam::Values>> initial_estimates_;
+  boost::optional<std::map<char, std::pair<gtsam::Values, ValueTypes>>> initial_estimates_;
 
   /// @brief The measurements made by each robot. Ordered temporally.
   std::map<char, std::vector<Entry>> measurements_;
@@ -57,9 +59,8 @@ class Dataset {
    * @param dataset_json: The json object for the full dataset file.
    */
   Dataset(const std::string& name, std::vector<char>& robots, std::map<char, std::vector<Entry>> measurements,
-          boost::optional<std::map<char, gtsam::Values>>& ground_truth,
-          boost::optional<std::map<char, gtsam::Values>>& initial_estimates);
-
+          boost::optional<std::map<char, std::pair<gtsam::Values, ValueTypes>>>& ground_truth,
+          boost::optional<std::map<char, std::pair<gtsam::Values, ValueTypes>>>& initial_estimates);
 
   /// @brief returns the name of the dataset
   std::string name();
@@ -72,12 +73,14 @@ class Dataset {
    * @returns The specified robot's ground truth values
    */
   gtsam::Values groundTruth(const boost::optional<char>& robot_id = boost::none);
+  bool containsGroundTruth() {return ground_truth_.is_initialized(); }
 
   /** @brief Returns the initialization values for a specific robot.
    * @param robot_id: The robot identifier for the initialization to return. Not required for single robot dataset.
    * @returns The specified robot's initial values
    */
   gtsam::Values initialization(const boost::optional<char>& robot_id = boost::none);
+  bool containsInitialization() {return initial_estimates_.is_initialized(); }
 
   /** @brief Returns the measurements for a specific robot
    * @param robot_id: The robot identifier for the measurements to return. Not required for single robot dataset.

@@ -1,8 +1,9 @@
 #include <pybind11/pybind11.h>
-#include <pybind11/stl_bind.h>
+#include <pybind11/stl.h>
 #include <gtsam/nonlinear/NonlinearFactor.h>
 
 #include "jrl/Dataset.h"
+#include "typecasters.h"
 
 namespace py = pybind11;
 using namespace jrl;
@@ -17,8 +18,8 @@ PYBIND11_MODULE(jrl_python, m) {
 
   py::class_<Dataset>(m, "Dataset")
       .def(py::init<const std::string &, std::vector<char> &, std::map<char, std::vector<Entry>>,
-                    boost::optional<std::map<char, gtsam::Values>> &,
-                    boost::optional<std::map<char, gtsam::Values>> &>())
+                    boost::optional<std::map<char, std::pair<gtsam::Values, ValueTypes>>> &,
+                    boost::optional<std::map<char, std::pair<gtsam::Values, ValueTypes>>> &>())
       .def("robots", &Dataset::robots)
       .def("groundTruth", &Dataset::groundTruth)
       .def("initialization", &Dataset::initialization)

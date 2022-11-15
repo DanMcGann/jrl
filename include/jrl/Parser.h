@@ -20,7 +20,7 @@ class Parser {
   std::map<std::string, MeasurementParser> measurement_parsers_;
   std::map<std::string, MeasurementParser> loadDefaultMeasurementParsers();
 
-  gtsam::Values parseValues(json values_json);
+  std::pair<gtsam::Values, ValueTypes> parseValues(json values_json);
   std::vector<Entry> parseMeasurements(json measurements_json);
   // Interface
  public:

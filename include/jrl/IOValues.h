@@ -6,7 +6,7 @@
 using json = nlohmann::json;
 namespace jrl {
 
-namespace value_parser_functions {
+namespace io_values {
 
 template <typename VALUE>
 void valueAccumulator(std::function<VALUE(json)> parser, json input_json, gtsam::Key key, gtsam::Values& accum) {
@@ -19,6 +19,15 @@ gtsam::Pose2 parsePose2(json input_json) {
   return gtsam::Pose2(input_json["x"].get<double>(), input_json["y"].get<double>(), input_json["theta"].get<double>());
 }
 
+json serializePose2(gtsam::Pose2 pose) {
+  json output;
+  output["type"] = "Pose2";
+  output["x"] = pose.x();
+  output["y"] = pose.y();
+  output["theta"] = pose.theta();
+  return output;
+}
+
 /**********************************************************************************************************************/
 // POSE3
 gtsam::Pose3 parsePose3(json input_json) {
@@ -28,6 +37,15 @@ gtsam::Pose3 parsePose3(json input_json) {
   return gtsam::Pose3(rotation, translation);
 }
 
-}  //  namespace value_parser_functions
+json serializePose3(gtsam::Pose3 pose) {
+  json output;
+  output["type"] = "Pose3";
+  auto q = pose.rotation().quaternion();
+  output["translation"] = {pose.x(), pose.y(), pose.z()};
+  output["rotation"] = {q.w(), q.x(), q.y(), q.z()};
+  return output;
+}
+
+}  // namespace io_values
 
 }  // namespace jrl
