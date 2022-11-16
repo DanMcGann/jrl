@@ -17,6 +17,6 @@ target_include_directories(jrl PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 # Python Bindings
 file(GLOB_RECURSE pybind_srcs "python/*")
 pybind11_add_module(jrl_python ${pybind_srcs})
-target_link_libraries(jrl_python PRIVATE jrl gtsam)
+target_link_libraries(jrl_python PRIVATE jrl gtsam nlohmann_json::nlohmann_json)
 target_include_directories(jrl_python PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 

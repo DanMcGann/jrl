@@ -25,9 +25,11 @@ class Writer {
   // Interface
  public:
   Writer();
-  void registerValueSerializer(std::string tag, ValueSerializer serializer_fn);
-  void registerMeasurementParser(std::string tag, MeasurementSerializer serializer_fn);
   void write(Dataset dataset, std::string output_file_name);
+
+  // TODO
+  // void registerValueSerializer(std::string tag, ValueSerializer serializer_fn);
+  // void registerMeasurementParser(std::string tag, MeasurementSerializer serializer_fn);
 };
 
 }  // namespace jrl

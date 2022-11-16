@@ -73,14 +73,16 @@ class Dataset {
    * @returns The specified robot's ground truth values
    */
   gtsam::Values groundTruth(const boost::optional<char>& robot_id = boost::none);
-  bool containsGroundTruth() {return ground_truth_.is_initialized(); }
+  std::pair<gtsam::Values, ValueTypes> groundTruthWithTypes(const boost::optional<char>& robot_id = boost::none);
+  bool containsGroundTruth() { return ground_truth_.is_initialized(); }
 
   /** @brief Returns the initialization values for a specific robot.
    * @param robot_id: The robot identifier for the initialization to return. Not required for single robot dataset.
    * @returns The specified robot's initial values
    */
   gtsam::Values initialization(const boost::optional<char>& robot_id = boost::none);
-  bool containsInitialization() {return initial_estimates_.is_initialized(); }
+  std::pair<gtsam::Values, ValueTypes> initializationWithTypes(const boost::optional<char>& robot_id = boost::none);
+  bool containsInitialization() { return initial_estimates_.is_initialized(); }
 
   /** @brief Returns the measurements for a specific robot
    * @param robot_id: The robot identifier for the measurements to return. Not required for single robot dataset.

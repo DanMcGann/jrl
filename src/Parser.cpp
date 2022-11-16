@@ -9,23 +9,25 @@ using namespace jrl::io_values;
 namespace jrl {
 /**********************************************************************************************************************/
 std::map<std::string, ValueParser> Parser::loadDefaultValueAccumulators() {
+  // clang-format off
   std::map<std::string, ValueParser> parser_functions = {
-      {"Pose2", [](json input, gtsam::Key key,
-                   gtsam::Values& accum) { return valueAccumulator<gtsam::Pose2>(&parsePose2, input, key, accum); }},
-      {"Pose3", [](json input, gtsam::Key key, gtsam::Values& accum) {
-         return valueAccumulator<gtsam::Pose3>(&parsePose3, input, key, accum);
-       }}};
+      {Pose2Tag, [](json input, gtsam::Key key,gtsam::Values& accum)  { return valueAccumulator<gtsam::Pose2>(&parsePose2, input, key, accum); }},
+      {Pose3Tag, [](json input, gtsam::Key key, gtsam::Values& accum) { return valueAccumulator<gtsam::Pose3>(&parsePose3, input, key, accum); }}
+  };
+  // clang-format on
   return parser_functions;
 }
 
 /**********************************************************************************************************************/
 std::map<std::string, MeasurementParser> Parser::loadDefaultMeasurementParsers() {
+  // clang-format off
   std::map<std::string, MeasurementParser> parser_functions = {
-      {"PriorFactorPose2", [](json input) { return parsePrior<gtsam::Pose2>(&parsePose2, input); }},
-      {"PriorFactorPose3", [](json input) { return parsePrior<gtsam::Pose3>(&parsePose3, input); }},
-      {"BetweenFactorPose2", [](json input) { return parseBetween<gtsam::Pose2>(&parsePose2, input); }},
-      {"BetweenFactorPose3", [](json input) { return parseBetween<gtsam::Pose3>(&parsePose3, input); }}};
-
+      {PriorFactorPose2Tag, [](json input) { return parsePrior<gtsam::Pose2>(&parsePose2, input); }},
+      {PriorFactorPose3Tag, [](json input) { return parsePrior<gtsam::Pose3>(&parsePose3, input); }},
+      {BetweenFactorPose2Tag, [](json input) { return parseBetween<gtsam::Pose2>(&parsePose2, input); }},
+      {BetweenFactorPose3Tag, [](json input) { return parseBetween<gtsam::Pose3>(&parsePose3, input); }}
+  };
+  // clang-format on
   return parser_functions;
 }
 

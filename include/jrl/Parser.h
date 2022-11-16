@@ -25,9 +25,11 @@ class Parser {
   // Interface
  public:
   Parser();
-  void registerValueParser(std::string tag, ValueParser parser_fn);
-  void registerMeasurementParser(std::string tag, MeasurementParser parser_fn);
   Dataset parse(std::string dataset_file);
+
+  // TODO
+  // void registerValueParser(std::string tag, ValueParser parser_fn);
+  // void registerMeasurementParser(std::string tag, MeasurementParser parser_fn);
 };
 
 }  // namespace jrl

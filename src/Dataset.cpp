@@ -20,13 +20,20 @@ std::string Dataset::name() { return name_; }
 std::vector<char> Dataset::robots() { return robots_; }
 
 /**********************************************************************************************************************/
+std::pair<gtsam::Values, ValueTypes> Dataset::groundTruthWithTypes(const boost::optional<char>& robot_id) {
+  return accessor<std::pair<gtsam::Values, ValueTypes>>("groundTruth", ground_truth_, robot_id);
+}
+
 gtsam::Values Dataset::groundTruth(const boost::optional<char>& robot_id) {
-  return accessor<std::pair<gtsam::Values, ValueTypes>>("groundTruth", ground_truth_, robot_id).first;
+  return groundTruthWithTypes(robot_id).first;
 }
 
 /**********************************************************************************************************************/
+std::pair<gtsam::Values, ValueTypes> Dataset::initializationWithTypes(const boost::optional<char>& robot_id) {
+  return accessor<std::pair<gtsam::Values, ValueTypes>>("initialization", initial_estimates_, robot_id);
+}
 gtsam::Values Dataset::initialization(const boost::optional<char>& robot_id) {
-  return accessor<std::pair<gtsam::Values, ValueTypes>>("initialization", initial_estimates_, robot_id).first;
+  return initializationWithTypes(robot_id).first;
 }
 
 /**********************************************************************************************************************/
