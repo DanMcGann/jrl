@@ -37,3 +37,28 @@ We use `stl` containers over GTSAM "fast" containers to allow implicit conversio
 
 ## Dependencies (Ubuntu 20.04)
 * `sudo apt-get install nlohmann-json3-dev`
+
+
+
+## Install Instructions
+```
+mkdir build
+cd build
+cmake ..
+make
+
+# To install the c++ library
+sudo make install
+
+# To install the python module
+sudo make python-install
+```
+
+## Uninstall Instructions
+```
+cd build
+sudo make uninstall # to uninstall the c++ library
+sudo make python-uninstall # to uninstall the python module
+# Note to uninstall python module you can also just use
+sudo pip uninstall jrl
+```
