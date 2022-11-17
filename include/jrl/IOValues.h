@@ -7,13 +7,14 @@
 using json = nlohmann::json;
 namespace jrl {
 
-static const std::string Pose2Tag = "Pose2Tag";
-static const std::string Pose3Tag = "Pose3Tag";
+static const std::string Pose2Tag = "Pose2";
+static const std::string Pose3Tag = "Pose3";
 
 namespace io_values {
 
 template <typename VALUE>
 void valueAccumulator(std::function<VALUE(json)> parser, json input_json, gtsam::Key key, gtsam::Values& accum) {
+  std::cout << "validAccum" << std::endl;
   accum.insert(key, parser(input_json));
 }
 

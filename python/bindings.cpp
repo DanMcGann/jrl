@@ -14,6 +14,9 @@ namespace py = pybind11;
 using namespace jrl;
 
 PYBIND11_MODULE(jrl_python, m) {
+  // Import gtsam to ensure that python has access to return types
+  py::module gtsam = py::module::import("gtsam");
+
   m.attr("Pose2Tag") = py::str(Pose2Tag);
   m.attr("Pose3Tag") = py::str(Pose3Tag);
   m.attr("PriorFactorPose2Tag") = py::str(PriorFactorPose2Tag);
@@ -34,7 +37,9 @@ PYBIND11_MODULE(jrl_python, m) {
                     boost::optional<std::map<char, std::pair<gtsam::Values, ValueTypes>>> &>())
       .def("robots", &Dataset::robots)
       .def("groundTruth", &Dataset::groundTruth)
+      .def("containsGroundTruth", &Dataset::containsGroundTruth)
       .def("initialization", &Dataset::initialization)
+      .def("containsInitialization", &Dataset::containsInitialization)
       .def("measurements", &Dataset::measurements);
 
   /**********************************************************************************************************************/

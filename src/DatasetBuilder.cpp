@@ -16,6 +16,7 @@ void DatasetBuilder::addEntry(char& robot, uint64_t& stamp, gtsam::NonlinearFact
                               std::vector<std::string>& measurement_types,
                               const boost::optional<std::pair<gtsam::Values, ValueTypes>>& initialization,
                               const boost::optional<std::pair<gtsam::Values, ValueTypes>>& groundtruth) {
+  std::cout << "Add Entry" << std::endl;
   measurements_[robot].push_back(Entry(stamp, measurement_types, measurements));
   if (initialization) {
     initial_estimates_[robot].first.insert((*initialization).first);

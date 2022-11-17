@@ -13,7 +13,6 @@ Parser::Parser() {
   measurement_parsers_ = loadDefaultMeasurementParsers();
 }
 
-
 /**********************************************************************************************************************/
 std::map<std::string, ValueParser> Parser::loadDefaultValueAccumulators() {
   // clang-format off
@@ -40,13 +39,19 @@ std::map<std::string, MeasurementParser> Parser::loadDefaultMeasurementParsers()
 
 /**********************************************************************************************************************/
 std::pair<gtsam::Values, ValueTypes> Parser::parseValues(json values_json) {
+  std::cout << "ParseValues" << std::endl;
   gtsam::Values values;
   ValueTypes value_types;
   for (auto& value_element : values_json) {
+    std::cout << value_element << std::endl;
+    std::cout << "Getting Key" << std::endl;
     gtsam::Key key = value_element["key"].get<uint64_t>();
+    std::cout << "Getting type" << std::endl;
     std::string type_tag = value_element["type"].get<std::string>();
     value_types[key] = type_tag;
+    std::cout << "parsing value info" << std::endl;
     value_accumulators_[type_tag](value_element, key, values);
+    std::cout << "Done with value" << std::endl;
   }
   return std::make_pair(values, value_types);
 }
@@ -70,7 +75,7 @@ std::vector<Entry> Parser::parseMeasurements(json measurements_json) {
 
 /**********************************************************************************************************************/
 Dataset Parser::parse(std::string dataset_file) {
-  std::ifstream ifs("dataset_file.json");
+  std::ifstream ifs(dataset_file);
   json dataset_json = json::parse(ifs);
 
   // Parse Header information

@@ -8,7 +8,7 @@ using json = nlohmann::json;
 
 namespace jrl {
 
-typedef std::function<void(gtsam::Key, json, gtsam::Values&)> ValueParser;
+typedef std::function<void(json, gtsam::Key& key, gtsam::Values&)> ValueParser;
 typedef std::function<gtsam::NonlinearFactor::shared_ptr(json)> MeasurementParser;
 
 class Parser {

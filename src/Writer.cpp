@@ -1,5 +1,7 @@
 #include "jrl/Writer.h"
 
+#include <iomanip>
+
 #include "jrl/IOMeasurements.h"
 #include "jrl/IOValues.h"
 
@@ -28,10 +30,10 @@ std::map<std::string, ValueSerializer> Writer::loadDefaultValueSerializers() {
 std::map<std::string, MeasurementSerializer> Writer::loadDefaultMeasurementSerializers() {
   // clang-format off
   std::map<std::string, MeasurementSerializer> serializer_functions = {
-    {PriorFactorPose2Tag,   [](gtsam::NonlinearFactor::shared_ptr& factor) { return serializePrior<gtsam::Pose2>(&serializePose2, factor); }},
-    {PriorFactorPose3Tag,   [](gtsam::NonlinearFactor::shared_ptr& factor) { return serializePrior<gtsam::Pose3>(&serializePose3, factor); }},
-    {BetweenFactorPose2Tag, [](gtsam::NonlinearFactor::shared_ptr& factor) { return serializeBetween<gtsam::Pose2>(&serializePose2, factor); }},
-    {BetweenFactorPose3Tag, [](gtsam::NonlinearFactor::shared_ptr& factor) { return serializeBetween<gtsam::Pose3>(&serializePose3, factor); }}
+    {PriorFactorPose2Tag,   [](gtsam::NonlinearFactor::shared_ptr& factor) { return serializePrior<gtsam::Pose2>(&serializePose2, PriorFactorPose2Tag, factor); }},
+    {PriorFactorPose3Tag,   [](gtsam::NonlinearFactor::shared_ptr& factor) { return serializePrior<gtsam::Pose3>(&serializePose3, PriorFactorPose3Tag, factor); }},
+    {BetweenFactorPose2Tag, [](gtsam::NonlinearFactor::shared_ptr& factor) { return serializeBetween<gtsam::Pose2>(&serializePose2, BetweenFactorPose2Tag, factor); }},
+    {BetweenFactorPose3Tag, [](gtsam::NonlinearFactor::shared_ptr& factor) { return serializeBetween<gtsam::Pose3>(&serializePose3, BetweenFactorPose2Tag, factor); }}
   };
   // clang-format on
 
@@ -46,7 +48,9 @@ json Writer::serializeValues(std::pair<gtsam::Values, ValueTypes> values_info) {
   for (auto& ktpair : types) {
     gtsam::Key key = ktpair.first;
     std::string type_tag = ktpair.second;
-    output.push_back(value_serializers_[type_tag](key, values));
+    json value_obj = value_serializers_[type_tag](key, values);
+    value_obj["key"] = key;
+    output.push_back(value_obj);
   }
   return output;
 }
@@ -78,7 +82,7 @@ void Writer::write(Dataset dataset, std::string output_file_name) {
   // serialize Measurements
   json measurements_json;
   for (auto& robot : dataset.robots()) {
-    measurements_json[robot] = serializeMeasurements(dataset.measurements(robot));
+    measurements_json[std::string(1, robot)] = serializeMeasurements(dataset.measurements(robot));
   }
   output_json["measurements"] = measurements_json;
 
@@ -86,7 +90,7 @@ void Writer::write(Dataset dataset, std::string output_file_name) {
   json groundtruth_json;
   if (dataset.containsGroundTruth()) {
     for (auto& robot : dataset.robots()) {
-      groundtruth_json[robot] = serializeValues(dataset.groundTruthWithTypes(robot));
+      groundtruth_json[std::string(1, robot)] = serializeValues(dataset.groundTruthWithTypes(robot));
     }
     output_json["groundtruth"] = groundtruth_json;
   }
@@ -95,14 +99,14 @@ void Writer::write(Dataset dataset, std::string output_file_name) {
   json initialization_json;
   if (dataset.containsInitialization()) {
     for (auto& robot : dataset.robots()) {
-      initialization_json[robot] = serializeValues(dataset.initializationWithTypes(robot));
+      initialization_json[std::string(1, robot)] = serializeValues(dataset.initializationWithTypes(robot));
     }
     output_json["initialization"] = initialization_json;
   }
 
   // Write the file
   std::ofstream output_stream(output_file_name);
-  output_stream << output_json.dump();
+  output_stream << std::setw(4) << output_json;
 }
 
 }  // namespace jrl
