@@ -45,8 +45,8 @@ PYBIND11_MODULE(jrl_python, m) {
       .def("build", &DatasetBuilder::build);
 
   /**********************************************************************************************************************/
-  py::class_<Parser>(m, "Parser").def("parse", &Parser::parse);
+  py::class_<Parser>(m, "Parser").def(py::init<>()).def("parse", &Parser::parse);
 
   /**********************************************************************************************************************/
-  py::class_<Writer>(m, "Writer").def("write", &Writer::write);
+  py::class_<Writer>(m, "Writer").def(py::init<>()).def("write", &Writer::write);
 }

@@ -7,6 +7,13 @@ using namespace jrl::io_measurements;
 using namespace jrl::io_values;
 
 namespace jrl {
+
+Parser::Parser() {
+  value_accumulators_ = loadDefaultValueAccumulators();
+  measurement_parsers_ = loadDefaultMeasurementParsers();
+}
+
+
 /**********************************************************************************************************************/
 std::map<std::string, ValueParser> Parser::loadDefaultValueAccumulators() {
   // clang-format off

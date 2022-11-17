@@ -1,11 +1,18 @@
+#include "jrl/Writer.h"
+
 #include "jrl/IOMeasurements.h"
 #include "jrl/IOValues.h"
-#include "jrl/Writer.h"
 
 using namespace jrl::io_measurements;
 using namespace jrl::io_values;
 
 namespace jrl {
+
+Writer::Writer() {
+  value_serializers_ = loadDefaultValueSerializers();
+  measurement_serializers_ = loadDefaultMeasurementSerializers();
+}
+
 /**********************************************************************************************************************/
 std::map<std::string, ValueSerializer> Writer::loadDefaultValueSerializers() {
   // clang-format off
@@ -13,8 +20,8 @@ std::map<std::string, ValueSerializer> Writer::loadDefaultValueSerializers() {
     {Pose2Tag, [](gtsam::Key key, gtsam::Values& vals) { return serializePose2(vals.at<gtsam::Pose2>(key)); }},
     {Pose3Tag, [](gtsam::Key key, gtsam::Values& vals) { return serializePose3(vals.at<gtsam::Pose3>(key)); }},
   };
-// clang-format on
-return serializer_functions;
+  // clang-format on
+  return serializer_functions;
 }
 
 /**********************************************************************************************************************/
