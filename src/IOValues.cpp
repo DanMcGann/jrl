@@ -11,8 +11,9 @@ gtsam::Pose2 parsePose2(json input_json) {
   std::cout << "getting x " << std::endl;
   double x = input_json["x"].get<double>();
   std::cout << "getting y " << std::endl;
-  double y= input_json["y"].get<double>();
-  std::cout << "getting theta " << std::endl;;
+  double y = input_json["y"].get<double>();
+  std::cout << "getting theta " << std::endl;
+  ;
   double theta = input_json["theta"].get<double>();
   std::cout << "building pose2" << std::endl;
   return gtsam::Pose2(x, y, theta);
@@ -43,6 +44,21 @@ json serializePose3(gtsam::Pose3 pose) {
   auto q = pose.rotation().quaternion();
   output["translation"] = {pose.x(), pose.y(), pose.z()};
   output["rotation"] = {q.w(), q.x(), q.y(), q.z()};
+  return output;
+}
+
+/**********************************************************************************************************************/
+// VECTOR
+gtsam::Vector parseVector(json input_json) {
+  std::vector<double> stdvec = input_json["data"].get<std::vector<double>>();
+  gtsam::Vector eigvec = Eigen::Map<gtsam::Vector>(stdvec.data(), stdvec.size());
+  return eigvec;
+}
+
+json serializeVector(gtsam::Vector vec) {
+  json output;
+  output["type"] = VectorTag;
+  output["data"] = std::vector<double>(vec.data(), vec.data() + vec.size());
   return output;
 }
 

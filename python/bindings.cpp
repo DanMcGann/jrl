@@ -19,10 +19,15 @@ PYBIND11_MODULE(jrl_python, m) {
 
   m.attr("Pose2Tag") = py::str(Pose2Tag);
   m.attr("Pose3Tag") = py::str(Pose3Tag);
+  m.attr("VectorTag") = py::str(VectorTag);
+  m.attr("ScalarTag") = py::str(ScalarTag);
+
   m.attr("PriorFactorPose2Tag") = py::str(PriorFactorPose2Tag);
   m.attr("PriorFactorPose3Tag") = py::str(PriorFactorPose3Tag);
   m.attr("BetweenFactorPose2Tag") = py::str(BetweenFactorPose2Tag);
   m.attr("BetweenFactorPose3Tag") = py::str(BetweenFactorPose3Tag);
+  m.attr("RangeFactorPose2Tag") = py::str(RangeFactorPose2Tag);
+  m.attr("RangeFactorPose3Tag") = py::str(RangeFactorPose3Tag);
 
   /**********************************************************************************************************************/
   py::class_<Entry>(m, "Entry")

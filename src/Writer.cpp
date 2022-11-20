@@ -1,5 +1,9 @@
 #include "jrl/Writer.h"
 
+#include <gtsam/slam/BetweenFactor.h>
+#include <gtsam/slam/PriorFactor.h>
+#include <gtsam/sam/RangeFactor.h>
+
 #include <iomanip>
 
 #include "jrl/IOMeasurements.h"
@@ -21,6 +25,8 @@ std::map<std::string, ValueSerializer> Writer::loadDefaultValueSerializers() {
   std::map<std::string, ValueSerializer> serializer_functions = {
     {Pose2Tag, [](gtsam::Key key, gtsam::Values& vals) { return serializePose2(vals.at<gtsam::Pose2>(key)); }},
     {Pose3Tag, [](gtsam::Key key, gtsam::Values& vals) { return serializePose3(vals.at<gtsam::Pose3>(key)); }},
+    {VectorTag, [](gtsam::Key key, gtsam::Values& vals) { return serializeVector(vals.at<gtsam::Vector>(key)); }},
+    {ScalarTag, [](gtsam::Key key, gtsam::Values& vals) { return serializeScalar<double>(vals.at<double>(key)); }},
   };
   // clang-format on
   return serializer_functions;
@@ -32,10 +38,12 @@ std::map<std::string, MeasurementSerializer> Writer::loadDefaultMeasurementSeria
   std::map<std::string, MeasurementSerializer> serializer_functions = {
     {PriorFactorPose2Tag,   [](gtsam::NonlinearFactor::shared_ptr& factor) { return serializePrior<gtsam::Pose2>(&serializePose2, PriorFactorPose2Tag, factor); }},
     {PriorFactorPose3Tag,   [](gtsam::NonlinearFactor::shared_ptr& factor) { return serializePrior<gtsam::Pose3>(&serializePose3, PriorFactorPose3Tag, factor); }},
-    {BetweenFactorPose2Tag, [](gtsam::NonlinearFactor::shared_ptr& factor) { return serializeBetween<gtsam::Pose2>(&serializePose2, BetweenFactorPose2Tag, factor); }},
-    {BetweenFactorPose3Tag, [](gtsam::NonlinearFactor::shared_ptr& factor) { return serializeBetween<gtsam::Pose3>(&serializePose3, BetweenFactorPose2Tag, factor); }}
+    {BetweenFactorPose2Tag, [](gtsam::NonlinearFactor::shared_ptr& factor) { return serializeNoiseModel2<gtsam::Pose2, gtsam::BetweenFactor<gtsam::Pose2>>(&serializePose2, BetweenFactorPose2Tag, factor); }},
+    {BetweenFactorPose3Tag, [](gtsam::NonlinearFactor::shared_ptr& factor) { return serializeNoiseModel2<gtsam::Pose3, gtsam::BetweenFactor<gtsam::Pose3>>(&serializePose3, BetweenFactorPose2Tag, factor); }},
+    {RangeFactorPose2Tag,   [](gtsam::NonlinearFactor::shared_ptr& factor) { return serializeNoiseModel2<double, gtsam::RangeFactor<gtsam::Pose2>>(&serializeScalar<double>, RangeFactorPose2Tag, factor); }},
+    {RangeFactorPose3Tag,   [](gtsam::NonlinearFactor::shared_ptr& factor) { return serializeNoiseModel2<double, gtsam::RangeFactor<gtsam::Pose3>>(&serializeScalar<double>, RangeFactorPose3Tag, factor); }},
   };
-  // clang-format on
+  // clang-format onRangeFactorPose3Tag
 
   return serializer_functions;
 }
