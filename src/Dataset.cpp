@@ -5,8 +5,8 @@
 namespace jrl {
 /**********************************************************************************************************************/
 Dataset::Dataset(const std::string& name, std::vector<char>& robots, std::map<char, std::vector<Entry>> measurements,
-        boost::optional<std::map<char, std::pair<gtsam::Values, ValueTypes>>>& ground_truth,
-        boost::optional<std::map<char, std::pair<gtsam::Values, ValueTypes>>>& initial_estimates)
+                 boost::optional<std::map<char, std::pair<gtsam::Values, ValueTypes>>>& ground_truth,
+                 boost::optional<std::map<char, std::pair<gtsam::Values, ValueTypes>>>& initial_estimates)
     : name_(name),
       robots_(robots),
       measurements_(measurements),

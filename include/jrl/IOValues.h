@@ -16,7 +16,6 @@ namespace io_values {
 
 template <typename VALUE>
 void valueAccumulator(std::function<VALUE(json)> parser, json input_json, gtsam::Key key, gtsam::Values& accum) {
-  std::cout << "validAccum" << std::endl;
   accum.insert(key, parser(input_json));
 }
 
