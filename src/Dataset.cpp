@@ -5,8 +5,8 @@
 namespace jrl {
 /**********************************************************************************************************************/
 Dataset::Dataset(const std::string& name, std::vector<char>& robots, std::map<char, std::vector<Entry>> measurements,
-                 boost::optional<std::map<char, std::pair<gtsam::Values, ValueTypes>>>& ground_truth,
-                 boost::optional<std::map<char, std::pair<gtsam::Values, ValueTypes>>>& initial_estimates)
+                 boost::optional<std::map<char, TypedValues>>& ground_truth,
+                 boost::optional<std::map<char, TypedValues>>& initial_estimates)
     : name_(name),
       robots_(robots),
       measurements_(measurements),
@@ -20,20 +20,20 @@ std::string Dataset::name() { return name_; }
 std::vector<char> Dataset::robots() { return robots_; }
 
 /**********************************************************************************************************************/
-std::pair<gtsam::Values, ValueTypes> Dataset::groundTruthWithTypes(const boost::optional<char>& robot_id) {
-  return accessor<std::pair<gtsam::Values, ValueTypes>>("groundTruth", ground_truth_, robot_id);
+TypedValues Dataset::groundTruthWithTypes(const boost::optional<char>& robot_id) {
+  return accessor<TypedValues>("groundTruth", ground_truth_, robot_id);
 }
 
 gtsam::Values Dataset::groundTruth(const boost::optional<char>& robot_id) {
-  return groundTruthWithTypes(robot_id).first;
+  return groundTruthWithTypes(robot_id).values;
 }
 
 /**********************************************************************************************************************/
-std::pair<gtsam::Values, ValueTypes> Dataset::initializationWithTypes(const boost::optional<char>& robot_id) {
-  return accessor<std::pair<gtsam::Values, ValueTypes>>("initialization", initial_estimates_, robot_id);
+TypedValues Dataset::initializationWithTypes(const boost::optional<char>& robot_id) {
+  return accessor<TypedValues>("initialization", initial_estimates_, robot_id);
 }
 gtsam::Values Dataset::initialization(const boost::optional<char>& robot_id) {
-  return initializationWithTypes(robot_id).first;
+  return initializationWithTypes(robot_id).values;
 }
 
 /**********************************************************************************************************************/

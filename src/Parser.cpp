@@ -46,7 +46,7 @@ std::map<std::string, MeasurementParser> Parser::loadDefaultMeasurementParsers()
 }
 
 /**********************************************************************************************************************/
-std::pair<gtsam::Values, ValueTypes> Parser::parseValues(json values_json) {
+TypedValues Parser::parseValues(json values_json) {
   gtsam::Values values;
   ValueTypes value_types;
   for (auto& value_element : values_json) {
@@ -55,7 +55,7 @@ std::pair<gtsam::Values, ValueTypes> Parser::parseValues(json values_json) {
     value_types[key] = type_tag;
     value_accumulators_[type_tag](value_element, key, values);
   }
-  return std::make_pair(values, value_types);
+  return TypedValues(values, value_types);
 }
 
 /**********************************************************************************************************************/
@@ -76,7 +76,7 @@ std::vector<Entry> Parser::parseMeasurements(json measurements_json) {
 }
 
 /**********************************************************************************************************************/
-Dataset Parser::parse(std::string dataset_file) {
+Dataset Parser::parseDataset(std::string dataset_file) {
   std::ifstream ifs(dataset_file);
   json dataset_json = json::parse(ifs);
 
@@ -85,18 +85,18 @@ Dataset Parser::parse(std::string dataset_file) {
   std::vector<char> robots = dataset_json["robots"].get<std::vector<char>>();
 
   // Parse Ground truth if it exists
-  boost::optional<std::map<char, std::pair<gtsam::Values, ValueTypes>>> groundtruth = boost::none;
+  boost::optional<std::map<char, TypedValues>> groundtruth = boost::none;
   if (dataset_json.contains("groundtruth")) {
-    groundtruth = std::map<char, std::pair<gtsam::Values, ValueTypes>>();
+    groundtruth = std::map<char, TypedValues>();
     for (auto& el : dataset_json["groundtruth"].items()) {
       (*groundtruth)[el.key()[0]] = parseValues(el.value());
     }
   }
 
   // Parse Initialization if it exists
-  boost::optional<std::map<char, std::pair<gtsam::Values, ValueTypes>>> initialization = boost::none;
+  boost::optional<std::map<char, TypedValues>> initialization = boost::none;
   if (dataset_json.contains("initialization")) {
-    initialization = std::map<char, std::pair<gtsam::Values, ValueTypes>>();
+    initialization = std::map<char, TypedValues>();
     for (auto& el : dataset_json["initialization"].items()) {
       (*initialization)[el.key()[0]] = parseValues(el.value());
     }
@@ -109,6 +109,23 @@ Dataset Parser::parse(std::string dataset_file) {
   }
 
   return Dataset(name, robots, measurements, groundtruth, initialization);
+}
+
+/**********************************************************************************************************************/
+Results Parser::parseResults(std::string results_file) {
+  std::ifstream ifs(results_file);
+  json results_json = json::parse(ifs);
+
+  // Parse Header information
+  std::string name = results_json["name"];
+  std::vector<char> robots = results_json["robots"].get<std::vector<char>>();
+
+  // Parse Ground truth if it exists
+  std::map<char, TypedValues> solutions;
+  for (auto& el : results_json["solutions"].items()) {
+    solutions[el.key()[0]] = parseValues(el.value());
+  }
+  return Results(name, robots, solutions);
 }
 
 }  // namespace jrl

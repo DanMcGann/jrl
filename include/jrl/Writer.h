@@ -2,9 +2,10 @@
 #include <gtsam/nonlinear/Values.h>
 
 #include <nlohmann/json.hpp>
+using json = nlohmann::json;
 
 #include "jrl/Dataset.h"
-using json = nlohmann::json;
+#include "jrl/Results.h"
 
 namespace jrl {
 
@@ -20,12 +21,13 @@ class Writer {
   std::map<std::string, MeasurementSerializer> measurement_serializers_;
   std::map<std::string, MeasurementSerializer> loadDefaultMeasurementSerializers();
 
-  json serializeValues(std::pair<gtsam::Values, ValueTypes>);
-  json serializeMeasurements(std::vector<Entry>);
+  json serializeValues(TypedValues typed_values);
+  json serializeMeasurements(std::vector<Entry> measurements);
   // Interface
  public:
   Writer();
-  void write(Dataset dataset, std::string output_file_name);
+  void writeDataset(Dataset dataset, std::string output_file_name);
+  void writeResults(Results results, std::string output_file_name);
 
   // TODO
   // void registerValueSerializer(std::string tag, ValueSerializer serializer_fn);

@@ -49,9 +49,9 @@ std::map<std::string, MeasurementSerializer> Writer::loadDefaultMeasurementSeria
 }
 
 /**********************************************************************************************************************/
-json Writer::serializeValues(std::pair<gtsam::Values, ValueTypes> values_info) {
-  gtsam::Values values = values_info.first;
-  ValueTypes types = values_info.second;
+json Writer::serializeValues(TypedValues typed_values) {
+  gtsam::Values values = typed_values.values;
+  ValueTypes types = typed_values.types;
   json output;
   for (auto& ktpair : types) {
     gtsam::Key key = ktpair.first;
@@ -80,7 +80,7 @@ json Writer::serializeMeasurements(std::vector<Entry> entries) {
 }
 
 /**********************************************************************************************************************/
-void Writer::write(Dataset dataset, std::string output_file_name) {
+void Writer::writeDataset(Dataset dataset, std::string output_file_name) {
   json output_json;
 
   // serialize Header information
@@ -111,6 +111,27 @@ void Writer::write(Dataset dataset, std::string output_file_name) {
     }
     output_json["initialization"] = initialization_json;
   }
+
+  // Write the file
+  std::ofstream output_stream(output_file_name);
+  output_stream << std::setw(4) << output_json;
+}
+
+
+/**********************************************************************************************************************/
+void Writer::writeResults(Results results, std::string output_file_name) {
+  json output_json;
+
+  // serialize Header information
+  output_json["name"] = results.name;
+  output_json["robots"] = results.robots;
+
+  // Serialize solutions
+  json solution_json;
+  for (auto& robot : results.robots) {
+    solution_json[std::string(1, robot)] = serializeValues(results.robot_results[robot]);
+  }
+  output_json["solutions"] = solution_json;
 
   // Write the file
   std::ofstream output_stream(output_file_name);

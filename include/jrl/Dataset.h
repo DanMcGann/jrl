@@ -4,25 +4,10 @@
 #include <gtsam/nonlinear/Values.h>
 
 #include <boost/optional.hpp>
-#include <nlohmann/json.hpp>
-using json = nlohmann::json;
+
+#include "jrl/Types.h"
 
 namespace jrl {
-
-typedef std::map<gtsam::Key, std::string> ValueTypes;
-
-/**
- *
- *
- *
- */
-struct Entry {
-  uint64_t stamp;
-  std::vector<std::string> measurement_types;
-  gtsam::NonlinearFactorGraph measurements;
-  Entry(uint64_t& stamp, std::vector<std::string>& measurement_types, gtsam::NonlinearFactorGraph& measurements)
-      : stamp(stamp), measurement_types(measurement_types), measurements(measurements) {}
-};
 
 /**
  *
@@ -37,18 +22,19 @@ class Dataset {
 
   /// @brief The robots for which this dataset defines trajectories
   std::vector<char> robots_;
+
   /// @brief The number of robots in this dataset
   size_t num_robots_;
 
   /// @brief The dataset ground-truth for each robot. Each robot's ground truth should contain all values that that
   /// robot observed. This means some values may appear multiple times if multiple robots observe them. Any values
   /// appearing multiple times MUST be the same.
-  boost::optional<std::map<char, std::pair<gtsam::Values, ValueTypes>>> ground_truth_;
+  boost::optional<std::map<char, TypedValues>> ground_truth_;
 
   /// @brief The dataset Initialization for each robot. Each robot's initialization should contain all values that that
   /// robot observed. This means some values may appear multiple times if multiple robots observe them. Any values
   /// appearing multiple times MAY be different.
-  boost::optional<std::map<char, std::pair<gtsam::Values, ValueTypes>>> initial_estimates_;
+  boost::optional<std::map<char, TypedValues>> initial_estimates_;
 
   /// @brief The measurements made by each robot. Ordered temporally.
   std::map<char, std::vector<Entry>> measurements_;
@@ -56,11 +42,10 @@ class Dataset {
   /* INTERFACE */
  public:
   /** @brief Constructs a raw dataset
-   * @param dataset_json: The json object for the full dataset file.
    */
   Dataset(const std::string& name, std::vector<char>& robots, std::map<char, std::vector<Entry>> measurements,
-          boost::optional<std::map<char, std::pair<gtsam::Values, ValueTypes>>>& ground_truth,
-          boost::optional<std::map<char, std::pair<gtsam::Values, ValueTypes>>>& initial_estimates);
+          boost::optional<std::map<char, TypedValues>>& ground_truth,
+          boost::optional<std::map<char, TypedValues>>& initial_estimates);
 
   /// @brief returns the name of the dataset
   std::string name();
@@ -73,7 +58,7 @@ class Dataset {
    * @returns The specified robot's ground truth values
    */
   gtsam::Values groundTruth(const boost::optional<char>& robot_id = boost::none);
-  std::pair<gtsam::Values, ValueTypes> groundTruthWithTypes(const boost::optional<char>& robot_id = boost::none);
+  TypedValues groundTruthWithTypes(const boost::optional<char>& robot_id = boost::none);
   bool containsGroundTruth() { return ground_truth_.is_initialized(); }
 
   /** @brief Returns the initialization values for a specific robot.
@@ -81,7 +66,7 @@ class Dataset {
    * @returns The specified robot's initial values
    */
   gtsam::Values initialization(const boost::optional<char>& robot_id = boost::none);
-  std::pair<gtsam::Values, ValueTypes> initializationWithTypes(const boost::optional<char>& robot_id = boost::none);
+  TypedValues initializationWithTypes(const boost::optional<char>& robot_id = boost::none);
   bool containsInitialization() { return initial_estimates_.is_initialized(); }
 
   /** @brief Returns the measurements for a specific robot

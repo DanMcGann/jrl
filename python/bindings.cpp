@@ -36,10 +36,16 @@ PYBIND11_MODULE(jrl_python, m) {
       .def_readwrite("measurement_types", &Entry::measurement_types)
       .def_readwrite("measurements", &Entry::measurements);
 
+  /**********************************************************************************************************************/
+  py::class_<TypedValues>(m, "TypedValues")
+      .def(py::init<gtsam::Values &, ValueTypes &>())
+      .def_readwrite("values", &TypedValues::values)
+      .def_readwrite("types", &TypedValues::types);
+
+  /**********************************************************************************************************************/
   py::class_<Dataset>(m, "Dataset")
       .def(py::init<const std::string &, std::vector<char> &, std::map<char, std::vector<Entry>>,
-                    boost::optional<std::map<char, std::pair<gtsam::Values, ValueTypes>>> &,
-                    boost::optional<std::map<char, std::pair<gtsam::Values, ValueTypes>>> &>())
+                    boost::optional<std::map<char, TypedValues>> &, boost::optional<std::map<char, TypedValues>> &>())
       .def("robots", &Dataset::robots)
       .def("groundTruth", &Dataset::groundTruth)
       .def("containsGroundTruth", &Dataset::containsGroundTruth)
@@ -55,8 +61,14 @@ PYBIND11_MODULE(jrl_python, m) {
       .def("build", &DatasetBuilder::build);
 
   /**********************************************************************************************************************/
-  py::class_<Parser>(m, "Parser").def(py::init<>()).def("parse", &Parser::parse);
+  py::class_<Parser>(m, "Parser")
+      .def(py::init<>())
+      .def("parseDataset", &Parser::parseDataset)
+      .def("parseResults", &Parser::parseResults);
 
   /**********************************************************************************************************************/
-  py::class_<Writer>(m, "Writer").def(py::init<>()).def("write", &Writer::write);
+  py::class_<Writer>(m, "Writer")
+      .def(py::init<>())
+      .def("writeDataset", &Writer::writeDataset)
+      .def("writeResults", &Writer::writeResults);
 }

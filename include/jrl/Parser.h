@@ -4,6 +4,7 @@
 #include <nlohmann/json.hpp>
 
 #include "jrl/Dataset.h"
+#include "jrl/Results.h"
 using json = nlohmann::json;
 
 namespace jrl {
@@ -20,12 +21,14 @@ class Parser {
   std::map<std::string, MeasurementParser> measurement_parsers_;
   std::map<std::string, MeasurementParser> loadDefaultMeasurementParsers();
 
-  std::pair<gtsam::Values, ValueTypes> parseValues(json values_json);
+  TypedValues parseValues(json values_json);
   std::vector<Entry> parseMeasurements(json measurements_json);
   // Interface
  public:
   Parser();
-  Dataset parse(std::string dataset_file);
+  Dataset parseDataset(std::string dataset_file);
+
+  Results parseResults(std::string results_file);
 
   // TODO
   // void registerValueParser(std::string tag, ValueParser parser_fn);

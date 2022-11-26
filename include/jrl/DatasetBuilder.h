@@ -18,8 +18,8 @@ class DatasetBuilder {
   std::vector<char> robots_;
   size_t num_robots_;
 
-  std::map<char, std::pair<gtsam::Values, ValueTypes>> ground_truth_;
-  std::map<char, std::pair<gtsam::Values, ValueTypes>> initial_estimates_;
+  std::map<char, TypedValues> ground_truth_;
+  std::map<char, TypedValues> initial_estimates_;
   std::map<char, std::vector<Entry>> measurements_;
 
   /* INTERFACE */
@@ -28,8 +28,8 @@ class DatasetBuilder {
 
   void addEntry(char& robot, uint64_t& stamp, gtsam::NonlinearFactorGraph& measurements,
                 std::vector<std::string>& measurement_types,
-                const boost::optional<std::pair<gtsam::Values, ValueTypes>>& initialization = boost::none,
-                const boost::optional<std::pair<gtsam::Values, ValueTypes>>& groundtruth = boost::none);
+                const boost::optional<TypedValues>& initialization = boost::none,
+                const boost::optional<TypedValues>& groundtruth = boost::none);
 
   Dataset build();
 };

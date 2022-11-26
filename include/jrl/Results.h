@@ -1,0 +1,33 @@
+#pragma once
+#include <gtsam/nonlinear/NonlinearFactor.h>
+#include <gtsam/nonlinear/NonlinearFactorGraph.h>
+#include <gtsam/nonlinear/Values.h>
+
+#include <boost/optional.hpp>
+
+namespace jrl {
+
+struct Results {
+  /// @brief The title of the dataset
+  std::string name;
+
+  /// @brief The robots for which this dataset defines trajectories
+  std::vector<char> robots;
+
+  /// @brief Solution for each robot. Each robot's solution should contain all values that that
+  /// robot observed. This means some values may appear multiple times if multiple robots observe them. Any values
+  /// appearing multiple times MAY be different.
+  std::map<char, TypedValues> robot_results;
+
+
+  /** @brief Constructs a results with values
+   * @param dataset_json: The json object for the full dataset file.
+   */
+  Results(const std::string& name, std::vector<char>& robots, std::map<char, TypedValues>& solutions);
+
+  /** @brief Constructs an empty results
+   * @param dataset_json: The json object for the full dataset file.
+   */
+  Results(const std::string& name, std::vector<char>& robots);
+};
+}  // namespace jrl
