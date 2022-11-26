@@ -5,6 +5,8 @@
 
 #include <boost/optional.hpp>
 
+#include "jrl/Types.h"
+
 namespace jrl {
 
 struct Results {
@@ -17,8 +19,7 @@ struct Results {
   /// @brief Solution for each robot. Each robot's solution should contain all values that that
   /// robot observed. This means some values may appear multiple times if multiple robots observe them. Any values
   /// appearing multiple times MAY be different.
-  std::map<char, TypedValues> robot_results;
-
+  std::map<char, TypedValues> robot_solutions;
 
   /** @brief Constructs a results with values
    * @param dataset_json: The json object for the full dataset file.

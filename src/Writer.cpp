@@ -129,7 +129,7 @@ void Writer::writeResults(Results results, std::string output_file_name) {
   // Serialize solutions
   json solution_json;
   for (auto& robot : results.robots) {
-    solution_json[std::string(1, robot)] = serializeValues(results.robot_results[robot]);
+    solution_json[std::string(1, robot)] = serializeValues(results.robot_solutions[robot]);
   }
   output_json["solutions"] = solution_json;
 
