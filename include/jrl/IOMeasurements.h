@@ -15,6 +15,10 @@ static const std::string PriorFactorPose2Tag = "PriorFactorPose2";
 static const std::string PriorFactorPose3Tag = "PriorFactorPose3";
 static const std::string RangeFactorPose2Tag = "RangeFactorPose2";
 static const std::string RangeFactorPose3Tag = "RangeFactorPose3";
+static const std::string BetweenFactorPoint2Tag = "BetweenFactorPoint2";
+static const std::string BetweenFactorPoint3Tag = "BetweenFactorPoint3";
+static const std::string PriorFactorPoint2Tag = "PriorFactorPoint2";
+static const std::string PriorFactorPoint3Tag = "PriorFactorPoint3";
 
 namespace io_measurements {
 
@@ -76,7 +80,7 @@ gtsam::NonlinearFactor::shared_ptr parseNoiseModel2(std::function<MEASURE(json)>
 
 template <typename MEASURE, typename FACTOR>
 json serializeNoiseModel2(std::function<json(MEASURE)> val_serializer_fn, std::string type_tag,
-                      gtsam::NonlinearFactor::shared_ptr& factor) {
+                          gtsam::NonlinearFactor::shared_ptr& factor) {
   json output;
   typename FACTOR::shared_ptr between = boost::dynamic_pointer_cast<FACTOR>(factor);
   gtsam::noiseModel::Gaussian::shared_ptr noise_model =

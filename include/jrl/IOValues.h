@@ -1,4 +1,6 @@
 #pragma once
+#include <gtsam/geometry/Point2.h>
+#include <gtsam/geometry/Point3.h>
 #include <gtsam/geometry/Pose2.h>
 #include <gtsam/geometry/Pose3.h>
 #include <gtsam/nonlinear/Values.h>
@@ -9,6 +11,8 @@ namespace jrl {
 
 static const std::string Pose2Tag = "Pose2";
 static const std::string Pose3Tag = "Pose3";
+static const std::string Point2Tag = "Point2";
+static const std::string Point3Tag = "Point3";
 static const std::string VectorTag = "Vector";
 static const std::string ScalarTag = "Scalar";
 
@@ -33,6 +37,16 @@ json serializePose3(gtsam::Pose3 pose);
 // VECTOR
 gtsam::Vector parseVector(json input_json);
 json serializeVector(gtsam::Vector vec);
+
+/**********************************************************************************************************************/
+// Point2
+gtsam::Point2 parsePoint2(json input_json);
+json serializePoint2(gtsam::Point2 point);
+
+/**********************************************************************************************************************/
+// Point3
+gtsam::Point3 parsePoint3(json input_json);
+json serializePoint3(gtsam::Point3 point);
 
 /**********************************************************************************************************************/
 // SCALAR

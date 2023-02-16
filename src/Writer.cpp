@@ -25,6 +25,8 @@ std::map<std::string, ValueSerializer> Writer::loadDefaultValueSerializers() {
   std::map<std::string, ValueSerializer> serializer_functions = {
     {Pose2Tag, [](gtsam::Key key, gtsam::Values& vals) { return serializePose2(vals.at<gtsam::Pose2>(key)); }},
     {Pose3Tag, [](gtsam::Key key, gtsam::Values& vals) { return serializePose3(vals.at<gtsam::Pose3>(key)); }},
+    {Point2Tag, [](gtsam::Key key, gtsam::Values& vals) { return serializePoint2(vals.at<gtsam::Point2>(key)); }},
+    {Point3Tag, [](gtsam::Key key, gtsam::Values& vals) { return serializePoint3(vals.at<gtsam::Point3>(key)); }},
     {VectorTag, [](gtsam::Key key, gtsam::Values& vals) { return serializeVector(vals.at<gtsam::Vector>(key)); }},
     {ScalarTag, [](gtsam::Key key, gtsam::Values& vals) { return serializeScalar<double>(vals.at<double>(key)); }},
   };
@@ -39,9 +41,13 @@ std::map<std::string, MeasurementSerializer> Writer::loadDefaultMeasurementSeria
     {PriorFactorPose2Tag,   [](gtsam::NonlinearFactor::shared_ptr& factor) { return serializePrior<gtsam::Pose2>(&serializePose2, PriorFactorPose2Tag, factor); }},
     {PriorFactorPose3Tag,   [](gtsam::NonlinearFactor::shared_ptr& factor) { return serializePrior<gtsam::Pose3>(&serializePose3, PriorFactorPose3Tag, factor); }},
     {BetweenFactorPose2Tag, [](gtsam::NonlinearFactor::shared_ptr& factor) { return serializeNoiseModel2<gtsam::Pose2, gtsam::BetweenFactor<gtsam::Pose2>>(&serializePose2, BetweenFactorPose2Tag, factor); }},
-    {BetweenFactorPose3Tag, [](gtsam::NonlinearFactor::shared_ptr& factor) { return serializeNoiseModel2<gtsam::Pose3, gtsam::BetweenFactor<gtsam::Pose3>>(&serializePose3, BetweenFactorPose2Tag, factor); }},
+    {BetweenFactorPose3Tag, [](gtsam::NonlinearFactor::shared_ptr& factor) { return serializeNoiseModel2<gtsam::Pose3, gtsam::BetweenFactor<gtsam::Pose3>>(&serializePose3, BetweenFactorPose3Tag, factor); }},
     {RangeFactorPose2Tag,   [](gtsam::NonlinearFactor::shared_ptr& factor) { return serializeNoiseModel2<double, gtsam::RangeFactor<gtsam::Pose2>>(&serializeScalar<double>, RangeFactorPose2Tag, factor); }},
     {RangeFactorPose3Tag,   [](gtsam::NonlinearFactor::shared_ptr& factor) { return serializeNoiseModel2<double, gtsam::RangeFactor<gtsam::Pose3>>(&serializeScalar<double>, RangeFactorPose3Tag, factor); }},
+    {PriorFactorPoint2Tag,   [](gtsam::NonlinearFactor::shared_ptr& factor) { return serializePrior<gtsam::Point2>(&serializePoint2, PriorFactorPoint2Tag, factor); }},
+    {PriorFactorPoint3Tag,   [](gtsam::NonlinearFactor::shared_ptr& factor) { return serializePrior<gtsam::Point3>(&serializePoint3, PriorFactorPoint3Tag, factor); }},
+    {BetweenFactorPoint2Tag, [](gtsam::NonlinearFactor::shared_ptr& factor) { return serializeNoiseModel2<gtsam::Point2, gtsam::BetweenFactor<gtsam::Point2>>(&serializePoint2, BetweenFactorPoint2Tag, factor); }},
+    {BetweenFactorPoint3Tag, [](gtsam::NonlinearFactor::shared_ptr& factor) { return serializeNoiseModel2<gtsam::Point3, gtsam::BetweenFactor<gtsam::Point3>>(&serializePoint3, BetweenFactorPoint2Tag, factor); }},
   };
   // clang-format onRangeFactorPose3Tag
 
@@ -123,7 +129,8 @@ void Writer::writeResults(Results results, std::string output_file_name) {
   json output_json;
 
   // serialize Header information
-  output_json["name"] = results.name;
+  output_json["dataset_name"] = results.dataset_name;
+  output_json["method_name"] = results.method_name;
   output_json["robots"] = results.robots;
 
   // Serialize solutions

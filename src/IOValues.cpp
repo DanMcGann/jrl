@@ -26,7 +26,8 @@ json serializePose2(gtsam::Pose2 pose) {
 /**********************************************************************************************************************/
 // POSE3
 gtsam::Pose3 parsePose3(json input_json) {
-  gtsam::Vector3 translation(input_json["translation"].get<std::vector<double>>().data());
+  std::vector<double> t = input_json["translation"].get<std::vector<double>>();
+  gtsam::Vector3 translation(t.data());
   std::vector<double> q = input_json["rotation"].get<std::vector<double>>();
   gtsam::Rot3 rotation = gtsam::Rot3::Quaternion(q[0], q[1], q[2], q[3]);
   return gtsam::Pose3(rotation, translation);
@@ -53,6 +54,40 @@ json serializeVector(gtsam::Vector vec) {
   json output;
   output["type"] = VectorTag;
   output["data"] = std::vector<double>(vec.data(), vec.data() + vec.size());
+  return output;
+}
+
+/**********************************************************************************************************************/
+// Point2
+gtsam::Point2 parsePoint2(json input_json) {
+  double x = input_json["x"].get<double>();
+  double y = input_json["y"].get<double>();
+  return gtsam::Point2(x, y);
+}
+
+json serializePoint2(gtsam::Point2 point) {
+  json output;
+  output["type"] = Point2Tag;
+  output["x"] = point.x();
+  output["y"] = point.y();
+  return output;
+}
+
+/**********************************************************************************************************************/
+// Point3
+gtsam::Point3 parsePoint3(json input_json) {
+  double x = input_json["x"].get<double>();
+  double y = input_json["y"].get<double>();
+  double z = input_json["z"].get<double>();
+  return gtsam::Point3(x, y, z);
+}
+
+json serializePoint3(gtsam::Point3 point) {
+  json output;
+  output["type"] = Point3Tag;
+  output["x"] = point.x();
+  output["y"] = point.y();
+  output["z"] = point.z();
   return output;
 }
 

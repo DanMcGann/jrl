@@ -21,8 +21,10 @@ Parser::Parser() {
 std::map<std::string, ValueParser> Parser::loadDefaultValueAccumulators() {
   // clang-format off
   std::map<std::string, ValueParser> parser_functions = {
-      {Pose2Tag,  [](json input, gtsam::Key key,gtsam::Values& accum)  { return valueAccumulator<gtsam::Pose2>(&parsePose2, input, key, accum); }},
+      {Pose2Tag,  [](json input, gtsam::Key key, gtsam::Values& accum) { return valueAccumulator<gtsam::Pose2>(&parsePose2, input, key, accum); }},
       {Pose3Tag,  [](json input, gtsam::Key key, gtsam::Values& accum) { return valueAccumulator<gtsam::Pose3>(&parsePose3, input, key, accum); }},
+      {Point2Tag, [](json input, gtsam::Key key, gtsam::Values& accum) { return valueAccumulator<gtsam::Point2>(&parsePoint2, input, key, accum); }},
+      {Point3Tag, [](json input, gtsam::Key key, gtsam::Values& accum) { return valueAccumulator<gtsam::Point3>(&parsePoint3, input, key, accum); }},
       {VectorTag, [](json input, gtsam::Key key, gtsam::Values& accum) { return valueAccumulator<gtsam::Vector>(&parseVector, input, key, accum); }},
       {ScalarTag, [](json input, gtsam::Key key, gtsam::Values& accum) { return valueAccumulator<double>(&parseScalar<double>, input, key, accum); }},
   };
@@ -34,12 +36,16 @@ std::map<std::string, ValueParser> Parser::loadDefaultValueAccumulators() {
 std::map<std::string, MeasurementParser> Parser::loadDefaultMeasurementParsers() {
   // clang-format off
   std::map<std::string, MeasurementParser> parser_functions = {
-      {PriorFactorPose2Tag,   [](json input) { return parsePrior<gtsam::Pose2>(&parsePose2, input); }},
-      {PriorFactorPose3Tag,   [](json input) { return parsePrior<gtsam::Pose3>(&parsePose3, input); }},
-      {BetweenFactorPose2Tag, [](json input) { return parseNoiseModel2<gtsam::Pose2, gtsam::BetweenFactor<gtsam::Pose2>>(&parsePose2, input); }},
-      {BetweenFactorPose3Tag, [](json input) { return parseNoiseModel2<gtsam::Pose3, gtsam::BetweenFactor<gtsam::Pose3>>(&parsePose3, input); }},
-      {RangeFactorPose2Tag,   [](json input) { return parseNoiseModel2<double, gtsam::RangeFactor<gtsam::Pose2>>(&parseScalar<double>, input); }},
-      {RangeFactorPose3Tag,   [](json input) { return parseNoiseModel2<double, gtsam::RangeFactor<gtsam::Pose3>>(&parseScalar<double>, input); }},
+      {PriorFactorPose2Tag,    [](json input) { return parsePrior<gtsam::Pose2>(&parsePose2, input); }},
+      {PriorFactorPose3Tag,    [](json input) { return parsePrior<gtsam::Pose3>(&parsePose3, input); }},
+      {BetweenFactorPose2Tag,  [](json input) { return parseNoiseModel2<gtsam::Pose2, gtsam::BetweenFactor<gtsam::Pose2>>(&parsePose2, input); }},
+      {BetweenFactorPose3Tag,  [](json input) { return parseNoiseModel2<gtsam::Pose3, gtsam::BetweenFactor<gtsam::Pose3>>(&parsePose3, input); }},
+      {RangeFactorPose2Tag,    [](json input) { return parseNoiseModel2<double, gtsam::RangeFactor<gtsam::Pose2>>(&parseScalar<double>, input); }},
+      {RangeFactorPose3Tag,    [](json input) { return parseNoiseModel2<double, gtsam::RangeFactor<gtsam::Pose3>>(&parseScalar<double>, input); }},
+      {PriorFactorPoint2Tag,   [](json input) { return parsePrior<gtsam::Point2>(&parsePoint2, input); }},
+      {PriorFactorPoint3Tag,   [](json input) { return parsePrior<gtsam::Point3>(&parsePoint3, input); }},
+      {BetweenFactorPoint2Tag, [](json input) { return parseNoiseModel2<gtsam::Point2, gtsam::BetweenFactor<gtsam::Point2>>(&parsePoint2, input); }},
+      {BetweenFactorPoint3Tag, [](json input) { return parseNoiseModel2<gtsam::Point3, gtsam::BetweenFactor<gtsam::Point3>>(&parsePoint3, input); }},
   };
   // clang-format on
   return parser_functions;
@@ -117,7 +123,8 @@ Results Parser::parseResults(std::string results_file) {
   json results_json = json::parse(ifs);
 
   // Parse Header information
-  std::string name = results_json["name"];
+  std::string dataset_name = results_json["dataset_name"];
+  std::string method_name = results_json["method_name"];
   std::vector<char> robots = results_json["robots"].get<std::vector<char>>();
 
   // Parse Ground truth if it exists
@@ -125,7 +132,7 @@ Results Parser::parseResults(std::string results_file) {
   for (auto& el : results_json["solutions"].items()) {
     solutions[el.key()[0]] = parseValues(el.value());
   }
-  return Results(name, robots, solutions);
+  return Results(dataset_name, method_name, robots, solutions);
 }
 
 }  // namespace jrl

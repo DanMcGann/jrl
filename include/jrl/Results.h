@@ -11,7 +11,10 @@ namespace jrl {
 
 struct Results {
   /// @brief The title of the dataset
-  std::string name;
+  std::string dataset_name;
+
+  /// @brief The name of the method used to generate these results
+  std::string method_name;
 
   /// @brief The robots for which this dataset defines trajectories
   std::vector<char> robots;
@@ -24,11 +27,12 @@ struct Results {
   /** @brief Constructs a results with values
    * @param dataset_json: The json object for the full dataset file.
    */
-  Results(const std::string& name, std::vector<char>& robots, std::map<char, TypedValues>& solutions);
+  Results(const std::string& dataset_name, const std::string& method_name, std::vector<char>& robots,
+          std::map<char, TypedValues>& solutions);
 
   /** @brief Constructs an empty results
    * @param dataset_json: The json object for the full dataset file.
    */
-  Results(const std::string& name, std::vector<char>& robots);
+  Results(const std::string& dataset_name, const std::string& method_name, std::vector<char>& robots);
 };
 }  // namespace jrl
