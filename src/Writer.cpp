@@ -120,7 +120,7 @@ void Writer::writeDataset(Dataset dataset, std::string output_file_name) {
 
   // Write the file
   std::ofstream output_stream(output_file_name);
-  output_stream << std::setw(4) << output_json;
+  output_stream << output_json;
 }
 
 
@@ -142,7 +142,7 @@ void Writer::writeResults(Results results, std::string output_file_name) {
 
   // Write the file
   std::ofstream output_stream(output_file_name);
-  output_stream << std::setw(4) << output_json;
+  output_stream << output_json;
 }
 
 }  // namespace jrl
