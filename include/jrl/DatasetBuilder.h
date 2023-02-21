@@ -24,12 +24,12 @@ class DatasetBuilder {
 
   /* INTERFACE */
  public:
-  DatasetBuilder(const std::string& name, std::vector<char>& robots);
+  DatasetBuilder(const std::string name, std::vector<char> robots);
 
-  void addEntry(char& robot, uint64_t& stamp, gtsam::NonlinearFactorGraph& measurements,
-                std::vector<std::string>& measurement_types,
-                const boost::optional<TypedValues>& initialization = boost::none,
-                const boost::optional<TypedValues>& groundtruth = boost::none);
+  void addEntry(char robot, uint64_t stamp, gtsam::NonlinearFactorGraph measurements,
+                std::vector<std::string> measurement_types,
+                const boost::optional<TypedValues> initialization = boost::none,
+                const boost::optional<TypedValues> groundtruth = boost::none);
 
   Dataset build();
 };

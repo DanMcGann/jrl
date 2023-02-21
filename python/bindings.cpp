@@ -41,13 +41,30 @@ PYBIND11_MODULE(jrl_python, m) {
       .def(py::init<uint64_t &, std::vector<std::string> &, gtsam::NonlinearFactorGraph &>())
       .def_readwrite("stamp", &Entry::stamp)
       .def_readwrite("measurement_types", &Entry::measurement_types)
-      .def_readwrite("measurements", &Entry::measurements);
+      .def_readwrite("measurements", &Entry::measurements)
+      .def(py::pickle(
+          [](const Entry &entry) {  // __getstate__
+            return py::make_tuple(entry.stamp, entry.measurement_types, entry.measurements);
+          },
+          [](py::tuple tup) {  // __setstate__
+            Entry entry(tup[0].cast<uint64_t>(), tup[1].cast<std::vector<std::string>>(),
+                        tup[2].cast<gtsam::NonlinearFactorGraph>());
+            return entry;
+          }));
 
   /**********************************************************************************************************************/
   py::class_<TypedValues>(m, "TypedValues")
       .def(py::init<gtsam::Values &, ValueTypes &>())
       .def_readwrite("values", &TypedValues::values)
-      .def_readwrite("types", &TypedValues::types);
+      .def_readwrite("types", &TypedValues::types)
+      .def(py::pickle(
+          [](const TypedValues &typed_values) {  // __getstate__
+            return py::make_tuple(typed_values.values, typed_values.types);
+          },
+          [](py::tuple tup) {  // __setstate__
+            TypedValues tv(tup[0].cast<gtsam::Values>(), tup[1].cast<ValueTypes>());
+            return tv;
+          }));
 
   /**********************************************************************************************************************/
   py::class_<Dataset>(m, "Dataset")
@@ -59,7 +76,36 @@ PYBIND11_MODULE(jrl_python, m) {
       .def("containsGroundTruth", &Dataset::containsGroundTruth)
       .def("initialization", &Dataset::initialization)
       .def("containsInitialization", &Dataset::containsInitialization)
-      .def("measurements", &Dataset::measurements);
+      .def("measurements", &Dataset::measurements)
+      .def(py::pickle(
+          [](const Dataset &dataset) {  // __getstate__
+            std::map<char, std::vector<Entry>> measurements;
+            boost::optional<std::map<char, TypedValues>> ground_truth = boost::none;
+            boost::optional<std::map<char, TypedValues>> initialization = boost::none;
+
+            if (dataset.containsGroundTruth()) {
+              ground_truth = std::map<char, TypedValues>();
+            }
+
+            if (dataset.containsInitialization()) {
+              initialization = std::map<char, TypedValues>();
+            }
+
+            for (auto &rid : dataset.robots()) {
+              measurements[rid] = dataset.measurements(rid);
+              if (ground_truth) (*ground_truth)[rid] = dataset.groundTruthWithTypes(rid);
+              if (initialization) (*initialization)[rid] = dataset.initializationWithTypes(rid);
+            }
+
+            return py::make_tuple(dataset.name(), dataset.robots(), measurements, ground_truth, initialization);
+          },
+          [](py::tuple tup) {  // __setstate__
+            Dataset dataset(tup[0].cast<std::string>(), tup[1].cast<std::vector<char>>(),
+                            tup[2].cast<std::map<char, std::vector<Entry>>>(),
+                            tup[3].cast<boost::optional<std::map<char, TypedValues>>>(),
+                            tup[4].cast<boost::optional<std::map<char, TypedValues>>>());
+            return dataset;
+          }));
 
   /**********************************************************************************************************************/
   py::class_<Results>(m, "Results")
@@ -67,7 +113,16 @@ PYBIND11_MODULE(jrl_python, m) {
       .def_readwrite("dataset_name", &Results::dataset_name)
       .def_readwrite("method_name", &Results::method_name)
       .def_readwrite("robots", &Results::robots)
-      .def_readwrite("robot_solutions", &Results::robot_solutions);
+      .def_readwrite("robot_solutions", &Results::robot_solutions)
+      .def(py::pickle(
+          [](const Results &results) {  // __getstate__
+            return py::make_tuple(results.dataset_name, results.method_name, results.robots, results.robot_solutions);
+          },
+          [](py::tuple tup) {  // __setstate__
+            Results result(tup[0].cast<std::string>(), tup[1].cast<std::string>(), tup[2].cast<std::vector<char>>(),
+                           tup[3].cast<std::map<char, TypedValues>>());
+            return result;
+          }));
 
   /**********************************************************************************************************************/
   py::class_<DatasetBuilder>(m, "DatasetBuilder")

@@ -36,9 +36,9 @@ gtsam::Pose3 parsePose3(json input_json) {
 json serializePose3(gtsam::Pose3 pose) {
   json output;
   output["type"] = Pose3Tag;
-  auto q = pose.rotation().quaternion();
+  gtsam::Vector q = pose.rotation().quaternion();
   output["translation"] = {pose.x(), pose.y(), pose.z()};
-  output["rotation"] = {q.w(), q.x(), q.y(), q.z()};
+  output["rotation"] = {q(0), q(1), q(2), q(3)};
   return output;
 }
 

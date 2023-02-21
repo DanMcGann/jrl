@@ -4,9 +4,9 @@
 
 namespace jrl {
 /**********************************************************************************************************************/
-Dataset::Dataset(const std::string& name, std::vector<char>& robots, std::map<char, std::vector<Entry>> measurements,
-                 boost::optional<std::map<char, TypedValues>>& ground_truth,
-                 boost::optional<std::map<char, TypedValues>>& initial_estimates)
+Dataset::Dataset(const std::string name, std::vector<char> robots, std::map<char, std::vector<Entry>> measurements,
+                 boost::optional<std::map<char, TypedValues>> ground_truth,
+                 boost::optional<std::map<char, TypedValues>> initial_estimates)
     : name_(name),
       robots_(robots),
       measurements_(measurements),
@@ -14,37 +14,37 @@ Dataset::Dataset(const std::string& name, std::vector<char>& robots, std::map<ch
       initial_estimates_(initial_estimates) {}
 
 /**********************************************************************************************************************/
-std::string Dataset::name() { return name_; }
+std::string Dataset::name() const { return name_; }
 
 /**********************************************************************************************************************/
-std::vector<char> Dataset::robots() { return robots_; }
+std::vector<char> Dataset::robots() const { return robots_; }
 
 /**********************************************************************************************************************/
-TypedValues Dataset::groundTruthWithTypes(const boost::optional<char>& robot_id) {
+TypedValues Dataset::groundTruthWithTypes(const boost::optional<char>& robot_id) const {
   return accessor<TypedValues>("groundTruth", ground_truth_, robot_id);
 }
 
-gtsam::Values Dataset::groundTruth(const boost::optional<char>& robot_id) {
+gtsam::Values Dataset::groundTruth(const boost::optional<char>& robot_id) const {
   return groundTruthWithTypes(robot_id).values;
 }
 
 /**********************************************************************************************************************/
-TypedValues Dataset::initializationWithTypes(const boost::optional<char>& robot_id) {
+TypedValues Dataset::initializationWithTypes(const boost::optional<char>& robot_id) const {
   return accessor<TypedValues>("initialization", initial_estimates_, robot_id);
 }
-gtsam::Values Dataset::initialization(const boost::optional<char>& robot_id) {
+gtsam::Values Dataset::initialization(const boost::optional<char>& robot_id) const {
   return initializationWithTypes(robot_id).values;
 }
 
 /**********************************************************************************************************************/
-std::vector<Entry> Dataset::measurements(const boost::optional<char>& robot_id) {
+std::vector<Entry> Dataset::measurements(const boost::optional<char>& robot_id) const {
   return accessor<std::vector<Entry>>("measurements", measurements_, robot_id);
 }
 
 /**********************************************************************************************************************/
 template <typename RETURN_TYPE>
 RETURN_TYPE Dataset::accessor(const std::string& func_name, boost::optional<std::map<char, RETURN_TYPE>> robot_mapping,
-                              const boost::optional<char>& robot_id) {
+                              const boost::optional<char>& robot_id) const {
   if (robot_mapping == boost::none) {
     std::stringstream stream;
     stream << "Dataset:" << func_name << "requested but dataset does not contain " << func_name << "information";

@@ -27,12 +27,12 @@ struct Results {
   /** @brief Constructs a results with values
    * @param dataset_json: The json object for the full dataset file.
    */
-  Results(const std::string& dataset_name, const std::string& method_name, std::vector<char>& robots,
-          std::map<char, TypedValues>& solutions);
+  Results(std::string dataset_name, std::string method_name, std::vector<char> robots,
+          std::map<char, TypedValues> solutions);
 
   /** @brief Constructs an empty results
    * @param dataset_json: The json object for the full dataset file.
    */
-  Results(const std::string& dataset_name, const std::string& method_name, std::vector<char>& robots);
+  Results(std::string dataset_name, std::string method_name, std::vector<char> robots);
 };
 }  // namespace jrl

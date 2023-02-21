@@ -43,37 +43,37 @@ class Dataset {
  public:
   /** @brief Constructs a raw dataset
    */
-  Dataset(const std::string& name, std::vector<char>& robots, std::map<char, std::vector<Entry>> measurements,
-          boost::optional<std::map<char, TypedValues>>& ground_truth,
-          boost::optional<std::map<char, TypedValues>>& initial_estimates);
+  Dataset(const std::string name, std::vector<char> robots, std::map<char, std::vector<Entry>> measurements,
+          boost::optional<std::map<char, TypedValues>> ground_truth,
+          boost::optional<std::map<char, TypedValues>> initial_estimates);
 
   /// @brief returns the name of the dataset
-  std::string name();
+  std::string name() const;
 
   /// @brief Returns a list of the robots active in this dataset
-  std::vector<char> robots();
+  std::vector<char> robots() const;
 
   /** @brief Returns the ground truth values for a specific robot.
    * @param robot_id: The robot identifier for the ground truth to return. Not required for single robot dataset.
    * @returns The specified robot's ground truth values
    */
-  gtsam::Values groundTruth(const boost::optional<char>& robot_id = boost::none);
-  TypedValues groundTruthWithTypes(const boost::optional<char>& robot_id = boost::none);
-  bool containsGroundTruth() { return ground_truth_.is_initialized(); }
+  gtsam::Values groundTruth(const boost::optional<char>& robot_id = boost::none) const;
+  TypedValues groundTruthWithTypes(const boost::optional<char>& robot_id = boost::none) const;
+  bool containsGroundTruth() const { return ground_truth_.is_initialized(); }
 
   /** @brief Returns the initialization values for a specific robot.
    * @param robot_id: The robot identifier for the initialization to return. Not required for single robot dataset.
    * @returns The specified robot's initial values
    */
-  gtsam::Values initialization(const boost::optional<char>& robot_id = boost::none);
-  TypedValues initializationWithTypes(const boost::optional<char>& robot_id = boost::none);
-  bool containsInitialization() { return initial_estimates_.is_initialized(); }
+  gtsam::Values initialization(const boost::optional<char>& robot_id = boost::none) const;
+  TypedValues initializationWithTypes(const boost::optional<char>& robot_id = boost::none) const;
+  bool containsInitialization() const { return initial_estimates_.is_initialized(); }
 
   /** @brief Returns the measurements for a specific robot
    * @param robot_id: The robot identifier for the measurements to return. Not required for single robot dataset.
    * @returns The specified robot's measurements
    */
-  std::vector<Entry> measurements(const boost::optional<char>& robot_id = boost::none);
+  std::vector<Entry> measurements(const boost::optional<char>& robot_id = boost::none) const;
 
   /* HELPERS */
  private:
@@ -86,6 +86,6 @@ class Dataset {
    * */
   template <typename RETURN_TYPE>
   RETURN_TYPE accessor(const std::string& func_name, boost::optional<std::map<char, RETURN_TYPE>> robot_mapping,
-                       const boost::optional<char>& robot_id);
+                       const boost::optional<char>& robot_id) const;
 };
 }  // namespace jrl
