@@ -6,6 +6,7 @@
 #include "jrl/DatasetBuilder.h"
 #include "jrl/IOMeasurements.h"
 #include "jrl/IOValues.h"
+#include "jrl/Metrics.h"
 #include "jrl/Parser.h"
 #include "jrl/Results.h"
 #include "jrl/Writer.h"
@@ -142,4 +143,21 @@ PYBIND11_MODULE(jrl_python, m) {
       .def(py::init<>())
       .def("writeDataset", &Writer::writeDataset)
       .def("writeResults", &Writer::writeResults);
+
+  /**********************************************************************************************************************/
+
+  m.def("computeMeanResidual", &metrics::computeMeanResidual, py::return_value_policy::copy, py::arg("dataset"),
+        py::arg("results"));
+
+  m.def("computeATEPoint2", &metrics::computeATE<gtsam::Point2>, py::return_value_policy::copy, py::arg("rid"),
+        py::arg("dataset"), py::arg("results"), py::arg("with_scale") = false);
+
+  m.def("computeATEPoint3", &metrics::computeATE<gtsam::Point3>, py::return_value_policy::copy, py::arg("rid"),
+        py::arg("dataset"), py::arg("results"), py::arg("with_scale") = false);
+
+  m.def("computeATEPose2", &metrics::computeATE<gtsam::Pose2>, py::return_value_policy::copy, py::arg("rid"),
+        py::arg("dataset"), py::arg("results"), py::arg("with_scale") = false);
+
+  m.def("computeATEPose3", &metrics::computeATE<gtsam::Pose3>, py::return_value_policy::copy, py::arg("rid"),
+        py::arg("dataset"), py::arg("results"), py::arg("with_scale") = false);
 }
