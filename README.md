@@ -33,7 +33,10 @@ We use `boost::optional` over the c++17 supported `std::optional` as that is wha
 ### Containers
 We use `stl` containers over GTSAM "fast" containers to allow implicit conversion via pybind11's `stl.h`
 
+### Compression
+The Parser and Writer classes have options to enable [cbor](https://cbor.io/) compression to decrease the resulting file size. This can be incredibly important if you are saving intermediate results of an algorithm. This appears to typically reduce result file size by half!
 
+For portability of datasets, we recommend that you do not compress datasets as you typically have only a few of them. Compression is most useful for limiting storage requirements iterative/incremental result files. 
 
 ## Dependencies (Ubuntu 20.04)
 * `sudo apt-get install nlohmann-json3-dev`

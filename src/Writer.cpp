@@ -1,10 +1,11 @@
 #include "jrl/Writer.h"
 
+#include <gtsam/sam/RangeFactor.h>
 #include <gtsam/slam/BetweenFactor.h>
 #include <gtsam/slam/PriorFactor.h>
-#include <gtsam/sam/RangeFactor.h>
 
 #include <iomanip>
+#include <iostream>
 
 #include "jrl/IOMeasurements.h"
 #include "jrl/IOValues.h"
@@ -86,7 +87,20 @@ json Writer::serializeMeasurements(std::vector<Entry> entries) {
 }
 
 /**********************************************************************************************************************/
-void Writer::writeDataset(Dataset dataset, std::string output_file_name) {
+void Writer::writeJson(json output_json, std::string output_file_name, bool compress_to_cbor) {
+  if (compress_to_cbor) {
+    std::ofstream output_stream(output_file_name + ".cbor", std::ios::out | std::ios::binary);
+    json::to_cbor(output_json, nlohmann::detail::output_adapter<char>{output_stream});
+    output_stream.close();
+  } else {
+    std::ofstream output_stream(output_file_name);
+    output_stream << output_json;
+    output_stream.close();
+  } 
+}
+
+/**********************************************************************************************************************/
+void Writer::writeDataset(Dataset dataset, std::string output_file_name, bool compress_to_cbor) {
   json output_json;
 
   // serialize Header information
@@ -119,13 +133,12 @@ void Writer::writeDataset(Dataset dataset, std::string output_file_name) {
   }
 
   // Write the file
-  std::ofstream output_stream(output_file_name);
-  output_stream << output_json;
+  writeJson(output_json, output_file_name, compress_to_cbor);
 }
 
 
 /**********************************************************************************************************************/
-void Writer::writeResults(Results results, std::string output_file_name) {
+void Writer::writeResults(Results results, std::string output_file_name, bool compress_to_cbor) {
   json output_json;
 
   // serialize Header information
@@ -139,10 +152,8 @@ void Writer::writeResults(Results results, std::string output_file_name) {
     solution_json[std::string(1, robot)] = serializeValues(results.robot_solutions[robot]);
   }
   output_json["solutions"] = solution_json;
-
   // Write the file
-  std::ofstream output_stream(output_file_name);
-  output_stream << output_json;
+  writeJson(output_json, output_file_name, compress_to_cbor);
 }
 
 }  // namespace jrl

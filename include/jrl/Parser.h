@@ -9,26 +9,58 @@ using json = nlohmann::json;
 
 namespace jrl {
 
+/// @brief Parses the value at key from given json and adds to the provided values
 typedef std::function<void(json, gtsam::Key& key, gtsam::Values&)> ValueParser;
+/// @brief Parses the given json into a factor
 typedef std::function<gtsam::NonlinearFactor::shared_ptr(json)> MeasurementParser;
 
 class Parser {
-  // Members
+  /** Members **/
  private:
+  /// @brief Mapping from value tag to corresponding value parsing function
   std::map<std::string, ValueParser> value_accumulators_;
+  /// @brief Implicitly defines default value parsers
+  /// @return The default value parsers, which are loaded into value_accumulators_ on initialization
   std::map<std::string, ValueParser> loadDefaultValueAccumulators();
 
+  /// @brief Mapping from measurement tag to corresponding measurement parsing function
   std::map<std::string, MeasurementParser> measurement_parsers_;
+  /// @brief Implicitly defines default measurement parsers
+  /// @return The default measurement parsers, which are loaded into measurement_parsers_ on initialization
   std::map<std::string, MeasurementParser> loadDefaultMeasurementParsers();
 
+  /** @brief Parses all values using the loaded value accumulators
+   *  @param values_json Input JSON containing the serialized values
+   *  @return Parsed Values as GTSAM types
+   **/
   TypedValues parseValues(json values_json);
-  std::vector<Entry> parseMeasurements(json measurements_json);
-  // Interface
- public:
-  Parser();
-  Dataset parseDataset(std::string dataset_file);
 
-  Results parseResults(std::string results_file);
+  /** @brief Parses all measurements using the loaded measurement parsers
+   *  @param measurements_json Input JSON containing the serialized measurement entries
+   *  @return Parsed measurement entries
+   **/
+  std::vector<Entry> parseMeasurements(json measurements_json);
+
+  /** @brief Reads arbitrary JSON from file
+   * @param input_file_name: The file from which to read the json
+   * @param decompress_from_cbor: if true indicates that input file is compressed with cbor
+   */
+  json parseJson(std::string input_file_name, bool decompress_from_cbor);
+
+  /** Interface **/
+ public:
+  /// @brief Constructors a parser object
+  Parser();
+
+  /// @brief Loads and parses a JRL file into a Dataset
+  /// @param decompress_from_cbor if true indicates that input files are compressed with cbor and must be decompressed
+  /// before parsing
+  Dataset parseDataset(std::string dataset_file, bool decompress_from_cbor = false);
+
+  /// @brief Loads and parses a JRL file into a Results
+  /// @param decompress_from_cbor if true indicates that input files are compressed with cbor and must be decompressed
+  /// before parsing
+  Results parseResults(std::string results_file, bool decompress_from_cbor = false);
 
   // TODO
   // void registerValueParser(std::string tag, ValueParser parser_fn);

@@ -82,9 +82,21 @@ std::vector<Entry> Parser::parseMeasurements(json measurements_json) {
 }
 
 /**********************************************************************************************************************/
-Dataset Parser::parseDataset(std::string dataset_file) {
-  std::ifstream ifs(dataset_file);
-  json dataset_json = json::parse(ifs);
+json Parser::parseJson(std::string input_file_name, bool decompress_from_cbor) {
+  json parsed_json;
+  if (decompress_from_cbor) {
+    std::ifstream ifs(input_file_name, std::ios::binary);
+    parsed_json = json::from_cbor(nlohmann::detail::input_adapter{ifs});
+  } else {
+    std::ifstream ifs(input_file_name);
+    parsed_json = json::parse(ifs);
+  }
+  return parsed_json;
+}
+
+/**********************************************************************************************************************/
+Dataset Parser::parseDataset(std::string dataset_file, bool decompress_from_cbor) {
+  json dataset_json = parseJson(dataset_file, decompress_from_cbor);
 
   // Parse Header information
   std::string name = dataset_json["name"];
@@ -118,9 +130,8 @@ Dataset Parser::parseDataset(std::string dataset_file) {
 }
 
 /**********************************************************************************************************************/
-Results Parser::parseResults(std::string results_file) {
-  std::ifstream ifs(results_file);
-  json results_json = json::parse(ifs);
+Results Parser::parseResults(std::string results_file, bool decompress_from_cbor) {
+  json results_json = parseJson(results_file, decompress_from_cbor);
 
   // Parse Header information
   std::string dataset_name = results_json["dataset_name"];
