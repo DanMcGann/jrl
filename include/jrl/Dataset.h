@@ -39,6 +39,9 @@ class Dataset {
   /// @brief The measurements made by each robot. Ordered temporally.
   std::map<char, std::vector<Entry>> measurements_;
 
+  /// @brief The set measurements made by each robot unordered in a factor graph
+  std::map<char, gtsam::NonlinearFactorGraph> factor_graphs_;
+
   /* INTERFACE */
  public:
   /** @brief Constructs a raw dataset
@@ -74,6 +77,12 @@ class Dataset {
    * @returns The specified robot's measurements
    */
   std::vector<Entry> measurements(const boost::optional<char>& robot_id = boost::none) const;
+
+  /** @brief Returns the factor graph for a specific robot containing all measurements
+   * @param robot_id: The robot identifier for the measurements to return. Not required for single robot dataset.
+   * @returns The specified robot's factor graph
+   */
+  gtsam::NonlinearFactorGraph factorGraph(const boost::optional<char>& robot_id = boost::none) const;
 
   /* HELPERS */
  private:

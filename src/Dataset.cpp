@@ -11,7 +11,15 @@ Dataset::Dataset(const std::string name, std::vector<char> robots, std::map<char
       robots_(robots),
       measurements_(measurements),
       ground_truth_(ground_truth),
-      initial_estimates_(initial_estimates) {}
+      initial_estimates_(initial_estimates) {
+  // Construct the factor graphs for each robot from the temporally ordered measurements
+  for (const char& rid : robots_) {
+    factor_graphs_[rid] = gtsam::NonlinearFactorGraph();
+    for (const Entry& entry : measurements_[rid]) {
+      factor_graphs_[rid].push_back(entry.measurements);
+    }
+  }
+}
 
 /**********************************************************************************************************************/
 std::string Dataset::name() const { return name_; }
@@ -39,6 +47,11 @@ gtsam::Values Dataset::initialization(const boost::optional<char>& robot_id) con
 /**********************************************************************************************************************/
 std::vector<Entry> Dataset::measurements(const boost::optional<char>& robot_id) const {
   return accessor<std::vector<Entry>>("measurements", measurements_, robot_id);
+}
+
+/**********************************************************************************************************************/
+gtsam::NonlinearFactorGraph Dataset::factorGraph(const boost::optional<char>& robot_id) const {
+  return accessor<gtsam::NonlinearFactorGraph>("factorGraph", factor_graphs_, robot_id);
 }
 
 /**********************************************************************************************************************/
