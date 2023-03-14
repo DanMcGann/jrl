@@ -37,6 +37,15 @@ PYBIND11_MODULE(jrl_python, m) {
   m.attr("BetweenFactorPoint2Tag") = py::str(BetweenFactorPoint2Tag);
   m.attr("BetweenFactorPoint3Tag") = py::str(BetweenFactorPoint3Tag);
 
+  /**
+   * ########     ###    ########    ###     ######  ######## ########
+   * ##     ##   ## ##      ##      ## ##   ##    ## ##          ##
+   * ##     ##  ##   ##     ##     ##   ##  ##       ##          ##
+   * ##     ## ##     ##    ##    ##     ##  ######  ######      ##
+   * ##     ## #########    ##    #########       ## ##          ##
+   * ##     ## ##     ##    ##    ##     ## ##    ## ##          ##
+   * ########  ##     ##    ##    ##     ##  ######  ########    ##
+   */
   /**********************************************************************************************************************/
   py::class_<Entry>(m, "Entry")
       .def(py::init<uint64_t &, std::vector<std::string> &, gtsam::NonlinearFactorGraph &>())
@@ -109,6 +118,23 @@ PYBIND11_MODULE(jrl_python, m) {
           }));
 
   /**********************************************************************************************************************/
+  py::class_<DatasetBuilder>(m, "DatasetBuilder")
+      .def(py::init<const std::string &, std::vector<char> &>())
+      .def("addEntry", &DatasetBuilder::addEntry, py::arg("robot"), py::arg("stamp"), py::arg("measurements"),
+           py::arg("measurement_types"), py::arg("initialization") = py::none(), py::arg("groundtruth") = py::none())
+      .def("build", &DatasetBuilder::build);
+
+  /**
+   * ########  ########  ######  ##     ## ##       ########  ######
+   * ##     ## ##       ##    ## ##     ## ##          ##    ##    ##
+   * ##     ## ##       ##       ##     ## ##          ##    ##
+   * ########  ######    ######  ##     ## ##          ##     ######
+   * ##   ##   ##             ## ##     ## ##          ##          ##
+   * ##    ##  ##       ##    ## ##     ## ##          ##    ##    ##
+   * ##     ## ########  ######   #######  ########    ##     ######
+   */
+
+  /**********************************************************************************************************************/
   py::class_<Results>(m, "Results")
       .def(py::init<const std::string &, const std::string &, std::vector<char> &, std::map<char, TypedValues> &>())
       .def_readwrite("dataset_name", &Results::dataset_name)
@@ -125,12 +151,15 @@ PYBIND11_MODULE(jrl_python, m) {
             return result;
           }));
 
-  /**********************************************************************************************************************/
-  py::class_<DatasetBuilder>(m, "DatasetBuilder")
-      .def(py::init<const std::string &, std::vector<char> &>())
-      .def("addEntry", &DatasetBuilder::addEntry, py::arg("robot"), py::arg("stamp"), py::arg("measurements"),
-           py::arg("measurement_types"), py::arg("initialization") = py::none(), py::arg("groundtruth") = py::none())
-      .def("build", &DatasetBuilder::build);
+  /**
+   * ####  #######
+   *  ##  ##     ##
+   *  ##  ##     ##
+   *  ##  ##     ##
+   *  ##  ##     ##
+   *  ##  ##     ##
+   * ####  #######
+   */
 
   /**********************************************************************************************************************/
   py::class_<Parser>(m, "Parser")
@@ -144,20 +173,54 @@ PYBIND11_MODULE(jrl_python, m) {
       .def("writeDataset", &Writer::writeDataset)
       .def("writeResults", &Writer::writeResults);
 
-  /**********************************************************************************************************************/
+  /**
+   * ##     ## ######## ######## ########  ####  ######   ######
+   * ###   ### ##          ##    ##     ##  ##  ##    ## ##    ##
+   * #### #### ##          ##    ##     ##  ##  ##       ##
+   * ## ### ## ######      ##    ########   ##  ##        ######
+   * ##     ## ##          ##    ##   ##    ##  ##             ##
+   * ##     ## ##          ##    ##    ##   ##  ##    ## ##    ##
+   * ##     ## ########    ##    ##     ## ####  ######   ######
+   */
 
+  /**********************************************************************************************************************/
+  py::class_<MetricSummary>(m, "MetricSummary")
+      .def(py::init<>())
+      .def_readwrite("robots", &MetricSummary::robots)
+      .def_readwrite("dataset_name", &MetricSummary::dataset_name)
+      .def_readwrite("method_name", &MetricSummary::method_name)
+      .def_readwrite("robot_ate", &MetricSummary::robot_ate)
+      .def_readwrite("total_ate", &MetricSummary::total_ate)
+      .def_readwrite("sve", &MetricSummary::sve)
+      .def_readwrite("mean_residual", &MetricSummary::mean_residual);
+
+  /**********************************************************************************************************************/
+  m.def("computeMetricSummaryPoint2", &metrics::computeMetricSummary<gtsam::Point2>, py::return_value_policy::copy,
+        py::arg("dataset"), py::arg("results"), py::arg("align_with_scale") = false);
+  m.def("computeMetricSummaryPoint3", &metrics::computeMetricSummary<gtsam::Point3>, py::return_value_policy::copy,
+        py::arg("dataset"), py::arg("results"), py::arg("align_with_scale") = false);
+  m.def("computeMetricSummaryPose2", &metrics::computeMetricSummary<gtsam::Pose2>, py::return_value_policy::copy,
+        py::arg("dataset"), py::arg("results"), py::arg("align_with_scale") = false);
+  m.def("computeMetricSummaryPose3", &metrics::computeMetricSummary<gtsam::Pose3>, py::return_value_policy::copy,
+        py::arg("dataset"), py::arg("results"), py::arg("align_with_scale") = false);
+
+  /**********************************************************************************************************************/
   m.def("computeMeanResidual", &metrics::computeMeanResidual, py::return_value_policy::copy, py::arg("dataset"),
         py::arg("results"));
 
+  /**********************************************************************************************************************/
+  m.def("computeSVEPoint2", &metrics::computeSVE<gtsam::Point2>, py::return_value_policy::copy, py::arg("results"));
+  m.def("computeSVEPoint3", &metrics::computeSVE<gtsam::Point3>, py::return_value_policy::copy, py::arg("results"));
+  m.def("computeSVEPose2", &metrics::computeSVE<gtsam::Pose2>, py::return_value_policy::copy, py::arg("results"));
+  m.def("computeSVEPose3", &metrics::computeSVE<gtsam::Pose3>, py::return_value_policy::copy, py::arg("results"));
+
+  /**********************************************************************************************************************/
   m.def("computeATEPoint2", &metrics::computeATE<gtsam::Point2>, py::return_value_policy::copy, py::arg("rid"),
-        py::arg("dataset"), py::arg("results"), py::arg("with_scale") = false);
-
+        py::arg("dataset"), py::arg("results"), py::arg("align_with_scale") = false);
   m.def("computeATEPoint3", &metrics::computeATE<gtsam::Point3>, py::return_value_policy::copy, py::arg("rid"),
-        py::arg("dataset"), py::arg("results"), py::arg("with_scale") = false);
-
+        py::arg("dataset"), py::arg("results"), py::arg("align_with_scale") = false);
   m.def("computeATEPose2", &metrics::computeATE<gtsam::Pose2>, py::return_value_policy::copy, py::arg("rid"),
-        py::arg("dataset"), py::arg("results"), py::arg("with_scale") = false);
-
+        py::arg("dataset"), py::arg("results"), py::arg("align_with_scale") = false);
   m.def("computeATEPose3", &metrics::computeATE<gtsam::Pose3>, py::return_value_policy::copy, py::arg("rid"),
-        py::arg("dataset"), py::arg("results"), py::arg("with_scale") = false);
+        py::arg("dataset"), py::arg("results"), py::arg("align_with_scale") = false);
 }

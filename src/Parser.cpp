@@ -146,4 +146,28 @@ Results Parser::parseResults(std::string results_file, bool decompress_from_cbor
   return Results(dataset_name, method_name, robots, solutions);
 }
 
+/**********************************************************************************************************************/
+MetricSummary Parser::parseMetricSummary(std::string metric_summary_file, bool decompress_from_cbor) {
+  json results_json = parseJson(metric_summary_file, decompress_from_cbor);
+  MetricSummary metric_summary;
+  metric_summary.dataset_name = results_json["dataset_name"];
+  metric_summary.method_name = results_json["method_name"];
+  metric_summary.robots = results_json["robots"].get<std::vector<char>>();
+
+  if (results_json.contains("robot_ate")) {
+    metric_summary.robot_ate = results_json["robot_ate"].get<std::map<char, std::pair<double, double>>>();
+  }
+  if (results_json.contains("total_ate")) {
+    metric_summary.total_ate = results_json["total_ate"].get<std::pair<double, double>>();
+  }
+  if (results_json.contains("sve")) {
+    metric_summary.sve = results_json["sve"].get<std::pair<double, double>>();
+  }
+  if (results_json.contains("mean_residual")) {
+    metric_summary.mean_residual = results_json["mean_residual"].get<double>();
+  }
+
+  return metric_summary;
+}
+
 }  // namespace jrl

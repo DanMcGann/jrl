@@ -1,131 +1,106 @@
 #pragma once
+#include <gtsam/geometry/Pose2.h>
+#include <gtsam/geometry/Pose3.h>
+#include <gtsam/base/Vector.h>
 #include <gtsam/inference/Symbol.h>
 #include <gtsam/nonlinear/Values.h>
 
 #include <vector>
 
-#include "jrl/Alignment.h"
 #include "jrl/Dataset.h"
 #include "jrl/Results.h"
 
 namespace jrl {
-// TODO (dan) DOCUMENT
+
+/** @brief SImple Structure for containing a summary metrics
+ *
+ **/
+struct MetricSummary {
+  /** Members **/
+  /// @brief The robots who's trajectories have been evaluated
+  std::vector<char> robots;
+  /// @brief The name of the dataset
+  std::string dataset_name;
+  /// @brief The name of the method used to generate these results
+  std::string method_name;
+
+  /// @brief The individual ATE for each robot
+  boost::optional<std::map<char, std::pair<double, double>>> robot_ate{boost::none};
+  /// @brief The total ate (sum of robot_ate's)
+  boost::optional<std::pair<double, double>> total_ate{boost::none};
+
+  /// @brief The total SVE (sum of robot_sve's)
+  boost::optional<std::pair<double, double>> sve{boost::none};
+
+  /// @brief The Mean Residual
+  boost::optional<double> mean_residual{boost::none};
+};
+
 namespace metrics {
 
 namespace internal {
-
 /** POSE ERRORS
  * A method for computing the error between two trajectory objects (POSES/POINTS/VECTORS)
  * returns translation error, rotation error
+ * Note: For any linear object, the translation is itself
  */
-
-// For any linear object, the translation is itself
 template <class T>
-std::pair<double, double> squaredPoseError(T est, T ref) {
-  return std::make_pair((est - ref).squaredNorm(), 0);
-}
-
-// Pose Specializations
+inline std::pair<double, double> squaredPoseError(T est, T ref);
 template <>
-std::pair<double, double> squaredPoseError<gtsam::Pose3>(gtsam::Pose3 est, gtsam::Pose3 ref) {
-  gtsam::Pose3 error_pose = ref.inverse().compose(est);
-  double angle_error = error_pose.rotation().axisAngle().second;
-  return std::make_pair(error_pose.translation().squaredNorm(), angle_error * angle_error);
-}
+inline std::pair<double, double> squaredPoseError<gtsam::Pose3>(gtsam::Pose3 est, gtsam::Pose3 ref);
 template <>
-std::pair<double, double> squaredPoseError<gtsam::Pose2>(gtsam::Pose2 est, gtsam::Pose2 ref) {
-  gtsam::Pose2 error_pose = ref.inverse().compose(est);
-  double angle_error = error_pose.theta();
-  return std::make_pair(error_pose.translation().squaredNorm(), angle_error * angle_error);
-}
-
+inline std::pair<double, double> squaredPoseError<gtsam::Pose2>(gtsam::Pose2 est, gtsam::Pose2 ref);
 }  // namespace internal
 
+/** @brief Computes the ATE for the specified robot.
+ * This involves aligning the estiamted and reference trajectories with Umeyama alignment,
+ * then comparing each pose to retrieve a translation and rotation error.
+ * @param rid: The robot id of the robot for which to compute ATE
+ * @param dataset: The dataset containing groundtruth
+ * @param results: The estimation results to be compared with the groundtruth
+ * @param align_with_scale: If true aligns scale while preforming Umeyama alignment
+ * @returns Pair containing (ATE Translation, ATE Rotation) or boost::none if the dataset does not contain ground truth
+ */
 template <class POSE_TYPE>
-boost::optional<std::pair<double, double>> computeATE(char rid, Dataset dataset, Results results,
-                                                      bool with_scale = false) {
-  // We have groundtruth so we can compute ATE
-  if (dataset.containsGroundTruth()) {
-    gtsam::Values ref = dataset.groundTruth(rid);
-    gtsam::Values est = results.robot_solutions[rid].values;
-    gtsam::Values aligned_est = alignment::align<POSE_TYPE>(est, ref, with_scale);
+inline boost::optional<std::pair<double, double>> computeATE(char rid, Dataset dataset, Results results,
+                                                      bool align_with_scale = false);
 
-    double squared_translation_error = 0.0;
-    double squared_rotation_error = 0.0;
-    for (auto& key : ref.keys()) {
-      std::pair<double, double> squared_pose_error =
-          internal::squaredPoseError<POSE_TYPE>(aligned_est.at<POSE_TYPE>(key), ref.at<POSE_TYPE>(key));
-
-      squared_translation_error += squared_pose_error.first;
-      squared_rotation_error += squared_pose_error.second;
-    }
-
-    // Return the RMSE of the pose errors
-    return std::make_pair(std::sqrt(squared_translation_error / ref.size()),
-                          std::sqrt(squared_rotation_error / ref.size()));
-
-  }
-  // No ground truth, cannot compute ATE
-  else {
-    return boost::none;
-  }
-}
+/** @brief Computes the SVE for the dataset
+ * SVE is defined as the mean error between all combination of shared variable estimates
+ * @param dataset: The dataset
+ * @param results: The estimation results
+ * @returns The SVE
+ */
+template <class POSE_TYPE>
+inline std::pair<double, double> computeSVE(Results results);
 
 /* Compute the Cartesian Product of vector of vectors
  * Cite: https://stackoverflow.com/questions/5279051/how-can-i-create-cartesian-product-of-vector-of-vectors
  */
 template <typename T>
-std::vector<std::vector<T>> cartesianProduct(const std::vector<std::vector<T>>& input) {
-  std::vector<std::vector<T>> s = {{}};
-  for (const auto& u : input) {
-    std::vector<std::vector<T>> r;
-    for (const auto& x : s) {
-      for (const auto y : u) {
-        r.push_back(x);
-        r.back().push_back(y);
-      }
-    }
-    s = std::move(r);
-  }
-  return s;
-}
+inline std::vector<std::vector<T>> cartesianProduct(const std::vector<std::vector<T>>& input);
 
-double computeMeanResidual(Dataset dataset, Results results) {
-  double graph_residual = 0.0;
-  for (auto& rid : dataset.robots()) {
-    for (auto& entry : dataset.measurements(rid)) {
-      for (auto& factor : entry.measurements) {
-        // Accumulate all variable owners
-        gtsam::KeyVector keys = factor->keys();
-        std::vector<std::vector<char>> variable_owners;
-        for (auto& key : keys) {
-          variable_owners.push_back(std::vector<char>());
-          for (auto& owner_id : dataset.robots()) {
-            if (results.robot_solutions[owner_id].values.exists(key)) {
-              variable_owners.back().push_back(owner_id);
-            }
-          }
-        }
+/** @brief Computes the mean residual of of the joint solution.
+ * Because each robot can vary in their estimate of shared variables. We compute a "Mean Residual"
+ * To compute the "Mean Residual", for each factor we compute the residual for each possible combination of variable
+ * estimates. When all robots agree perfectly, this would match the residual without evaluating all combinations.
+ * @param dataset: The dataset
+ * @param results: The estimation results
+ * @returns The Mean Residual
+ */
+inline double computeMeanResidual(Dataset dataset, Results results);
 
-        // Compute the Cartesian Product
-        std::vector<std::vector<char>> cart_prod = cartesianProduct<char>(variable_owners);
-
-        // For each robot assignment comput residual and accumulate
-        double factor_total_residual = 0.0;
-        for (std::vector<char>& assignment : cart_prod) {
-          gtsam::Values assignment_values;
-          for (size_t i = 0; i < assignment.size(); i++) {
-            assignment_values.insert(keys[i], results.robot_solutions[assignment[i]].values.at(keys[i]));
-          }
-          factor_total_residual += factor->error(assignment_values);
-        }
-        graph_residual += factor_total_residual / cart_prod.size();
-      }
-    }
-  }
-  return graph_residual;
-}
+/** @brief Computes all metrics possible for the given datasets.
+ *  Conditions to compute different metrics
+ *  - ATE: dataset must contain groundtruth
+ *  - SVE: dataset must be multi-robot
+ *  - Mean Residual: always computable
+ */
+template <class POSE_TYPE>
+inline MetricSummary computeMetricSummary(Dataset dataset, Results results, bool align_with_scale = false);
 
 }  // namespace metrics
 
 }  // namespace jrl
+
+#include "jrl/Metrics-inl.h"

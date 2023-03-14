@@ -2,10 +2,11 @@
 #include <gtsam/nonlinear/Values.h>
 
 #include <nlohmann/json.hpp>
+using json = nlohmann::json;
 
 #include "jrl/Dataset.h"
+#include "jrl/Metrics.h"
 #include "jrl/Results.h"
-using json = nlohmann::json;
 
 namespace jrl {
 
@@ -57,10 +58,15 @@ class Parser {
   /// before parsing
   Dataset parseDataset(std::string dataset_file, bool decompress_from_cbor = false);
 
-  /// @brief Loads and parses a JRL file into a Results
+  /// @brief Loads and parses a JRR file into a Results
   /// @param decompress_from_cbor if true indicates that input files are compressed with cbor and must be decompressed
   /// before parsing
   Results parseResults(std::string results_file, bool decompress_from_cbor = false);
+
+  /// @brief Loads and parses a JRM file into a MetricSummary
+  /// @param decompress_from_cbor if true indicates that input files are compressed with cbor and must be decompressed
+  /// before parsing
+  MetricSummary parseMetricSummary(std::string metric_summary_file, bool decompress_from_cbor = false);
 
   // TODO
   // void registerValueParser(std::string tag, ValueParser parser_fn);

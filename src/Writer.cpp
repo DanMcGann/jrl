@@ -156,4 +156,21 @@ void Writer::writeResults(Results results, std::string output_file_name, bool co
   writeJson(output_json, output_file_name, compress_to_cbor);
 }
 
+/**********************************************************************************************************************/
+void Writer::writeMetricSummary(MetricSummary metric_summary, std::string output_file_name, bool compress_to_cbor) {
+  json output_json;
+
+  // serialize Header information
+  output_json["dataset_name"] = metric_summary.dataset_name;
+  output_json["method_name"] = metric_summary.method_name;
+  output_json["robots"] = metric_summary.robots;
+  if (metric_summary.robot_ate) output_json["robot_ate"] = *metric_summary.robot_ate;
+  if (metric_summary.total_ate)  output_json["total_ate"] = *metric_summary.total_ate;
+  if (metric_summary.sve)  output_json["sve"] = *metric_summary.sve;
+  if (metric_summary.mean_residual)  output_json["mean_residual"] = *metric_summary.mean_residual;
+
+  // Write the file
+  writeJson(output_json, output_file_name, compress_to_cbor);
+}
+
 }  // namespace jrl

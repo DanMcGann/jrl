@@ -5,6 +5,7 @@
 using json = nlohmann::json;
 
 #include "jrl/Dataset.h"
+#include "jrl/Metrics.h"
 #include "jrl/Results.h"
 
 namespace jrl {
@@ -61,6 +62,10 @@ class Writer {
   /// @brief Serializes results and writes to file
   /// @param compress_with_cbor if true indicates that written files should be compressed with cbor
   void writeResults(Results results, std::string output_file_name, bool compress_to_cbor = false);
+
+  /// @brief Serializes a MetricSummary and writes to file
+  /// @param compress_with_cbor if true indicates that written files should be compressed with cbor
+  void writeMetricSummary(MetricSummary metric_summary, std::string output_file_name, bool compress_to_cbor = false);
 
   // TODO
   // void registerValueSerializer(std::string tag, ValueSerializer serializer_fn);
