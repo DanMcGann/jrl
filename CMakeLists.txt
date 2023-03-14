@@ -1,5 +1,5 @@
-project(jrl CXX C)
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.0.0)
+project(jrl VERSION 0.0.2 LANGUAGES CXX C)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
@@ -24,6 +24,7 @@ target_include_directories(jrl PUBLIC
 install(FILES ${jrl_headers} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/jrl)
 install(
 	TARGETS jrl
+    EXPORT jrl-exports
 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -33,8 +34,6 @@ file(GLOB_RECURSE pybind_srcs "python/*")
 pybind11_add_module(jrl_python ${pybind_srcs})
 target_link_libraries(jrl_python PRIVATE jrl gtsam nlohmann_json::nlohmann_json)
 target_include_directories(jrl_python PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
-
-
 
 set(JRL_PYTHON_BUILD_DIRECTORY ${PROJECT_BINARY_DIR}/python)
 set_target_properties(jrl_python PROPERTIES
@@ -65,3 +64,9 @@ add_custom_target(python-install
 add_custom_target(python-uninstall
         COMMAND pip uninstall jrl
         WORKING_DIRECTORY ${JRL_PYTHON_BUILD_DIRECTORY})
+
+
+# Setup configuration for find_package
+include(cmake/MakeConfigFile.cmake)
+MakeConfigFile(jrl)
+export(EXPORT jrl-exports FILE ${CMAKE_CURRENT_BINARY_DIR}/jrl-exports.cmake)
