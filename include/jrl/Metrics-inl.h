@@ -1,6 +1,6 @@
 #pragma once
-#include "jrl/Metrics.h"
 #include "jrl/Alignment.h"
+#include "jrl/Metrics.h"
 namespace jrl {
 namespace metrics {
 /**********************************************************************************************************************/
@@ -29,7 +29,7 @@ inline std::pair<double, double> squaredPoseError<gtsam::Pose2>(gtsam::Pose2 est
 /**********************************************************************************************************************/
 template <class POSE_TYPE>
 inline boost::optional<std::pair<double, double>> computeATE(char rid, Dataset dataset, Results results,
-                                                      bool align_with_scale) {
+                                                             bool align_with_scale) {
   // We have groundtruth so we can compute ATE
   if (dataset.containsGroundTruth()) {
     gtsam::Values ref = dataset.groundTruth(rid);
@@ -85,9 +85,9 @@ inline std::pair<double, double> computeSVE(Results results) {
           // For each pairwise relationship
           for (size_t i = 0; i < variable_owners.size(); i++) {
             for (size_t j = i + 1; j < variable_owners.size(); j++) {  // Ignore self pair
-              std::pair<double, double> squared_pose_error =
-                  internal::squaredPoseError<POSE_TYPE>(results.robot_solutions[i].values.at<POSE_TYPE>(key),
-                                                        results.robot_solutions[j].values.at<POSE_TYPE>(key));
+              std::pair<double, double> squared_pose_error = internal::squaredPoseError<POSE_TYPE>(
+                  results.robot_solutions[variable_owners[i]].values.at<POSE_TYPE>(key),
+                  results.robot_solutions[variable_owners[j]].values.at<POSE_TYPE>(key));
               squared_sve_trans += squared_pose_error.first;
               squared_sve_rot += squared_pose_error.second;
             }
@@ -172,8 +172,8 @@ inline MetricSummary computeMetricSummary(Dataset dataset, Results results, bool
     for (char rid : summary.robots) {
       boost::optional<std::pair<double, double>> robot_ate = computeATE<POSE_TYPE>(rid, dataset, results);
       (*summary.robot_ate)[rid] = *robot_ate;
-      (*summary.total_ate) =
-          std::make_pair((*summary.total_ate).first + (*robot_ate).first, (*summary.total_ate).second + (*robot_ate).second);
+      (*summary.total_ate) = std::make_pair((*summary.total_ate).first + (*robot_ate).first,
+                                            (*summary.total_ate).second + (*robot_ate).second);
     }
   }
 

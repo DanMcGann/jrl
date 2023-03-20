@@ -165,13 +165,15 @@ PYBIND11_MODULE(jrl_python, m) {
   py::class_<Parser>(m, "Parser")
       .def(py::init<>())
       .def("parseDataset", &Parser::parseDataset)
-      .def("parseResults", &Parser::parseResults);
+      .def("parseResults", &Parser::parseResults)
+      .def("parseMetricSummary", &Parser::parseMetricSummary);
 
   /**********************************************************************************************************************/
   py::class_<Writer>(m, "Writer")
       .def(py::init<>())
       .def("writeDataset", &Writer::writeDataset)
-      .def("writeResults", &Writer::writeResults);
+      .def("writeResults", &Writer::writeResults)
+      .def("writeMetricSummary", &Writer::writeMetricSummary);
 
   /**
    * ##     ## ######## ######## ########  ####  ######   ######
