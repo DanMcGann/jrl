@@ -32,8 +32,8 @@ inline boost::optional<std::pair<double, double>> computeATE(char rid, Dataset d
                                                              bool align_with_scale) {
   // We have groundtruth so we can compute ATE
   if (dataset.containsGroundTruth()) {
-    gtsam::Values ref = dataset.groundTruth(rid);
-    gtsam::Values est = results.robot_solutions[rid].values;
+    gtsam::Values ref = dataset.groundTruth(rid).filter<POSE_TYPE>();
+    gtsam::Values est = results.robot_solutions[rid].values.filter<POSE_TYPE>();
     gtsam::Values aligned_est = alignment::align<POSE_TYPE>(est, ref, align_with_scale);
 
     double squared_translation_error = 0.0;
@@ -66,7 +66,7 @@ inline std::pair<double, double> computeSVE(Results results) {
 
   gtsam::KeySet seen_set;
   for (auto& rid : results.robots) {
-    for (auto& key : results.robot_solutions[rid].values.keys()) {
+    for (auto& key : gtsam::Values(results.robot_solutions[rid].values.filter<POSE_TYPE>()).keys()) {
       // Ensure we have not already computed the error for this key
       if (seen_set.count(key) == 0) {
         seen_set.insert(key);
