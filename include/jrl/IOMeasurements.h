@@ -2,7 +2,7 @@
 #include <gtsam/geometry/Pose2.h>
 #include <gtsam/geometry/Pose3.h>
 #include <gtsam/slam/BetweenFactor.h>
-#include <gtsam/slam/PriorFactor.h>
+#include <gtsam/nonlinear/PriorFactor.h>
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -47,8 +47,7 @@ template <typename T>
 json serializePrior(std::function<json(T)> val_serializer_fn, std::string type_tag,
                     gtsam::NonlinearFactor::shared_ptr& factor) {
   json output;
-  typename gtsam::PriorFactor<T>::shared_ptr prior =
-      boost::dynamic_pointer_cast<typename gtsam::PriorFactor<T>>(factor);
+  typename gtsam::PriorFactor<T>::shared_ptr prior = boost::dynamic_pointer_cast<gtsam::PriorFactor<T>>(factor);
   gtsam::noiseModel::Gaussian::shared_ptr noise_model =
       boost::dynamic_pointer_cast<gtsam::noiseModel::Gaussian>(prior->noiseModel());
 

@@ -4,6 +4,7 @@
 #include <gtsam/slam/BetweenFactor.h>
 #include <gtsam/slam/PriorFactor.h>
 
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 

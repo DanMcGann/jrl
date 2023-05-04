@@ -1,7 +1,7 @@
 #pragma once
+#include <gtsam/base/Vector.h>
 #include <gtsam/geometry/Pose2.h>
 #include <gtsam/geometry/Pose3.h>
-#include <gtsam/base/Vector.h>
 #include <gtsam/inference/Symbol.h>
 #include <gtsam/nonlinear/Values.h>
 
@@ -24,9 +24,9 @@ struct MetricSummary {
   /// @brief The name of the method used to generate these results
   std::string method_name;
 
-  /// @brief The individual ATE for each robot
+  /// @brief The individual ATE for each robot with format: (ATE Translation, ATE Rotation)
   boost::optional<std::map<char, std::pair<double, double>>> robot_ate{boost::none};
-  /// @brief The total ate (sum of robot_ate's)
+  /// @brief The total ate (sum of robot_ate's) with format: (ATE Translation, ATE Rotation)
   boost::optional<std::pair<double, double>> total_ate{boost::none};
 
   /// @brief The total SVE (sum of robot_sve's)
@@ -63,7 +63,7 @@ inline std::pair<double, double> squaredPoseError<gtsam::Pose2>(gtsam::Pose2 est
  */
 template <class POSE_TYPE>
 inline boost::optional<std::pair<double, double>> computeATE(char rid, Dataset dataset, Results results,
-                                                      bool align_with_scale = false);
+                                                             bool align_with_scale = false);
 
 /** @brief Computes the SVE for the dataset
  * SVE is defined as the mean error between all combination of shared variable estimates

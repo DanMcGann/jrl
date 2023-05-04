@@ -138,7 +138,7 @@ inline double computeMeanResidual(Dataset dataset, Results results) {
         // Compute the Cartesian Product
         std::vector<std::vector<char>> cart_prod = cartesianProduct<char>(variable_owners);
 
-        // For each robot assignment comput residual and accumulate
+        // For each robot assignment compute residual and accumulate
         double factor_total_residual = 0.0;
         for (std::vector<char>& assignment : cart_prod) {
           gtsam::Values assignment_values;
