@@ -5,6 +5,7 @@
 #include <gtsam/slam/PriorFactor.h>
 
 #include <fstream>
+
 #include "jrl/IOMeasurements.h"
 #include "jrl/IOValues.h"
 
@@ -22,12 +23,12 @@ Parser::Parser() {
 std::map<std::string, ValueParser> Parser::loadDefaultValueAccumulators() {
   // clang-format off
   std::map<std::string, ValueParser> parser_functions = {
-      {Pose2Tag,  [](json input, gtsam::Key key, gtsam::Values& accum) { return valueAccumulator<gtsam::Pose2>(&parsePose2, input, key, accum); }},
-      {Pose3Tag,  [](json input, gtsam::Key key, gtsam::Values& accum) { return valueAccumulator<gtsam::Pose3>(&parsePose3, input, key, accum); }},
-      {Point2Tag, [](json input, gtsam::Key key, gtsam::Values& accum) { return valueAccumulator<gtsam::Point2>(&parsePoint2, input, key, accum); }},
-      {Point3Tag, [](json input, gtsam::Key key, gtsam::Values& accum) { return valueAccumulator<gtsam::Point3>(&parsePoint3, input, key, accum); }},
-      {VectorTag, [](json input, gtsam::Key key, gtsam::Values& accum) { return valueAccumulator<gtsam::Vector>(&parseVector, input, key, accum); }},
-      {ScalarTag, [](json input, gtsam::Key key, gtsam::Values& accum) { return valueAccumulator<double>(&parseScalar<double>, input, key, accum); }},
+      {Pose2Tag,  [](json input, gtsam::Key key, gtsam::Values& accum) { return valueAccumulator<gtsam::Pose2>(&parse<gtsam::Pose2>, input, key, accum); }},
+      {Pose3Tag,  [](json input, gtsam::Key key, gtsam::Values& accum) { return valueAccumulator<gtsam::Pose3>(&parse<gtsam::Pose3>, input, key, accum); }},
+      {Point2Tag, [](json input, gtsam::Key key, gtsam::Values& accum) { return valueAccumulator<gtsam::Point2>(&parse<gtsam::Point2>, input, key, accum); }},
+      {Point3Tag, [](json input, gtsam::Key key, gtsam::Values& accum) { return valueAccumulator<gtsam::Point3>(&parse<gtsam::Point3>, input, key, accum); }},
+      {VectorTag, [](json input, gtsam::Key key, gtsam::Values& accum) { return valueAccumulator<gtsam::Vector>(&parse<gtsam::Vector>, input, key, accum); }},
+      {ScalarTag, [](json input, gtsam::Key key, gtsam::Values& accum) { return valueAccumulator<double>(&parse<double>, input, key, accum); }},
   };
   // clang-format on
   return parser_functions;
@@ -37,16 +38,16 @@ std::map<std::string, ValueParser> Parser::loadDefaultValueAccumulators() {
 std::map<std::string, MeasurementParser> Parser::loadDefaultMeasurementParsers() {
   // clang-format off
   std::map<std::string, MeasurementParser> parser_functions = {
-      {PriorFactorPose2Tag,    [](json input) { return parsePrior<gtsam::Pose2>(&parsePose2, input); }},
-      {PriorFactorPose3Tag,    [](json input) { return parsePrior<gtsam::Pose3>(&parsePose3, input); }},
-      {BetweenFactorPose2Tag,  [](json input) { return parseNoiseModel2<gtsam::Pose2, gtsam::BetweenFactor<gtsam::Pose2>>(&parsePose2, input); }},
-      {BetweenFactorPose3Tag,  [](json input) { return parseNoiseModel2<gtsam::Pose3, gtsam::BetweenFactor<gtsam::Pose3>>(&parsePose3, input); }},
-      {RangeFactorPose2Tag,    [](json input) { return parseNoiseModel2<double, gtsam::RangeFactor<gtsam::Pose2>>(&parseScalar<double>, input); }},
-      {RangeFactorPose3Tag,    [](json input) { return parseNoiseModel2<double, gtsam::RangeFactor<gtsam::Pose3>>(&parseScalar<double>, input); }},
-      {PriorFactorPoint2Tag,   [](json input) { return parsePrior<gtsam::Point2>(&parsePoint2, input); }},
-      {PriorFactorPoint3Tag,   [](json input) { return parsePrior<gtsam::Point3>(&parsePoint3, input); }},
-      {BetweenFactorPoint2Tag, [](json input) { return parseNoiseModel2<gtsam::Point2, gtsam::BetweenFactor<gtsam::Point2>>(&parsePoint2, input); }},
-      {BetweenFactorPoint3Tag, [](json input) { return parseNoiseModel2<gtsam::Point3, gtsam::BetweenFactor<gtsam::Point3>>(&parsePoint3, input); }},
+      {PriorFactorPose2Tag,    [](json input) { return parsePrior<gtsam::Pose2>(&parse<gtsam::Pose2>, input); }},
+      {PriorFactorPose3Tag,    [](json input) { return parsePrior<gtsam::Pose3>(&parse<gtsam::Pose3>, input); }},
+      {BetweenFactorPose2Tag,  [](json input) { return parseNoiseModel2<gtsam::Pose2, gtsam::BetweenFactor<gtsam::Pose2>>(&parse<gtsam::Pose2>, input); }},
+      {BetweenFactorPose3Tag,  [](json input) { return parseNoiseModel2<gtsam::Pose3, gtsam::BetweenFactor<gtsam::Pose3>>(&parse<gtsam::Pose3>, input); }},
+      {RangeFactorPose2Tag,    [](json input) { return parseNoiseModel2<double, gtsam::RangeFactor<gtsam::Pose2>>(&parse<double>, input); }},
+      {RangeFactorPose3Tag,    [](json input) { return parseNoiseModel2<double, gtsam::RangeFactor<gtsam::Pose3>>(&parse<double>, input); }},
+      {PriorFactorPoint2Tag,   [](json input) { return parsePrior<gtsam::Point2>(&parse<gtsam::Point2>, input); }},
+      {PriorFactorPoint3Tag,   [](json input) { return parsePrior<gtsam::Point3>(&parse<gtsam::Point3>, input); }},
+      {BetweenFactorPoint2Tag, [](json input) { return parseNoiseModel2<gtsam::Point2, gtsam::BetweenFactor<gtsam::Point2>>(&parse<gtsam::Point2>, input); }},
+      {BetweenFactorPoint3Tag, [](json input) { return parseNoiseModel2<gtsam::Point3, gtsam::BetweenFactor<gtsam::Point3>>(&parse<gtsam::Point3>, input); }},
   };
   // clang-format on
   return parser_functions;

@@ -24,44 +24,53 @@ void valueAccumulator(std::function<VALUE(json)> parser, json input_json, gtsam:
 }
 
 /**********************************************************************************************************************/
-// POSE2
-gtsam::Pose2 parsePose2(json input_json);
-json serializePose2(gtsam::Pose2 pose);
-
-/**********************************************************************************************************************/
-// POSE3
-gtsam::Pose3 parsePose3(json input_json);
-json serializePose3(gtsam::Pose3 pose);
-
-/**********************************************************************************************************************/
-// VECTOR
-gtsam::Vector parseVector(json input_json);
-json serializeVector(gtsam::Vector vec);
-
-/**********************************************************************************************************************/
-// Point2
-gtsam::Point2 parsePoint2(json input_json);
-json serializePoint2(gtsam::Point2 point);
-
-/**********************************************************************************************************************/
-// Point3
-gtsam::Point3 parsePoint3(json input_json);
-json serializePoint3(gtsam::Point3 point);
-
-/**********************************************************************************************************************/
-// SCALAR
 template <typename T>
-T parseScalar(json input_json) {
+T parse(json input_json) {  // Base Parse function for builtins. Specialization provided for all iovalues
   return input_json["value"].get<T>();
 }
 
 template <typename T>
-json serializeScalar(T value) {
+json serialize(T obj) {  // Base Parse function for builtins. Specialization provided for all iovalues
   json output;
   output["type"] = ScalarTag;
-  output["value"] = value;
+  output["value"] = obj;
   return output;
 }
+
+/**********************************************************************************************************************/
+// POSE2
+template <>
+gtsam::Pose2 parse<gtsam::Pose2>(json input_json);
+template <>
+json serialize<gtsam::Pose2>(gtsam::Pose2 pose);
+
+/**********************************************************************************************************************/
+// POSE3
+template <>
+gtsam::Pose3 parse<gtsam::Pose3>(json input_json);
+template <>
+json serialize<gtsam::Pose3>(gtsam::Pose3 pose);
+
+/**********************************************************************************************************************/
+// VECTOR
+template <>
+gtsam::Vector parse<gtsam::Vector>(json input_json);
+template <>
+json serialize<gtsam::Vector>(gtsam::Vector vec);
+
+/**********************************************************************************************************************/
+// Point2
+template <>
+gtsam::Point2 parse<gtsam::Point2>(json input_json);
+template <>
+json serialize<gtsam::Point2>(gtsam::Point2 point);
+
+/**********************************************************************************************************************/
+// Point3
+template <>
+gtsam::Point3 parse<gtsam::Point3>(json input_json);
+template <>
+json serialize<gtsam::Point3>(gtsam::Point3 point);
 
 }  // namespace io_values
 
