@@ -51,6 +51,7 @@ std::map<std::string, MeasurementSerializer> Writer::loadDefaultMeasurementSeria
     {BetweenFactorPoint2Tag,     [](gtsam::NonlinearFactor::shared_ptr& factor) { return serializeNoiseModel2<gtsam::Point2, gtsam::BetweenFactor<gtsam::Point2>>(&serializePoint2, BetweenFactorPoint2Tag, factor); }},
     {BetweenFactorPoint3Tag,     [](gtsam::NonlinearFactor::shared_ptr& factor) { return serializeNoiseModel2<gtsam::Point3, gtsam::BetweenFactor<gtsam::Point3>>(&serializePoint3, BetweenFactorPoint2Tag, factor); }},
     {StereoFactorPose3Point3Tag, [](gtsam::NonlinearFactor::shared_ptr& factor) { return serializeStereoFactor<gtsam::Pose3, gtsam::Point3>(&serializePose3, StereoFactorPose3Point3Tag, factor); }},
+    {CombinedIMUTag,             [](gtsam::NonlinearFactor::shared_ptr& factor) { return serializeCombinedIMUFactor(CombinedIMUTag, factor); }},
   };
   // clang-format onRangeFactorPose3Tag
 

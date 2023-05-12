@@ -3,11 +3,14 @@
 #include <gtsam/geometry/Pose2.h>
 #include <gtsam/geometry/Pose3.h>
 #include <gtsam/geometry/StereoPoint2.h>
+#include <gtsam/navigation/CombinedImuFactor.h>
 #include <gtsam/nonlinear/PriorFactor.h>
 #include <gtsam/slam/BetweenFactor.h>
 #include <gtsam/slam/StereoFactor.h>
+#include <jrl/IOValues.h>
 
 #include <nlohmann/json.hpp>
+
 using json = nlohmann::json;
 namespace jrl {
 
@@ -23,10 +26,14 @@ static const std::string BetweenFactorPoint3Tag = "BetweenFactorPoint3";
 static const std::string PriorFactorPoint2Tag = "PriorFactorPoint2";
 static const std::string PriorFactorPoint3Tag = "PriorFactorPoint3";
 static const std::string StereoFactorPose3Point3Tag = "StereoFactorPose3Point3";
+static const std::string CombinedIMUTag = "CombinedIMU";
 
 namespace io_measurements {
 
 /**********************************************************************************************************************/
+gtsam::Matrix parseMatrix(json input_json, int row, int col);
+json serializeMatrix(gtsam::Matrix mat);
+
 gtsam::Matrix parseCovariance(json input_json, int d);
 json serializeCovariance(gtsam::Matrix covariance);
 
@@ -35,6 +42,9 @@ json serializeCal3_S2Stereo(gtsam::Cal3_S2Stereo::shared_ptr calibration);
 
 gtsam::StereoPoint2 parseStereoPoint2(json input_json);
 json serializeStereoPoint2(gtsam::StereoPoint2 point);
+
+gtsam::NonlinearFactor::shared_ptr parseCombinedIMUFactor(json input_json);
+json serializeCombinedIMUFactor(std::string type_tag, gtsam::NonlinearFactor::shared_ptr& factor);
 
 /**********************************************************************************************************************/
 template <typename T>
@@ -147,11 +157,10 @@ json serializeStereoFactor(std::function<json(POSE)> pose_serializer_fn, std::st
 
   // Extra stuff for this factor
   output["calibration"] = serializeCal3_S2Stereo(stereo_factor->calibration());
-  // TODO: Make pull request on gtsam to add in this getter
-  // boost::optional<POSE> body_T_sensor = stereo_factor->body_P_sensor();
-  // if(body_T_sensor.is_initialized()){
-  //   output["body_T_sensor"] = pose_serializer_fn(body_T_sensor.get());
-  // }
+  boost::optional<POSE> body_T_sensor = stereo_factor->body_P_sensor();
+  if (body_T_sensor.is_initialized()) {
+    output["body_T_sensor"] = pose_serializer_fn(body_T_sensor.get());
+  }
   return output;
 }
 
