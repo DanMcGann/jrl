@@ -24,9 +24,12 @@ TEST(CombinedIMU, WriteParse){
     params->gyroscopeCovariance = Eigen::Matrix3d::Identity() * 3;
     params->biasAccCovariance = Eigen::Matrix3d::Identity() * 4;
     params->biasOmegaCovariance = Eigen::Matrix3d::Identity() * 5;
+    params->biasAccOmegaInt = Eigen::Matrix<double,6,6>::Identity() * 6;
+    params->integrationCovariance = Eigen::Matrix3d::Identity() * 7;
 
     // Setup measurements
-    gtsam::PreintegratedCombinedMeasurements pim(params);
+    gtsam::imuBias::ConstantBias b(gtsam::Vector3::Constant(6), gtsam::Vector3::Constant(7));
+    gtsam::PreintegratedCombinedMeasurements pim(params, b);
     gtsam::Vector3 accel{1,2,3};
     gtsam::Vector3 omega{4,5,6};
     double dt = 0.1;
@@ -55,8 +58,7 @@ TEST(CombinedIMU, WriteParse){
 
     // Check to make sure they're the same
     EXPECT_TRUE(write_factor.equals(*read_factor));
-    gtsam::Pose3 x;
-    gtsam::Vector3 v;
-    gtsam::imuBias::ConstantBias b;
+    gtsam::Pose3 x = gtsam::Pose3::identity();
+    gtsam::Vector3 v(1,2,3);
     EXPECT_MATRICES_EQ(write_factor.evaluateError(x, v, x, v, b, b), read_factor->evaluateError(x, v, x, v, b, b));
 }
