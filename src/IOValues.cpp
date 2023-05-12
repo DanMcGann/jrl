@@ -43,7 +43,7 @@ json serialize<gtsam::Pose2>(gtsam::Pose2 pose) {
 }
 
 /**********************************************************************************************************************/
-// Rot2
+// Rot3
 template <>
 gtsam::Rot3 parse<gtsam::Rot3>(json input_json) {
   std::vector<double> q = input_json["rotation"].get<std::vector<double>>();

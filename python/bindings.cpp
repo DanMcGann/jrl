@@ -42,6 +42,8 @@ PYBIND11_MODULE(jrl_python, m) {
   m.attr("PriorFactorPointTag") = py::str(PriorFactorPoint3Tag);
   m.attr("BetweenFactorPoint2Tag") = py::str(BetweenFactorPoint2Tag);
   m.attr("BetweenFactorPoint3Tag") = py::str(BetweenFactorPoint3Tag);
+  m.attr("StereoFactorPose3Point3Tag") = py::str(StereoFactorPose3Point3Tag);
+  m.attr("CombinedIMUTag") = py::str(CombinedIMUTag);
 
   /**
    * ########     ###    ########    ###     ######  ######## ########
