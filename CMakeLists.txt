@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.16)
 project(jrl VERSION 0.0.2 LANGUAGES CXX C)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -70,3 +70,6 @@ add_custom_target(python-uninstall
 include(cmake/MakeConfigFile.cmake)
 MakeConfigFile(jrl)
 export(EXPORT jrl-exports FILE ${CMAKE_CURRENT_BINARY_DIR}/jrl-exports.cmake)
+
+# Tests
+add_subdirectory(tests)
