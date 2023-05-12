@@ -74,14 +74,14 @@ gtsam::NonlinearFactor::shared_ptr parseCombinedIMUFactor(json input_json) {
   params->biasOmegaCovariance = parseCovariance(input_json["biasGyroCov"], 3);
   params->biasAccOmegaInt = parseCovariance(input_json["biasAccOmegaInt"], 6);
   params->integrationCovariance = parseCovariance(input_json["intCov"], 3);
-  params->n_gravity = io_values::parseVector(input_json["g"]);
+  params->n_gravity = io_values::parse<gtsam::Vector>(input_json["g"]);
 
   // Then construct TangentPreintegration
-  gtsam::Vector deltaXij = io_values::parseVector(input_json["deltaXij"]);
+  gtsam::Vector deltaXij = io_values::parse<gtsam::Vector>(input_json["deltaXij"]);
   gtsam::Matrix H_biassAcc = parseMatrix(input_json["H_biasAcc"], 9, 3);
   gtsam::Matrix H_biassOmega = parseMatrix(input_json["H_biasOmega"], 9, 3);
-  double deltaTij = io_values::parseScalar<double>(input_json["deltaTij"]);
-  gtsam::Vector biasHat_vec = io_values::parseVector(input_json["biasHat"]);
+  double deltaTij = io_values::parse<double>(input_json["deltaTij"]);
+  gtsam::Vector biasHat_vec = io_values::parse<gtsam::Vector>(input_json["biasHat"]);
   gtsam::imuBias::ConstantBias biasHat(biasHat_vec);
   gtsam::TangentPreintegration tang_pim(params, deltaXij, H_biassAcc, H_biassOmega, biasHat, deltaTij);
 
@@ -114,11 +114,11 @@ json serializeCombinedIMUFactor(std::string type_tag, gtsam::NonlinearFactor::sh
     output["key" + std::to_string(i)] = imu_factor->keys()[i];
   }
   output["covariance"] = serializeCovariance(noise_model->covariance());
-  output["deltaXij"] = io_values::serializeVector(pim.preintegrated());
+  // output["deltaXij"] = io_values::serialize(pim.preintegrated());
   output["H_biasAcc"] = serializeMatrix(pim.preintegrated_H_biasAcc());
   output["H_biasOmega"] = serializeMatrix(pim.preintegrated_H_biasOmega());
-  output["deltaTij"] = io_values::serializeScalar(pim.deltaTij());
-  output["biasHat"] = io_values::serializeVector(pim.biasHatVector());
+  // output["deltaTij"] = io_values::serialize(pim.deltaTij());
+  // output["biasHat"] = io_values::serialize(pim.biasHatVector());
 
   // PreintegrationParams
   boost::shared_ptr<gtsam::PreintegrationCombinedParams> params =
@@ -129,7 +129,7 @@ json serializeCombinedIMUFactor(std::string type_tag, gtsam::NonlinearFactor::sh
   output["biasGyroCov"] = serializeCovariance(params->biasOmegaCovariance);
   output["biasAccOmegaInt"] = serializeCovariance(params->biasAccOmegaInt);
   output["intCov"] = serializeCovariance(params->integrationCovariance);
-  output["g"] = io_values::serializeVector(params->n_gravity);
+  // output["g"] = io_values::serialize(params->n_gravity);
 
   // omegaCoriolis
   // body_P_sensor

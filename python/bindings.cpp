@@ -19,12 +19,16 @@ PYBIND11_MODULE(jrl_python, m) {
   // Import gtsam to ensure that python has access to return types
   py::module gtsam = py::module::import("gtsam");
 
+  m.attr("Rot2Tag") = py::str(Rot2Tag);
   m.attr("Pose2Tag") = py::str(Pose2Tag);
+  m.attr("Rot3Tag") = py::str(Rot3Tag);
   m.attr("Pose3Tag") = py::str(Pose3Tag);
   m.attr("Point2Tag") = py::str(Point2Tag);
   m.attr("Point3Tag") = py::str(Point3Tag);
+  m.attr("Unit3Tag") = py::str(Unit3Tag);
   m.attr("VectorTag") = py::str(VectorTag);
   m.attr("ScalarTag") = py::str(ScalarTag);
+  m.attr("BearingRangeTag") = py::str(BearingRangeTag);
 
   m.attr("PriorFactorPose2Tag") = py::str(PriorFactorPose2Tag);
   m.attr("PriorFactorPose3Tag") = py::str(PriorFactorPose3Tag);
@@ -32,6 +36,8 @@ PYBIND11_MODULE(jrl_python, m) {
   m.attr("BetweenFactorPose3Tag") = py::str(BetweenFactorPose3Tag);
   m.attr("RangeFactorPose2Tag") = py::str(RangeFactorPose2Tag);
   m.attr("RangeFactorPose3Tag") = py::str(RangeFactorPose3Tag);
+  m.attr("BearingRangeFactorPose2Tag") = py::str(BearingRangeFactorPose2Tag);
+  m.attr("BearingRangeFactorPose3Tag") = py::str(BearingRangeFactorPose3Tag);
   m.attr("PriorFactorPoint2Tag") = py::str(PriorFactorPoint2Tag);
   m.attr("PriorFactorPointTag") = py::str(PriorFactorPoint3Tag);
   m.attr("BetweenFactorPoint2Tag") = py::str(BetweenFactorPoint2Tag);
