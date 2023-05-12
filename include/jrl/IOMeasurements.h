@@ -1,8 +1,9 @@
 #pragma once
 #include <gtsam/geometry/Pose2.h>
 #include <gtsam/geometry/Pose3.h>
-#include <gtsam/slam/BetweenFactor.h>
 #include <gtsam/nonlinear/PriorFactor.h>
+#include <gtsam/sam/BearingRangeFactor.h>
+#include <gtsam/slam/BetweenFactor.h>
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -15,6 +16,8 @@ static const std::string PriorFactorPose2Tag = "PriorFactorPose2";
 static const std::string PriorFactorPose3Tag = "PriorFactorPose3";
 static const std::string RangeFactorPose2Tag = "RangeFactorPose2";
 static const std::string RangeFactorPose3Tag = "RangeFactorPose3";
+static const std::string BearingRangeFactorPose2Tag = "BearingRangeFactorPose2";
+static const std::string BearingRangeFactorPose3Tag = "BearingRangeFactorPose3";
 static const std::string BetweenFactorPoint2Tag = "BetweenFactorPoint2";
 static const std::string BetweenFactorPoint3Tag = "BetweenFactorPoint3";
 static const std::string PriorFactorPoint2Tag = "PriorFactorPoint2";

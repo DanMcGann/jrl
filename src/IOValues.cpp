@@ -5,6 +5,23 @@ using json = nlohmann::json;
 
 namespace jrl {
 namespace io_values {
+
+/**********************************************************************************************************************/
+// Rot2
+template <>
+gtsam::Rot2 parse<gtsam::Rot2>(json input_json) {
+  double theta = input_json["theta"].get<double>();
+  return gtsam::Rot2(theta);
+}
+
+template <>
+json serialize<gtsam::Rot2>(gtsam::Rot2 rot) {
+  json output;
+  output["type"] = Rot2Tag;
+  output["theta"] = rot.theta();
+  return output;
+}
+
 /**********************************************************************************************************************/
 // POSE2
 template <>
@@ -22,6 +39,23 @@ json serialize<gtsam::Pose2>(gtsam::Pose2 pose) {
   output["x"] = pose.x();
   output["y"] = pose.y();
   output["theta"] = pose.theta();
+  return output;
+}
+
+/**********************************************************************************************************************/
+// Rot2
+template <>
+gtsam::Rot3 parse<gtsam::Rot3>(json input_json) {
+  std::vector<double> q = input_json["rotation"].get<std::vector<double>>();
+  return gtsam::Rot3::Quaternion(q[0], q[1], q[2], q[3]);
+}
+
+template <>
+json serialize<gtsam::Rot3>(gtsam::Rot3 rot) {
+  json output;
+  output["type"] = Rot3Tag;
+  gtsam::Vector q = rot.quaternion();
+  output["rotation"] = {q(0), q(1), q(2), q(3)};
   return output;
 }
 
@@ -100,6 +134,29 @@ json serialize<gtsam::Point3>(gtsam::Point3 point) {
   output["z"] = point.z();
   return output;
 }
+
+
+/**********************************************************************************************************************/
+// Unit3
+template <>
+gtsam::Unit3 parse<gtsam::Unit3>(json input_json) {
+  double i = input_json["i"].get<double>();
+  double j = input_json["j"].get<double>();
+  double k = input_json["k"].get<double>();
+  return gtsam::Unit3(i, j, k);
+}
+
+template <>
+json serialize<gtsam::Unit3>(gtsam::Unit3 unit) {
+  json output;
+  gtsam::Point3 p = unit.point3();
+  output["type"] = Unit3Tag;
+  output["i"] = p.x();
+  output["j"] = p.y();
+  output["k"] = p.z();
+  return output;
+}
+
 
 }  // namespace io_values
 }  // namespace jrl
