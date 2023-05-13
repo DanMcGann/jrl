@@ -4,6 +4,7 @@
 #include <gtsam/geometry/Pose2.h>
 #include <gtsam/geometry/Pose3.h>
 #include <gtsam/nonlinear/Values.h>
+#include <gtsam/navigation/ImuBias.h>
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -19,6 +20,7 @@ static const std::string Unit3Tag = "Unit3";
 static const std::string VectorTag = "Vector";
 static const std::string ScalarTag = "Scalar";
 static const std::string BearingRangeTag = "BearingRange";
+static const std::string IMUBiasTag = "IMUBias";
 
 namespace io_values {
 
@@ -57,7 +59,7 @@ template <>
 json serialize<gtsam::Pose2>(gtsam::Pose2 pose);
 
 /**********************************************************************************************************************/
-// Rot2
+// Rot3
 template <>
 gtsam::Rot3 parse<gtsam::Rot3>(json input_json);
 template <>
@@ -97,6 +99,13 @@ template <>
 gtsam::Unit3 parse<gtsam::Unit3>(json input_json);
 template <>
 json serialize<gtsam::Unit3>(gtsam::Unit3 point);
+
+/**********************************************************************************************************************/
+// ConstantBias
+template <>
+gtsam::imuBias::ConstantBias parse<gtsam::imuBias::ConstantBias>(json input_json);
+template <>
+json serialize<gtsam::imuBias::ConstantBias>(gtsam::imuBias::ConstantBias point);
 
 /**********************************************************************************************************************/
 // BearingRange Need special treatment because c++ does not allow function partial specialization

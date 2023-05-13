@@ -17,7 +17,7 @@ using gtsam::symbol_shorthand::B;
   EXPECT_TRUE(M_actual.isApprox(M_expected, 1e-6)) << "  Actual:\n" << M_actual << "\nExpected:\n" << M_expected
 
 
-TEST(CombinedIMU, WriteParse){
+TEST(Factor, CombinedIMU){
     // Setup nonstandard params
     boost::shared_ptr<gtsam::PreintegrationCombinedParams> params = gtsam::PreintegrationCombinedParams::MakeSharedU();
     params->accelerometerCovariance = Eigen::Matrix3d::Identity() * 2;

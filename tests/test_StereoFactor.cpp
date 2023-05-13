@@ -18,7 +18,7 @@ using gtsam::symbol_shorthand::L;
 
 typedef typename gtsam::GenericStereoFactor<gtsam::Pose3, gtsam::Point3> StereoFactor;
 
-TEST(StereoFactor, WriteParse){
+TEST(Factor, StereoFactor){
     // Make everything for the stereo factor
     gtsam::Cal3_S2Stereo::shared_ptr m_stereoCalibration = boost::make_shared<gtsam::Cal3_S2Stereo>(6, 8, 0.0, 3, 4, 0.1);
     auto m_stereoNoiseModel = gtsam::noiseModel::Isotropic::Sigma(3, 1);

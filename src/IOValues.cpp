@@ -157,6 +157,21 @@ json serialize<gtsam::Unit3>(gtsam::Unit3 unit) {
   return output;
 }
 
+/**********************************************************************************************************************/
+// ConstantBias
+template <>
+gtsam::imuBias::ConstantBias parse<gtsam::imuBias::ConstantBias>(json input_json){
+  gtsam::Vector b = parse<gtsam::Vector>(input_json);
+  return gtsam::imuBias::ConstantBias(b);
+}
+
+template <>
+json serialize<gtsam::imuBias::ConstantBias>(gtsam::imuBias::ConstantBias point){
+  json output = serialize<gtsam::Vector>(point.vector());
+  output["type"] = IMUBiasTag;
+  return output;
+}
+
 
 }  // namespace io_values
 }  // namespace jrl

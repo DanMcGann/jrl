@@ -81,8 +81,7 @@ gtsam::NonlinearFactor::shared_ptr parseCombinedIMUFactor(json input_json) {
   gtsam::Matrix H_biassAcc = parseMatrix(input_json["H_biasAcc"], 9, 3);
   gtsam::Matrix H_biassOmega = parseMatrix(input_json["H_biasOmega"], 9, 3);
   double deltaTij = io_values::parse<double>(input_json["deltaTij"]);
-  gtsam::Vector biasHat_vec = io_values::parse<gtsam::Vector>(input_json["biasHat"]);
-  gtsam::imuBias::ConstantBias biasHat(biasHat_vec);
+  gtsam::imuBias::ConstantBias biasHat = io_values::parse<gtsam::imuBias::ConstantBias>(input_json["biasHat"]);
   gtsam::TangentPreintegration tang_pim(params, deltaXij, H_biassAcc, H_biassOmega, biasHat, deltaTij);
 
   // Now turn it into CombinedPreintegration
@@ -118,7 +117,7 @@ json serializeCombinedIMUFactor(std::string type_tag, gtsam::NonlinearFactor::sh
   output["H_biasAcc"] = serializeMatrix(pim.preintegrated_H_biasAcc());
   output["H_biasOmega"] = serializeMatrix(pim.preintegrated_H_biasOmega());
   output["deltaTij"] = io_values::serialize(pim.deltaTij());
-  output["biasHat"] = io_values::serialize<gtsam::Vector>(pim.biasHatVector());
+  output["biasHat"] = io_values::serialize<gtsam::imuBias::ConstantBias>(pim.biasHat());
 
   // PreintegrationParams
   boost::shared_ptr<gtsam::PreintegrationCombinedParams> params =

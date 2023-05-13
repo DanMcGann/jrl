@@ -23,12 +23,13 @@ Parser::Parser() {
 std::map<std::string, ValueParser> Parser::loadDefaultValueAccumulators() {
   // clang-format off
   std::map<std::string, ValueParser> parser_functions = {
-      {Pose2Tag,  [](json input, gtsam::Key key, gtsam::Values& accum) { return valueAccumulator<gtsam::Pose2>(&parse<gtsam::Pose2>, input, key, accum); }},
-      {Pose3Tag,  [](json input, gtsam::Key key, gtsam::Values& accum) { return valueAccumulator<gtsam::Pose3>(&parse<gtsam::Pose3>, input, key, accum); }},
-      {Point2Tag, [](json input, gtsam::Key key, gtsam::Values& accum) { return valueAccumulator<gtsam::Point2>(&parse<gtsam::Point2>, input, key, accum); }},
-      {Point3Tag, [](json input, gtsam::Key key, gtsam::Values& accum) { return valueAccumulator<gtsam::Point3>(&parse<gtsam::Point3>, input, key, accum); }},
-      {VectorTag, [](json input, gtsam::Key key, gtsam::Values& accum) { return valueAccumulator<gtsam::Vector>(&parse<gtsam::Vector>, input, key, accum); }},
-      {ScalarTag, [](json input, gtsam::Key key, gtsam::Values& accum) { return valueAccumulator<double>(&parse<double>, input, key, accum); }},
+      {Pose2Tag,   [](json input, gtsam::Key key, gtsam::Values& accum) { return valueAccumulator<gtsam::Pose2>(&parse<gtsam::Pose2>, input, key, accum); }},
+      {Pose3Tag,   [](json input, gtsam::Key key, gtsam::Values& accum) { return valueAccumulator<gtsam::Pose3>(&parse<gtsam::Pose3>, input, key, accum); }},
+      {Point2Tag,  [](json input, gtsam::Key key, gtsam::Values& accum) { return valueAccumulator<gtsam::Point2>(&parse<gtsam::Point2>, input, key, accum); }},
+      {Point3Tag,  [](json input, gtsam::Key key, gtsam::Values& accum) { return valueAccumulator<gtsam::Point3>(&parse<gtsam::Point3>, input, key, accum); }},
+      {VectorTag,  [](json input, gtsam::Key key, gtsam::Values& accum) { return valueAccumulator<gtsam::Vector>(&parse<gtsam::Vector>, input, key, accum); }},
+      {ScalarTag,  [](json input, gtsam::Key key, gtsam::Values& accum) { return valueAccumulator<double>(&parse<double>, input, key, accum); }},
+      {IMUBiasTag, [](json input, gtsam::Key key, gtsam::Values& accum) { return valueAccumulator<gtsam::imuBias::ConstantBias>(&parse<gtsam::imuBias::ConstantBias>, input, key, accum); }},
   };
   // clang-format on
   return parser_functions;
