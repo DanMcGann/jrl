@@ -29,6 +29,7 @@ static const std::string BetweenFactorPoint2Tag = "BetweenFactorPoint2";
 static const std::string BetweenFactorPoint3Tag = "BetweenFactorPoint3";
 static const std::string PriorFactorPoint2Tag = "PriorFactorPoint2";
 static const std::string PriorFactorPoint3Tag = "PriorFactorPoint3";
+static const std::string PriorFactorIMUBiasTag = "PriorFactorIMUBias";
 static const std::string StereoFactorPose3Point3Tag = "StereoFactorPose3Point3";
 static const std::string CombinedIMUTag = "CombinedIMU";
 
