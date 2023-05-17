@@ -46,7 +46,7 @@ TEST(Factor, StereoFactor){
     StereoFactor::shared_ptr read_factor = boost::dynamic_pointer_cast<StereoFactor>(dataset.factorGraph()[0]);
 
 
-    gtsam::Pose3 x0 = gtsam::Pose3::identity();
+    gtsam::Pose3 x0 = gtsam::Pose3::Identity();
     gtsam::Point3 l0(3, 2, 1);
     EXPECT_TRUE(write_factor.equals(*read_factor));
     EXPECT_MATRICES_EQ(write_factor.evaluateError(x0, l0), read_factor->evaluateError(x0, l0));

@@ -58,7 +58,7 @@ TEST(Factor, CombinedIMU){
 
     // Check to make sure they're the same
     EXPECT_TRUE(write_factor.equals(*read_factor));
-    gtsam::Pose3 x = gtsam::Pose3::identity();
+    gtsam::Pose3 x = gtsam::Pose3::Identity();
     gtsam::Vector3 v(1,2,3);
     EXPECT_MATRICES_EQ(write_factor.evaluateError(x, v, x, v, b, b), read_factor->evaluateError(x, v, x, v, b, b));
 }

@@ -36,10 +36,10 @@ TEST(Value, IMUBias){
     writer.writeDataset(builder.build(), "imu_bias.jrl");
 
     // Load it back in!
-    // jrl::Parser parser;
-    // jrl::Dataset dataset = parser.parseDataset("imu_bias.jrl");
-    // gtsam::imuBias::ConstantBias b_read = dataset.initialization().at<gtsam::imuBias::ConstantBias>(B(0));
+    jrl::Parser parser;
+    jrl::Dataset dataset = parser.parseDataset("imu_bias.jrl");
+    gtsam::imuBias::ConstantBias b_read = dataset.initialization('a').at<gtsam::imuBias::ConstantBias>(B(0));
 
     // Check to make sure they're the same
-    // EXPECT_MATRICES_EQ(b.vector(), b_read.vector());
+    EXPECT_MATRICES_EQ(b.vector(), b_read.vector());
 }
