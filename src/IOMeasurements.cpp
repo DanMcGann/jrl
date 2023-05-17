@@ -46,22 +46,6 @@ json serializeCal3_S2Stereo(gtsam::Cal3_S2Stereo::shared_ptr calibration) {
   return output;
 }
 
-/**********************************************************************************************************************/
-// StereoPoint2
-gtsam::StereoPoint2 parseStereoPoint2(json input_json) {
-  double uL = input_json["uL"].get<double>();
-  double uR = input_json["uR"].get<double>();
-  double v = input_json["v"].get<double>();
-  return gtsam::StereoPoint2(uL, uR, v);
-}
-
-json serializeStereoPoint2(gtsam::StereoPoint2 point) {
-  json output;
-  output["uL"] = point.uL();
-  output["uR"] = point.uR();
-  output["v"] = point.v();
-  return output;
-}
 
 /**********************************************************************************************************************/
 // IMUFactor

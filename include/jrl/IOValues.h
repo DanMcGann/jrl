@@ -5,6 +5,7 @@
 #include <gtsam/geometry/Pose3.h>
 #include <gtsam/nonlinear/Values.h>
 #include <gtsam/navigation/ImuBias.h>
+#include <gtsam/geometry/StereoPoint2.h>
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -106,6 +107,13 @@ template <>
 gtsam::imuBias::ConstantBias parse<gtsam::imuBias::ConstantBias>(json input_json);
 template <>
 json serialize<gtsam::imuBias::ConstantBias>(gtsam::imuBias::ConstantBias point);
+
+/**********************************************************************************************************************/
+// ConstantBias
+template <>
+gtsam::StereoPoint2 parse<gtsam::StereoPoint2>(json input_json);
+template <>
+json serialize<gtsam::StereoPoint2>(gtsam::StereoPoint2 point);
 
 /**********************************************************************************************************************/
 // BearingRange Need special treatment because c++ does not allow function partial specialization

@@ -172,6 +172,25 @@ json serialize<gtsam::imuBias::ConstantBias>(gtsam::imuBias::ConstantBias point)
   return output;
 }
 
+/**********************************************************************************************************************/
+// StereoPoint2
+template <>
+gtsam::StereoPoint2 parse<gtsam::StereoPoint2>(json input_json) {
+  double uL = input_json["uL"].get<double>();
+  double uR = input_json["uR"].get<double>();
+  double v = input_json["v"].get<double>();
+  return gtsam::StereoPoint2(uL, uR, v);
+}
+
+template <>
+json serialize<gtsam::StereoPoint2>(gtsam::StereoPoint2 point) {
+  json output;
+  output["uL"] = point.uL();
+  output["uR"] = point.uR();
+  output["v"] = point.v();
+  return output;
+}
+
 
 }  // namespace io_values
 }  // namespace jrl
