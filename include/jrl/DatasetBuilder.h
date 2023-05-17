@@ -31,6 +31,10 @@ class DatasetBuilder {
                 const boost::optional<TypedValues> initialization = boost::none,
                 const boost::optional<TypedValues> groundtruth = boost::none);
 
+  void addGroundTruth(char robot, TypedValues groundtruth);
+
+  void addInitialization(char robot, TypedValues initialization);
+
   Dataset build();
 };
 }  // namespace jrl
