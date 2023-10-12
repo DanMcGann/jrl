@@ -1,7 +1,10 @@
 #pragma once
 #include "jrl/Alignment.h"
 #include "jrl/Metrics.h"
+#include "jrl/Utilities.h"
+
 namespace jrl {
+
 namespace metrics {
 /**********************************************************************************************************************/
 namespace internal {
@@ -101,23 +104,6 @@ inline std::pair<double, double> computeSVE(Results results) {
 }
 
 /**********************************************************************************************************************/
-template <typename T>
-inline std::vector<std::vector<T>> cartesianProduct(const std::vector<std::vector<T>>& input) {
-  std::vector<std::vector<T>> s = {{}};
-  for (const auto& u : input) {
-    std::vector<std::vector<T>> r;
-    for (const auto& x : s) {
-      for (const auto y : u) {
-        r.push_back(x);
-        r.back().push_back(y);
-      }
-    }
-    s = std::move(r);
-  }
-  return s;
-}
-
-/**********************************************************************************************************************/
 inline double computeMeanResidual(Dataset dataset, Results results) {
   double graph_residual = 0.0;
   for (auto& rid : dataset.robots()) {
@@ -136,7 +122,7 @@ inline double computeMeanResidual(Dataset dataset, Results results) {
         }
 
         // Compute the Cartesian Product
-        std::vector<std::vector<char>> cart_prod = cartesianProduct<char>(variable_owners);
+        std::vector<std::vector<char>> cart_prod = utils::cartesianProduct<char>(variable_owners);
 
         // For each robot assignment compute residual and accumulate
         double factor_total_residual = 0.0;

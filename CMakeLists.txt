@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(jrl VERSION 0.0.2 LANGUAGES CXX C)
 
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(GTSAM REQUIRED)
@@ -28,6 +29,9 @@ install(
 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+# Build Tests for JRL Library
+add_subdirectory(tests)
 
 # Python Bindings
 file(GLOB_RECURSE pybind_srcs "python/*")
