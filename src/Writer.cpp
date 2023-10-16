@@ -59,14 +59,14 @@ std::map<std::string, MeasurementSerializer> Writer::loadDefaultMeasurementSeria
 }
 
 /**********************************************************************************************************************/
-json Writer::serializeValues(TypedValues typed_values) {
+json Writer::serializeValues(TypedValues typed_values) const {
   gtsam::Values values = typed_values.values;
   ValueTypes types = typed_values.types;
   json output;
   for (auto& ktpair : types) {
     gtsam::Key key = ktpair.first;
     std::string type_tag = ktpair.second;
-    json value_obj = value_serializers_[type_tag](key, values);
+    json value_obj = value_serializers_.at(type_tag)(key, values);
     value_obj["key"] = key;
     output.push_back(value_obj);
   }
@@ -74,7 +74,7 @@ json Writer::serializeValues(TypedValues typed_values) {
 }
 
 /**********************************************************************************************************************/
-json Writer::serializeMeasurements(std::vector<Entry> entries) {
+json Writer::serializeMeasurements(std::vector<Entry> entries) const {
   json output;
   for (auto& entry : entries) {
     json entry_obj;
@@ -82,7 +82,7 @@ json Writer::serializeMeasurements(std::vector<Entry> entries) {
     for (int i = 0; i < entry.measurements.nrFactors(); i++) {
       std::string measurement_type = entry.measurement_types[i];
       gtsam::NonlinearFactor::shared_ptr factor = entry.measurements.at(i);
-      entry_obj["measurements"].push_back(measurement_serializers_[measurement_type](factor));
+      entry_obj["measurements"].push_back(measurement_serializers_.at(measurement_type)(factor));
     }
     output.push_back(entry_obj);
   }
@@ -90,7 +90,7 @@ json Writer::serializeMeasurements(std::vector<Entry> entries) {
 }
 
 /**********************************************************************************************************************/
-void Writer::writeJson(json output_json, std::string output_file_name, bool compress_to_cbor) {
+void Writer::writeJson(json output_json, std::string output_file_name, bool compress_to_cbor) const {
   if (compress_to_cbor) {
     std::ofstream output_stream(output_file_name + ".cbor", std::ios::out | std::ios::binary);
     json::to_cbor(output_json, nlohmann::detail::output_adapter<char>{output_stream});
@@ -103,7 +103,7 @@ void Writer::writeJson(json output_json, std::string output_file_name, bool comp
 }
 
 /**********************************************************************************************************************/
-void Writer::writeDataset(Dataset dataset, std::string output_file_name, bool compress_to_cbor) {
+void Writer::writeDataset(Dataset dataset, std::string output_file_name, bool compress_to_cbor) const {
   json output_json;
 
   // serialize Header information
@@ -140,7 +140,7 @@ void Writer::writeDataset(Dataset dataset, std::string output_file_name, bool co
 }
 
 /**********************************************************************************************************************/
-void Writer::writeResults(Results results, std::string output_file_name, bool compress_to_cbor) {
+void Writer::writeResults(Results results, std::string output_file_name, bool compress_to_cbor) const {
   json output_json;
 
   // serialize Header information
@@ -159,7 +159,8 @@ void Writer::writeResults(Results results, std::string output_file_name, bool co
 }
 
 /**********************************************************************************************************************/
-void Writer::writeMetricSummary(MetricSummary metric_summary, std::string output_file_name, bool compress_to_cbor) {
+void Writer::writeMetricSummary(MetricSummary metric_summary, std::string output_file_name,
+                                bool compress_to_cbor) const {
   json output_json;
 
   // serialize Header information

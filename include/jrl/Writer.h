@@ -35,20 +35,20 @@ class Writer {
    *  @param typed_values Input values and types
    *  @return JSON serialized values
    **/
-  json serializeValues(TypedValues typed_values);
+  json serializeValues(TypedValues typed_values) const;
 
   /** @brief Serializes all measurements using the loaded measurement serializers
    *  @param measurements Input entries containing temporally ordered measurements
    *  @return JSON serialized measurements
    **/
-  json serializeMeasurements(std::vector<Entry> measurements);
+  json serializeMeasurements(std::vector<Entry> measurements) const;
 
   /** @brief Writes arbitrary JSON To file
    * @param output_json: The json to write
    * @param output_file_name: The file in which to save the json
    * @param compress_to_cbor: if true indicates that written files should be compressed with cbor
    */
-  void writeJson(json output_json, std::string output_file_name, bool compress_to_cbor);
+  void writeJson(json output_json, std::string output_file_name, bool compress_to_cbor) const;
 
   /** Interface **/
  public:
@@ -57,15 +57,16 @@ class Writer {
 
   /// @brief Serializes dataset and writes to file
   /// @param compress_with_cbor if true indicates that written files should be compressed with cbor
-  void writeDataset(Dataset dataset, std::string output_file_name, bool compress_to_cbor = false);
+  void writeDataset(Dataset dataset, std::string output_file_name, bool compress_to_cbor = false) const;
 
   /// @brief Serializes results and writes to file
   /// @param compress_with_cbor if true indicates that written files should be compressed with cbor
-  void writeResults(Results results, std::string output_file_name, bool compress_to_cbor = false);
+  void writeResults(Results results, std::string output_file_name, bool compress_to_cbor = false) const;
 
   /// @brief Serializes a MetricSummary and writes to file
   /// @param compress_with_cbor if true indicates that written files should be compressed with cbor
-  void writeMetricSummary(MetricSummary metric_summary, std::string output_file_name, bool compress_to_cbor = false);
+  void writeMetricSummary(MetricSummary metric_summary, std::string output_file_name,
+                          bool compress_to_cbor = false) const;
 
   // TODO
   // void registerValueSerializer(std::string tag, ValueSerializer serializer_fn);
