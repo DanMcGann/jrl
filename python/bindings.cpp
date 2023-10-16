@@ -89,8 +89,10 @@ PYBIND11_MODULE(jrl_python, m) {
       .def("name", &Dataset::name)
       .def("robots", &Dataset::robots)
       .def("groundTruth", &Dataset::groundTruth)
+      .def("groundTruthWithTypes", &Dataset::groundTruthWithTypes)
       .def("containsGroundTruth", &Dataset::containsGroundTruth)
       .def("initialization", &Dataset::initialization)
+      .def("initializationWithTypes", &Dataset::initializationWithTypes)
       .def("containsInitialization", &Dataset::containsInitialization)
       .def("measurements", &Dataset::measurements)
       .def(py::pickle(
