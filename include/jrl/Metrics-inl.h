@@ -32,26 +32,35 @@ inline std::pair<double, double> squaredPoseError<gtsam::Pose2>(gtsam::Pose2 est
 /**********************************************************************************************************************/
 template <class POSE_TYPE>
 inline boost::optional<std::pair<double, double>> computeATE(char rid, Dataset dataset, Results results,
-                                                             bool align_with_scale) {
+                                                             bool align_with_scale, bool allow_partial_results) {
   // We have groundtruth so we can compute ATE
   if (dataset.containsGroundTruth()) {
+    // Grab the estimated and reference trajectories
     gtsam::Values ref = dataset.groundTruth(rid).filter<POSE_TYPE>();
     gtsam::Values est = results.robot_solutions[rid].values.filter<POSE_TYPE>();
-    gtsam::Values aligned_est = alignment::align<POSE_TYPE>(est, ref, align_with_scale);
+
+    // If we allow partial solution get only the applicable section of the reference trajectory
+    gtsam::Values filtered_ref = ref;
+    if (allow_partial_results) {
+      filtered_ref = ref.filter([&est](gtsam::Key key) { return est.exists(key); });
+    }
+
+    // Run Umeyama alignment
+    gtsam::Values aligned_est = alignment::align<POSE_TYPE>(est, filtered_ref, align_with_scale);
 
     double squared_translation_error = 0.0;
     double squared_rotation_error = 0.0;
-    for (auto& key : ref.keys()) {
+    for (auto& key : filtered_ref.keys()) {
       std::pair<double, double> squared_pose_error =
-          internal::squaredPoseError<POSE_TYPE>(aligned_est.at<POSE_TYPE>(key), ref.at<POSE_TYPE>(key));
+          internal::squaredPoseError<POSE_TYPE>(aligned_est.at<POSE_TYPE>(key), filtered_ref.at<POSE_TYPE>(key));
 
       squared_translation_error += squared_pose_error.first;
       squared_rotation_error += squared_pose_error.second;
     }
 
     // Return the RMSE of the pose errors
-    return std::make_pair(std::sqrt(squared_translation_error / ref.size()),
-                          std::sqrt(squared_rotation_error / ref.size()));
+    return std::make_pair(std::sqrt(squared_translation_error / filtered_ref.size()),
+                          std::sqrt(squared_rotation_error / filtered_ref.size()));
 
   }
   // No ground truth, cannot compute ATE
@@ -104,10 +113,13 @@ inline std::pair<double, double> computeSVE(Results results) {
 }
 
 /**********************************************************************************************************************/
-inline double computeMeanResidual(Dataset dataset, Results results) {
+inline double computeMeanResidual(Dataset dataset, Results results, std::optional<size_t> step_idx) {
   double graph_residual = 0.0;
   for (auto& rid : dataset.robots()) {
-    for (auto& entry : dataset.measurements(rid)) {
+    auto entries = dataset.measurements(rid);
+    size_t stop_idx = step_idx.has_value() ? *step_idx : entries.size();
+    for (size_t i = 0; i < stop_idx; i++) {
+      auto entry = entries[i];
       for (auto& factor : entry.measurements) {
         // Accumulate all variable owners
         gtsam::KeyVector keys = factor->keys();
@@ -142,21 +154,23 @@ inline double computeMeanResidual(Dataset dataset, Results results) {
 
 /**********************************************************************************************************************/
 template <class POSE_TYPE>
-inline MetricSummary computeMetricSummary(Dataset dataset, Results results, bool align_with_scale) {
+inline MetricSummary computeMetricSummary(Dataset dataset, Results results, bool align_with_scale,
+                                          std::optional<size_t> step_idx) {
   MetricSummary summary;
   summary.dataset_name = dataset.name();
   summary.robots = dataset.robots();
   summary.method_name = results.method_name;
 
   // Compute the Mean Residual
-  summary.mean_residual = computeMeanResidual(dataset, results);
+  summary.mean_residual = computeMeanResidual(dataset, results, step_idx);
 
   // Compute ATE if possible
   if (dataset.containsGroundTruth()) {
     summary.robot_ate = std::map<char, std::pair<double, double>>();
     summary.total_ate = std::make_pair(0, 0);
     for (char rid : summary.robots) {
-      boost::optional<std::pair<double, double>> robot_ate = computeATE<POSE_TYPE>(rid, dataset, results);
+      boost::optional<std::pair<double, double>> robot_ate =
+          computeATE<POSE_TYPE>(rid, dataset, results, false, step_idx.has_value());
       (*summary.robot_ate)[rid] = *robot_ate;
       (*summary.total_ate) = std::make_pair((*summary.total_ate).first + (*robot_ate).first,
                                             (*summary.total_ate).second + (*robot_ate).second);
