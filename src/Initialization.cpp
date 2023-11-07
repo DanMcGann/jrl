@@ -21,7 +21,9 @@ std::map<std::string, ForwardMeasurementModel::shared_ptr> Initializer::loadDefa
       {BetweenFactorPose2Tag,  std::make_shared<BetweenForwardModel<gtsam::Pose2>>()},
       {BetweenFactorPose3Tag,  std::make_shared<BetweenForwardModel<gtsam::Pose3>>()},
       {BetweenFactorPoint2Tag, std::make_shared<BetweenForwardModel<gtsam::Point2>>()},
-      {BetweenFactorPoint3Tag, std::make_shared<BetweenForwardModel<gtsam::Point3>>()}
+      {BetweenFactorPoint3Tag, std::make_shared<BetweenForwardModel<gtsam::Point3>>()},
+      {BearingRangeFactorPose2Tag, std::make_shared<BearingRangeForwardModel<gtsam::Pose2>>()},
+      {BearingRangeFactorPose3Tag, std::make_shared<BearingRangeForwardModel<gtsam::Pose3>>()}
   };
   // clang-format on
   return forward_models;
@@ -31,14 +33,16 @@ std::map<std::string, ForwardMeasurementModel::shared_ptr> Initializer::loadDefa
 std::map<std::string, size_t> Initializer::loadDefaultForwardModelPriorities() {
   // clang-format off
   std::map<std::string, size_t>  model_priorities = {
-      {PriorFactorPose2Tag,    0}, // Priors get first priority
-      {PriorFactorPose3Tag,    0},
-      {PriorFactorPoint2Tag,   0},
-      {PriorFactorPoint3Tag,   0},
-      {BetweenFactorPose2Tag,  1}, // Between factors get second priority
-      {BetweenFactorPose3Tag,  1},
-      {BetweenFactorPoint2Tag, 1},
-      {BetweenFactorPoint3Tag, 1}
+      {PriorFactorPose2Tag,         0}, // Priors get first priority
+      {PriorFactorPose3Tag,         0},
+      {PriorFactorPoint2Tag,        0},
+      {PriorFactorPoint3Tag,        0},
+      {BetweenFactorPose2Tag,       1}, // Between factors get second priority
+      {BetweenFactorPose3Tag,       1},
+      {BetweenFactorPoint2Tag,      1},
+      {BetweenFactorPoint3Tag,      1},
+      {BearingRangeFactorPose2Tag,  2}, // Bearing+Range gets third since it cant initialize orientation
+      {BearingRangeFactorPose3Tag,  2}
   };
   // clang-format on
   return model_priorities;
@@ -219,6 +223,20 @@ gtsam::Values Initializer::computeInitialization(const gtsam::KeySet& new_variab
     solutions.insert(key, forward_model_output.at(key));
   }
   return new_variable_initialization;
+}
+
+/**********************************************************************************************************************/
+template <>
+typename gtsam::Pose2::Translation BearingRangeForwardModel<gtsam::Pose2>::project(
+    gtsam::Pose2 origin, gtsam::BearingRange<gtsam::Pose2, gtsam::Pose2> br) {
+  return origin.translation() + origin.rotation() * (br.range() * br.bearing().unit());
+}
+
+/**********************************************************************************************************************/
+template <>
+typename gtsam::Pose3::Translation BearingRangeForwardModel<gtsam::Pose3>::project(
+    gtsam::Pose3 origin, gtsam::BearingRange<gtsam::Pose3, gtsam::Pose3> br) {
+  return origin.translation() + origin.rotation() * (br.range() * br.bearing());
 }
 
 }  // namespace jrl

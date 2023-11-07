@@ -1,5 +1,9 @@
 #pragma once
+#include <gtsam/geometry/BearingRange.h>
+#include <gtsam/geometry/Pose2.h>
+#include <gtsam/geometry/Pose3.h>
 #include <gtsam/nonlinear/NonlinearFactor.h>
+#include <gtsam/sam/BearingRangeFactor.h>
 #include <gtsam/slam/BetweenFactor.h>
 
 #include "jrl/Initialization.h"
@@ -64,4 +68,36 @@ gtsam::Values BetweenForwardModel<T>::predict(const gtsam::NonlinearFactor::shar
   return val_result;
 }
 
+/**
+ * ########  ########    ###    ########  #### ##    ##  ######      ########     ###    ##    ##  ######   ########
+ * ##     ## ##         ## ##   ##     ##  ##  ###   ## ##    ##     ##     ##   ## ##   ###   ## ##    ##  ##
+ * ##     ## ##        ##   ##  ##     ##  ##  ####  ## ##           ##     ##  ##   ##  ####  ## ##        ##
+ * ########  ######   ##     ## ########   ##  ## ## ## ##   ####    ########  ##     ## ## ## ## ##   #### ######
+ * ##     ## ##       ######### ##   ##    ##  ##  #### ##    ##     ##   ##   ######### ##  #### ##    ##  ##
+ * ##     ## ##       ##     ## ##    ##   ##  ##   ### ##    ##     ##    ##  ##     ## ##   ### ##    ##  ##
+ * ########  ######## ##     ## ##     ## #### ##    ##  ######      ##     ## ##     ## ##    ##  ######   ########
+ */
+/**********************************************************************************************************************/
+template <typename T>
+ForwardMeasurementModel::Signature BearingRangeForwardModel<T>::signature(
+    const gtsam::NonlinearFactor::shared_ptr& measurement) const {
+  typename gtsam::BearingRangeFactor<T, T>::shared_ptr mptr =
+      boost::dynamic_pointer_cast<typename gtsam::BearingRangeFactor<T, T>>(measurement);
+  return Signature({mptr->keys().front()}, {mptr->keys().back()});
+}
+
+/**********************************************************************************************************************/
+template <typename T>
+gtsam::Values BearingRangeForwardModel<T>::predict(const gtsam::NonlinearFactor::shared_ptr& measurement,
+                                                   const gtsam::Values& inputs) const {
+  typename gtsam::BearingRangeFactor<T, T>::shared_ptr mptr =
+      boost::dynamic_pointer_cast<typename gtsam::BearingRangeFactor<T, T>>(measurement);
+  typename T::Translation projected_position =
+      BearingRangeForwardModel<T>::project(inputs.at<T>(mptr->keys().front()), mptr->measured());
+  typename T::Rotation default_rotation = typename T::Rotation();
+
+  gtsam::Values val_result;
+  val_result.insert(mptr->keys().back(), T(default_rotation, projected_position));
+  return val_result;
+}
 }  // namespace jrl

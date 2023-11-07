@@ -112,3 +112,39 @@ TEST(Initialization, NoTopologicalOrder) {
   jrl::Initializer init;
   EXPECT_THROW(init.initialization(entry, gtsam::Values()), std::runtime_error);
 }
+
+/**********************************************************************************************************************/
+TEST(ForwardModels, BearingRangePose2) {
+  jrl::BearingRangeForwardModel<gtsam::Pose2> fwd_mdl;
+  gtsam::Pose2 p0(1, 3, 1.2345);
+  gtsam::Pose2 p1(-2, -75, -2.643);
+  auto b = p0.bearing(p1);
+  auto r = p0.range(p1);
+  gtsam::BearingRangeFactor<gtsam::Pose2, gtsam::Pose2>::shared_ptr factor =
+      boost::make_shared<gtsam::BearingRangeFactor<gtsam::Pose2, gtsam::Pose2>>(
+          0, 1, gtsam::BearingRange<gtsam::Pose2, gtsam::Pose2>(b, r), gtsam::noiseModel::Unit::Create(2));
+  gtsam::Values inputs;
+  inputs.insert(0, p0);
+
+  gtsam::Values result = fwd_mdl.predict(factor, inputs);
+
+  ASSERT_TRUE(result.at<gtsam::Pose2>(1).equals(gtsam::Pose2(-2, -75, 0)));
+}
+
+/**********************************************************************************************************************/
+TEST(ForwardModels, BearingRangePose3) {
+  jrl::BearingRangeForwardModel<gtsam::Pose3> fwd_mdl;
+  gtsam::Pose3 p0(gtsam::Rot3::RzRyRx(-1, -2, -3), gtsam::Point3(5, -6, 7));
+  gtsam::Pose3 p1(gtsam::Rot3::RzRyRx(9, 4, 7), gtsam::Point3(-8, 1, 2));
+  auto b = p0.bearing(p1);
+  auto r = p0.range(p1);
+  gtsam::BearingRangeFactor<gtsam::Pose3, gtsam::Pose3>::shared_ptr factor =
+      boost::make_shared<gtsam::BearingRangeFactor<gtsam::Pose3, gtsam::Pose3>>(
+          0, 1, gtsam::BearingRange<gtsam::Pose3, gtsam::Pose3>(b, r), gtsam::noiseModel::Unit::Create(3));
+  gtsam::Values inputs;
+  inputs.insert(0, p0);
+
+  gtsam::Values result = fwd_mdl.predict(factor, inputs);
+
+  ASSERT_TRUE(result.at<gtsam::Pose3>(1).equals(gtsam::Pose3(gtsam::Rot3(), gtsam::Point3(-8, 1, 2))));
+}
