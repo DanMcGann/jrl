@@ -74,12 +74,6 @@ inline boost::optional<std::pair<double, double>> computeATE(char rid, Dataset d
 template <class POSE_TYPE>
 inline std::pair<double, double> computeSVE(Results results);
 
-/* Compute the Cartesian Product of vector of vectors
- * Cite: https://stackoverflow.com/questions/5279051/how-can-i-create-cartesian-product-of-vector-of-vectors
- */
-template <typename T>
-inline std::vector<std::vector<T>> cartesianProduct(const std::vector<std::vector<T>>& input);
-
 /** @brief Computes the mean residual of of the joint solution.
  * Because each robot can vary in their estimate of shared variables. We compute a "Mean Residual"
  * To compute the "Mean Residual", for each factor we compute the residual for each possible combination of variable

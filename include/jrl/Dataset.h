@@ -87,7 +87,7 @@ class Dataset {
   /* HELPERS */
  private:
   /** @brief Generic Accessor as all the above have identical structure
-   *  @tparam RETURN_TYPE: Type that is being returned from this accessor
+   * @tparam RETURN_TYPE: Type that is being returned from this accessor
    * @param func_name: The name of the wrapper function for error messages
    * @param robot_mapping: The mapping we are accessing
    * @param robot_id: The identifier of the robot
