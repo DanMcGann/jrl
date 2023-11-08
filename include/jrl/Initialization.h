@@ -4,6 +4,8 @@
  * Note: Because the initialization is written generically it will not be the fastest method.
  * Projects requiring fast runtime should use custom initialization techniques.
  **/
+#include <gtsam/geometry/BearingRange.h>
+
 #include "jrl/Dataset.h"
 #include "jrl/Types.h"
 
@@ -132,14 +134,24 @@ class Initializer {
 
 template <typename T>
 class PriorForwardModel : public ForwardMeasurementModel {
+ public:
   Signature signature(const gtsam::NonlinearFactor::shared_ptr& measurement) const;
   gtsam::Values predict(const gtsam::NonlinearFactor::shared_ptr& measurement, const gtsam::Values& inputs) const;
 };
 
 template <typename T>
 class BetweenForwardModel : public ForwardMeasurementModel {
+ public:
   Signature signature(const gtsam::NonlinearFactor::shared_ptr& measurement) const;
   gtsam::Values predict(const gtsam::NonlinearFactor::shared_ptr& measurement, const gtsam::Values& inputs) const;
+};
+
+template <typename T>
+class BearingRangeForwardModel : public ForwardMeasurementModel {
+ public:
+  Signature signature(const gtsam::NonlinearFactor::shared_ptr& measurement) const;
+  gtsam::Values predict(const gtsam::NonlinearFactor::shared_ptr& measurement, const gtsam::Values& inputs) const;
+  static typename T::Translation project(T origin, gtsam::BearingRange<T, T> br);
 };
 
 }  // namespace jrl

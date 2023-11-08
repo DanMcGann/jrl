@@ -59,11 +59,13 @@ inline std::pair<double, double> squaredPoseError<gtsam::Pose2>(gtsam::Pose2 est
  * @param dataset: The dataset containing groundtruth
  * @param results: The estimation results to be compared with the groundtruth
  * @param align_with_scale: If true aligns scale while preforming Umeyama alignment
+ * @param allow_partial_results: If true we compute ATE for only the poses in results
  * @returns Pair containing (ATE Translation, ATE Rotation) or boost::none if the dataset does not contain ground truth
  */
 template <class POSE_TYPE>
 inline boost::optional<std::pair<double, double>> computeATE(char rid, Dataset dataset, Results results,
-                                                             bool align_with_scale = false);
+                                                             bool align_with_scale = false,
+                                                             bool allow_partial_results = false);
 
 /** @brief Computes the SVE for the dataset
  * SVE is defined as the mean error between all combination of shared variable estimates
@@ -80,18 +82,22 @@ inline std::pair<double, double> computeSVE(Results results);
  * estimates. When all robots agree perfectly, this would match the residual without evaluating all combinations.
  * @param dataset: The dataset
  * @param results: The estimation results
+ * @param step_idx: The number of entries from which we will compute the residual (used if we only have partial results)
+ * if nullopt we use all entries
  * @returns The Mean Residual
  */
-inline double computeMeanResidual(Dataset dataset, Results results);
+inline double computeMeanResidual(Dataset dataset, Results results, std::optional<size_t> step_idx = std::nullopt);
 
 /** @brief Computes all metrics possible for the given datasets.
  *  Conditions to compute different metrics
  *  - ATE: dataset must contain groundtruth
  *  - SVE: dataset must be multi-robot
  *  - Mean Residual: always computable
+ * Note: If step_idx is provided it is provided to computeMeanResidual, and computeATE is set to allow partial results
  */
 template <class POSE_TYPE>
-inline MetricSummary computeMetricSummary(Dataset dataset, Results results, bool align_with_scale = false);
+inline MetricSummary computeMetricSummary(Dataset dataset, Results results, bool align_with_scale = false,
+                                          std::optional<size_t> step_idx = std::nullopt);
 
 }  // namespace metrics
 

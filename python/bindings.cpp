@@ -206,17 +206,21 @@ PYBIND11_MODULE(jrl_python, m) {
 
   /**********************************************************************************************************************/
   m.def("computeMetricSummaryPoint2", &metrics::computeMetricSummary<gtsam::Point2>, py::return_value_policy::copy,
-        py::arg("dataset"), py::arg("results"), py::arg("align_with_scale") = false);
+        py::arg("dataset"), py::arg("results"), py::arg("align_with_scale") = false,
+        py::arg("step_idx") = std::nullopt);
   m.def("computeMetricSummaryPoint3", &metrics::computeMetricSummary<gtsam::Point3>, py::return_value_policy::copy,
-        py::arg("dataset"), py::arg("results"), py::arg("align_with_scale") = false);
+        py::arg("dataset"), py::arg("results"), py::arg("align_with_scale") = false,
+        py::arg("step_idx") = std::nullopt);
   m.def("computeMetricSummaryPose2", &metrics::computeMetricSummary<gtsam::Pose2>, py::return_value_policy::copy,
-        py::arg("dataset"), py::arg("results"), py::arg("align_with_scale") = false);
+        py::arg("dataset"), py::arg("results"), py::arg("align_with_scale") = false,
+        py::arg("step_idx") = std::nullopt);
   m.def("computeMetricSummaryPose3", &metrics::computeMetricSummary<gtsam::Pose3>, py::return_value_policy::copy,
-        py::arg("dataset"), py::arg("results"), py::arg("align_with_scale") = false);
+        py::arg("dataset"), py::arg("results"), py::arg("align_with_scale") = false,
+        py::arg("step_idx") = std::nullopt);
 
   /**********************************************************************************************************************/
   m.def("computeMeanResidual", &metrics::computeMeanResidual, py::return_value_policy::copy, py::arg("dataset"),
-        py::arg("results"));
+        py::arg("results"), py::arg("step_idx") = std::nullopt);
 
   /**********************************************************************************************************************/
   m.def("computeSVEPoint2", &metrics::computeSVE<gtsam::Point2>, py::return_value_policy::copy, py::arg("results"));
@@ -226,11 +230,15 @@ PYBIND11_MODULE(jrl_python, m) {
 
   /**********************************************************************************************************************/
   m.def("computeATEPoint2", &metrics::computeATE<gtsam::Point2>, py::return_value_policy::copy, py::arg("rid"),
-        py::arg("dataset"), py::arg("results"), py::arg("align_with_scale") = false);
+        py::arg("dataset"), py::arg("results"), py::arg("align_with_scale") = false,
+        py::arg("allow_partial_results") = false);
   m.def("computeATEPoint3", &metrics::computeATE<gtsam::Point3>, py::return_value_policy::copy, py::arg("rid"),
-        py::arg("dataset"), py::arg("results"), py::arg("align_with_scale") = false);
+        py::arg("dataset"), py::arg("results"), py::arg("align_with_scale") = false,
+        py::arg("allow_partial_results") = false);
   m.def("computeATEPose2", &metrics::computeATE<gtsam::Pose2>, py::return_value_policy::copy, py::arg("rid"),
-        py::arg("dataset"), py::arg("results"), py::arg("align_with_scale") = false);
+        py::arg("dataset"), py::arg("results"), py::arg("align_with_scale") = false,
+        py::arg("allow_partial_results") = false);
   m.def("computeATEPose3", &metrics::computeATE<gtsam::Pose3>, py::return_value_policy::copy, py::arg("rid"),
-        py::arg("dataset"), py::arg("results"), py::arg("align_with_scale") = false);
+        py::arg("dataset"), py::arg("results"), py::arg("align_with_scale") = false,
+        py::arg("allow_partial_results") = false);
 }
