@@ -56,20 +56,20 @@ std::map<std::string, MeasurementParser> Parser::loadDefaultMeasurementParsers()
 }
 
 /**********************************************************************************************************************/
-TypedValues Parser::parseValues(json values_json) {
+TypedValues Parser::parseValues(json values_json) const {
   gtsam::Values values;
   ValueTypes value_types;
   for (auto& value_element : values_json) {
     gtsam::Key key = value_element["key"].get<uint64_t>();
     std::string type_tag = value_element["type"].get<std::string>();
     value_types[key] = type_tag;
-    value_accumulators_[type_tag](value_element, key, values);
+    value_accumulators_.at(type_tag)(value_element, key, values);
   }
   return TypedValues(values, value_types);
 }
 
 /**********************************************************************************************************************/
-std::vector<Entry> Parser::parseMeasurements(json measurements_json) {
+std::vector<Entry> Parser::parseMeasurements(json measurements_json) const {
   std::vector<Entry> measurements;
   for (auto& entry_element : measurements_json) {
     uint64_t stamp = entry_element["stamp"].get<uint64_t>();
@@ -78,7 +78,7 @@ std::vector<Entry> Parser::parseMeasurements(json measurements_json) {
     for (auto& measurement : entry_element["measurements"]) {
       std::string tag = measurement["type"].get<std::string>();
       type_tags.push_back(tag);
-      entry_measurements.push_back(measurement_parsers_[tag](measurement));
+      entry_measurements.push_back(measurement_parsers_.at(tag)(measurement));
     }
     measurements.push_back(Entry(stamp, type_tags, entry_measurements));
   }
@@ -86,7 +86,7 @@ std::vector<Entry> Parser::parseMeasurements(json measurements_json) {
 }
 
 /**********************************************************************************************************************/
-json Parser::parseJson(std::string input_file_name, bool decompress_from_cbor) {
+json Parser::parseJson(std::string input_file_name, bool decompress_from_cbor) const {
   json parsed_json;
   if (decompress_from_cbor) {
     std::ifstream ifs(input_file_name, std::ios::binary);
@@ -99,7 +99,7 @@ json Parser::parseJson(std::string input_file_name, bool decompress_from_cbor) {
 }
 
 /**********************************************************************************************************************/
-Dataset Parser::parseDataset(std::string dataset_file, bool decompress_from_cbor) {
+Dataset Parser::parseDataset(std::string dataset_file, bool decompress_from_cbor) const {
   json dataset_json = parseJson(dataset_file, decompress_from_cbor);
 
   // Parse Header information
@@ -134,7 +134,7 @@ Dataset Parser::parseDataset(std::string dataset_file, bool decompress_from_cbor
 }
 
 /**********************************************************************************************************************/
-Results Parser::parseResults(std::string results_file, bool decompress_from_cbor) {
+Results Parser::parseResults(std::string results_file, bool decompress_from_cbor) const {
   json results_json = parseJson(results_file, decompress_from_cbor);
 
   // Parse Header information
@@ -151,7 +151,7 @@ Results Parser::parseResults(std::string results_file, bool decompress_from_cbor
 }
 
 /**********************************************************************************************************************/
-MetricSummary Parser::parseMetricSummary(std::string metric_summary_file, bool decompress_from_cbor) {
+MetricSummary Parser::parseMetricSummary(std::string metric_summary_file, bool decompress_from_cbor) const {
   json results_json = parseJson(metric_summary_file, decompress_from_cbor);
   MetricSummary metric_summary;
   metric_summary.dataset_name = results_json["dataset_name"];

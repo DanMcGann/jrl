@@ -17,7 +17,7 @@ namespace jrl {
 /**********************************************************************************************************************/
 template <typename T>
 ForwardMeasurementModel::Signature PriorForwardModel<T>::signature(
-    const gtsam::NonlinearFactor::shared_ptr& measurement) {
+    const gtsam::NonlinearFactor::shared_ptr& measurement) const {
   typename gtsam::PriorFactor<T>::shared_ptr mptr =
       boost::dynamic_pointer_cast<typename gtsam::PriorFactor<T>>(measurement);
   return Signature({}, {mptr->key()});
@@ -26,7 +26,7 @@ ForwardMeasurementModel::Signature PriorForwardModel<T>::signature(
 /**********************************************************************************************************************/
 template <typename T>
 gtsam::Values PriorForwardModel<T>::predict(const gtsam::NonlinearFactor::shared_ptr& measurement,
-                                            const gtsam::Values& inputs) {
+                                            const gtsam::Values& inputs) const {
   typename gtsam::PriorFactor<T>::shared_ptr mptr =
       boost::dynamic_pointer_cast<typename gtsam::PriorFactor<T>>(measurement);
   gtsam::Values val_result;
@@ -46,7 +46,7 @@ gtsam::Values PriorForwardModel<T>::predict(const gtsam::NonlinearFactor::shared
 /**********************************************************************************************************************/
 template <typename T>
 ForwardMeasurementModel::Signature BetweenForwardModel<T>::signature(
-    const gtsam::NonlinearFactor::shared_ptr& measurement) {
+    const gtsam::NonlinearFactor::shared_ptr& measurement) const {
   typename gtsam::BetweenFactor<T>::shared_ptr mptr =
       boost::dynamic_pointer_cast<typename gtsam::BetweenFactor<T>>(measurement);
   return Signature({mptr->key1()}, {mptr->key2()});
@@ -54,7 +54,7 @@ ForwardMeasurementModel::Signature BetweenForwardModel<T>::signature(
 /**********************************************************************************************************************/
 template <typename T>
 gtsam::Values BetweenForwardModel<T>::predict(const gtsam::NonlinearFactor::shared_ptr& measurement,
-                                              const gtsam::Values& inputs) {
+                                              const gtsam::Values& inputs) const {
   typename gtsam::BetweenFactor<T>::shared_ptr mptr =
       boost::dynamic_pointer_cast<typename gtsam::BetweenFactor<T>>(measurement);
   T composed = gtsam::traits<T>::Compose(inputs.at<T>(mptr->key1()), mptr->measured());

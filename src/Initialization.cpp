@@ -45,7 +45,7 @@ std::map<std::string, size_t> Initializer::loadDefaultForwardModelPriorities() {
 }
 
 /**********************************************************************************************************************/
-gtsam::Values Initializer::initialization(const Entry& entry, const gtsam::Values& current_solution) {
+gtsam::Values Initializer::initialization(const Entry& entry, const gtsam::Values& current_solution) const {
   // Get all the new variables induced by the entry measurements
   gtsam::KeySet new_variables = computeNewVariables(entry, current_solution);
 
@@ -80,7 +80,7 @@ gtsam::Values Initializer::initialization(const Entry& entry, const gtsam::Value
 }
 
 /**********************************************************************************************************************/
-gtsam::KeySet Initializer::computeNewVariables(const Entry& entry, const gtsam::Values& current_solution) {
+gtsam::KeySet Initializer::computeNewVariables(const Entry& entry, const gtsam::Values& current_solution) const {
   gtsam::KeySet entry_variables = entry.measurements.keys();
   gtsam::KeySet solution_keys = current_solution.keySet();
   gtsam::KeySet result;
@@ -91,13 +91,13 @@ gtsam::KeySet Initializer::computeNewVariables(const Entry& entry, const gtsam::
 
 /**********************************************************************************************************************/
 std::map<size_t, std::pair<size_t, ForwardMeasurementModel::Signature>> Initializer::computeSignaturesAndPriorities(
-    const Entry& entry) {
+    const Entry& entry) const {
   std::map<size_t, std::pair<size_t, ForwardMeasurementModel::Signature>> signatures_and_priorities;
   for (size_t i = 0; i < entry.measurements.nrFactors(); i++) {
     if (measurement_forward_models_.count(entry.measurement_types[i]) != 0) {
       signatures_and_priorities[i] =
-          std::make_pair(measurement_forward_model_priorities_[entry.measurement_types[i]],
-                         measurement_forward_models_[entry.measurement_types[i]]->signature(entry.measurements[i]));
+          std::make_pair(measurement_forward_model_priorities_.at(entry.measurement_types[i]),
+                         measurement_forward_models_.at(entry.measurement_types[i])->signature(entry.measurements[i]));
     }
   }
   return signatures_and_priorities;
@@ -106,7 +106,7 @@ std::map<size_t, std::pair<size_t, ForwardMeasurementModel::Signature>> Initiali
 /**********************************************************************************************************************/
 std::vector<std::vector<size_t>> Initializer::rankVariableInitializationFactors(
     const gtsam::KeySet& new_variables,
-    const std::map<size_t, std::pair<size_t, ForwardMeasurementModel::Signature>>& signatures_and_priorities) {
+    const std::map<size_t, std::pair<size_t, ForwardMeasurementModel::Signature>>& signatures_and_priorities) const {
   std::map<gtsam::Key, std::vector<std::pair<size_t, size_t>>>
       variable_factors_and_priorities;  // (factor_idx, priority)
   std::vector<std::vector<size_t>> result;
@@ -147,7 +147,7 @@ std::vector<std::vector<size_t>> Initializer::rankVariableInitializationFactors(
 std::map<gtsam::Key, gtsam::KeySet> Initializer::computeDependencyGraph(
     const gtsam::KeySet& new_variables,
     const std::map<size_t, std::pair<size_t, ForwardMeasurementModel::Signature>>& signatures_and_priorities,
-    const std::vector<size_t>& factors) {
+    const std::vector<size_t>& factors) const {
   std::map<gtsam::Key, gtsam::KeySet> dependency_graph;
 
   size_t key_idx = 0;
@@ -162,7 +162,7 @@ std::map<gtsam::Key, gtsam::KeySet> Initializer::computeDependencyGraph(
 
 /**********************************************************************************************************************/
 std::optional<std::vector<gtsam::Key>> Initializer::computeTopologicalOrdering(
-    const std::map<gtsam::Key, gtsam::KeySet>& dependency_graph) {
+    const std::map<gtsam::Key, gtsam::KeySet>& dependency_graph) const {
   std::map<gtsam::Key, gtsam::KeySet> dep_graph_acc = std::map<gtsam::Key, gtsam::KeySet>(dependency_graph);
 
   // Ordering will have same cardinality as the graph size
@@ -197,7 +197,7 @@ std::optional<std::vector<gtsam::Key>> Initializer::computeTopologicalOrdering(
 gtsam::Values Initializer::computeInitialization(const gtsam::KeySet& new_variables,
                                                  const std::vector<size_t>& factor_combination,
                                                  const std::vector<gtsam::Key>& ordering, const Entry& entry,
-                                                 const gtsam::Values& current_solution) {
+                                                 const gtsam::Values& current_solution) const {
   // Setup accumulators
   gtsam::Values solutions(current_solution);
   gtsam::Values new_variable_initialization;
@@ -213,7 +213,7 @@ gtsam::Values Initializer::computeInitialization(const gtsam::KeySet& new_variab
   // Go through the ordering and use the designated factor to generate the variable
   for (const gtsam::Key& key : ordering) {
     size_t gen_idx = variable_generators[key];
-    gtsam::Values forward_model_output = measurement_forward_models_[entry.measurement_types[gen_idx]]->predict(
+    gtsam::Values forward_model_output = measurement_forward_models_.at(entry.measurement_types[gen_idx])->predict(
         entry.measurements.at(gen_idx), solutions);
     new_variable_initialization.insert(key, forward_model_output.at(key));
     solutions.insert(key, forward_model_output.at(key));

@@ -33,14 +33,15 @@ class ForwardMeasurementModel {
   /** Interface **/
  public:
   /// @brief Returns the signature of the forward model for computing dependencies
-  virtual Signature signature(const gtsam::NonlinearFactor::shared_ptr& measurement) = 0;
+  virtual Signature signature(const gtsam::NonlinearFactor::shared_ptr& measurement) const = 0;
 
   /** @brief Computes the forward measurement model predicting the set of outputs from the set of inputs
    * @param measurement: The measurement for this forward measurement model
    * @param inputs: values containing the inputs to this measurement model
    * @return Estimates of the outputs from the measurement model
    */
-  virtual gtsam::Values predict(const gtsam::NonlinearFactor::shared_ptr& measurement, const gtsam::Values& inputs) = 0;
+  virtual gtsam::Values predict(const gtsam::NonlinearFactor::shared_ptr& measurement,
+                                const gtsam::Values& inputs) const = 0;
 };
 
 /** @brief The initializer can be used to initialize new variables from dataset entries
@@ -69,7 +70,7 @@ class Initializer {
    *  @param current_solution: A solution to the dataset for all previous entries
    *  @return initialization for all new variables computed using forward measurement models
    **/
-  gtsam::Values initialization(const Entry& entry, const gtsam::Values& current_solution);
+  gtsam::Values initialization(const Entry& entry, const gtsam::Values& current_solution) const;
 
   /** Helpers **/
  private:
@@ -78,14 +79,14 @@ class Initializer {
    * @param current_solution: The solution to the system made up of all previous entries
    * @returns The set of variables affected by the entry that are not already in the system
    */
-  gtsam::KeySet computeNewVariables(const Entry& entry, const gtsam::Values& current_solution);
+  gtsam::KeySet computeNewVariables(const Entry& entry, const gtsam::Values& current_solution) const;
 
   /** @brief Aggregates the signatures and priorities for each measurement that has a forward model
    * @param entry: The entry of new measurements
    * @returns A mapping from factor index to its signature for each measurement with a forward model
    */
   std::map<size_t, std::pair<size_t, ForwardMeasurementModel::Signature>> computeSignaturesAndPriorities(
-      const Entry& entry);
+      const Entry& entry) const;
 
   /** @brief For each new variable rank the factors that could be used to initialize it
    * @param new_variables: The new variables for which we need a factor rank
@@ -95,7 +96,7 @@ class Initializer {
    */
   std::vector<std::vector<size_t>> rankVariableInitializationFactors(
       const gtsam::KeySet& new_variables,
-      const std::map<size_t, std::pair<size_t, ForwardMeasurementModel::Signature>>& signatures_and_priorities);
+      const std::map<size_t, std::pair<size_t, ForwardMeasurementModel::Signature>>& signatures_and_priorities) const;
 
   /** @brief Computes the dependency graph for generating the new_variables
    * @param new_variables: The new variables for which we are computing an initialization
@@ -106,14 +107,14 @@ class Initializer {
   std::map<gtsam::Key, gtsam::KeySet> computeDependencyGraph(
       const gtsam::KeySet& new_variables,
       const std::map<size_t, std::pair<size_t, ForwardMeasurementModel::Signature>>& signatures_and_priorities,
-      const std::vector<size_t>& factors);
+      const std::vector<size_t>& factors) const;
 
   /** @brief Computes a topological ordering for a given dependency graph
    * @param dependency_graph: the dependency graph for which to compute an ordering
    * @returns The ordering topological ordering in which to initialize variables or nullopt if no ordering is possible
    */
   std::optional<std::vector<gtsam::Key>> computeTopologicalOrdering(
-      const std::map<gtsam::Key, gtsam::KeySet>& dependency_graph);
+      const std::map<gtsam::Key, gtsam::KeySet>& dependency_graph) const;
 
   /** @brief Using a variable ordering and a forward factor assignment for each compute the initialization
    * @param new_variables: The new variables we are initializing
@@ -124,21 +125,21 @@ class Initializer {
    */
   gtsam::Values computeInitialization(const gtsam::KeySet& new_variables, const std::vector<size_t>& factor_combination,
                                       const std::vector<gtsam::Key>& ordering, const Entry& entry,
-                                      const gtsam::Values& current_solution);
+                                      const gtsam::Values& current_solution) const;
 };
 
 /**********************************************************************************************************************/
 
 template <typename T>
 class PriorForwardModel : public ForwardMeasurementModel {
-  Signature signature(const gtsam::NonlinearFactor::shared_ptr& measurement);
-  gtsam::Values predict(const gtsam::NonlinearFactor::shared_ptr& measurement, const gtsam::Values& inputs);
+  Signature signature(const gtsam::NonlinearFactor::shared_ptr& measurement) const;
+  gtsam::Values predict(const gtsam::NonlinearFactor::shared_ptr& measurement, const gtsam::Values& inputs) const;
 };
 
 template <typename T>
 class BetweenForwardModel : public ForwardMeasurementModel {
-  Signature signature(const gtsam::NonlinearFactor::shared_ptr& measurement);
-  gtsam::Values predict(const gtsam::NonlinearFactor::shared_ptr& measurement, const gtsam::Values& inputs);
+  Signature signature(const gtsam::NonlinearFactor::shared_ptr& measurement) const;
+  gtsam::Values predict(const gtsam::NonlinearFactor::shared_ptr& measurement, const gtsam::Values& inputs) const;
 };
 
 }  // namespace jrl
