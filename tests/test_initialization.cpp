@@ -115,7 +115,7 @@ TEST(Initialization, NoTopologicalOrder) {
 
 /**********************************************************************************************************************/
 TEST(ForwardModels, BearingRangePose2) {
-  jrl::BearingRangeForwardModel<gtsam::Pose2> fwd_mdl;
+  jrl::BearingRangeForwardModel<gtsam::Pose2, gtsam::Pose2> fwd_mdl;
   gtsam::Pose2 p0(1, 3, 1.2345);
   gtsam::Pose2 p1(-2, -75, -2.643);
   auto b = p0.bearing(p1);
@@ -133,7 +133,7 @@ TEST(ForwardModels, BearingRangePose2) {
 
 /**********************************************************************************************************************/
 TEST(ForwardModels, BearingRangePose3) {
-  jrl::BearingRangeForwardModel<gtsam::Pose3> fwd_mdl;
+  jrl::BearingRangeForwardModel<gtsam::Pose3, gtsam::Pose3> fwd_mdl;
   gtsam::Pose3 p0(gtsam::Rot3::RzRyRx(-1, -2, -3), gtsam::Point3(5, -6, 7));
   gtsam::Pose3 p1(gtsam::Rot3::RzRyRx(9, 4, 7), gtsam::Point3(-8, 1, 2));
   auto b = p0.bearing(p1);

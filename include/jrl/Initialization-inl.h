@@ -78,26 +78,25 @@ gtsam::Values BetweenForwardModel<T>::predict(const gtsam::NonlinearFactor::shar
  * ########  ######## ##     ## ##     ## #### ##    ##  ######      ##     ## ##     ## ##    ##  ######   ########
  */
 /**********************************************************************************************************************/
-template <typename T>
-ForwardMeasurementModel::Signature BearingRangeForwardModel<T>::signature(
+template <typename A1, typename A2>
+ForwardMeasurementModel::Signature BearingRangeForwardModel<A1, A2>::signature(
     const gtsam::NonlinearFactor::shared_ptr& measurement) const {
-  typename gtsam::BearingRangeFactor<T, T>::shared_ptr mptr =
-      boost::dynamic_pointer_cast<typename gtsam::BearingRangeFactor<T, T>>(measurement);
+  typename gtsam::BearingRangeFactor<A1, A2>::shared_ptr mptr =
+      boost::dynamic_pointer_cast<typename gtsam::BearingRangeFactor<A1, A2>>(measurement);
   return Signature({mptr->keys().front()}, {mptr->keys().back()});
 }
 
 /**********************************************************************************************************************/
-template <typename T>
-gtsam::Values BearingRangeForwardModel<T>::predict(const gtsam::NonlinearFactor::shared_ptr& measurement,
-                                                   const gtsam::Values& inputs) const {
-  typename gtsam::BearingRangeFactor<T, T>::shared_ptr mptr =
-      boost::dynamic_pointer_cast<typename gtsam::BearingRangeFactor<T, T>>(measurement);
-  typename T::Translation projected_position =
-      BearingRangeForwardModel<T>::project(inputs.at<T>(mptr->keys().front()), mptr->measured());
-  typename T::Rotation default_rotation = typename T::Rotation();
+template <typename A1, typename A2>
+gtsam::Values BearingRangeForwardModel<A1, A2>::predict(const gtsam::NonlinearFactor::shared_ptr& measurement,
+                                                        const gtsam::Values& inputs) const {
+  typename gtsam::BearingRangeFactor<A1, A2>::shared_ptr mptr =
+      boost::dynamic_pointer_cast<typename gtsam::BearingRangeFactor<A1, A2>>(measurement);
+  A2 projected = BearingRangeForwardModel<A1, A2>::project(inputs.at<A1>(mptr->keys().front()), mptr->measured());
 
   gtsam::Values val_result;
-  val_result.insert(mptr->keys().back(), T(default_rotation, projected_position));
+  val_result.insert(mptr->keys().back(), projected);
   return val_result;
 }
+
 }  // namespace jrl
