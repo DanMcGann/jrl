@@ -36,8 +36,12 @@ PYBIND11_MODULE(jrl_python, m) {
   m.attr("BetweenFactorPose3Tag") = py::str(BetweenFactorPose3Tag);
   m.attr("RangeFactorPose2Tag") = py::str(RangeFactorPose2Tag);
   m.attr("RangeFactorPose3Tag") = py::str(RangeFactorPose3Tag);
+  m.attr("RangeFactor2DTag") = py::str(RangeFactor2DTag);
+  m.attr("RangeFactor3DTag") = py::str(RangeFactor3DTag);
   m.attr("BearingRangeFactorPose2Tag") = py::str(BearingRangeFactorPose2Tag);
   m.attr("BearingRangeFactorPose3Tag") = py::str(BearingRangeFactorPose3Tag);
+  m.attr("BearingRangeFactor2DTag") = py::str(BearingRangeFactor2DTag);
+  m.attr("BearingRangeFactor3DTag") = py::str(BearingRangeFactor3DTag);
   m.attr("PriorFactorPoint2Tag") = py::str(PriorFactorPoint2Tag);
   m.attr("PriorFactorPointTag") = py::str(PriorFactorPoint3Tag);
   m.attr("BetweenFactorPoint2Tag") = py::str(BetweenFactorPoint2Tag);

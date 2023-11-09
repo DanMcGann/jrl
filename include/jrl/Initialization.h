@@ -146,12 +146,12 @@ class BetweenForwardModel : public ForwardMeasurementModel {
   gtsam::Values predict(const gtsam::NonlinearFactor::shared_ptr& measurement, const gtsam::Values& inputs) const;
 };
 
-template <typename T>
+template <typename A1, typename A2>
 class BearingRangeForwardModel : public ForwardMeasurementModel {
  public:
   Signature signature(const gtsam::NonlinearFactor::shared_ptr& measurement) const;
   gtsam::Values predict(const gtsam::NonlinearFactor::shared_ptr& measurement, const gtsam::Values& inputs) const;
-  static typename T::Translation project(T origin, gtsam::BearingRange<T, T> br);
+  static A2 project(A1 origin, gtsam::BearingRange<A1, A2> br);
 };
 
 }  // namespace jrl

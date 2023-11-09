@@ -22,8 +22,10 @@ std::map<std::string, ForwardMeasurementModel::shared_ptr> Initializer::loadDefa
       {BetweenFactorPose3Tag,  std::make_shared<BetweenForwardModel<gtsam::Pose3>>()},
       {BetweenFactorPoint2Tag, std::make_shared<BetweenForwardModel<gtsam::Point2>>()},
       {BetweenFactorPoint3Tag, std::make_shared<BetweenForwardModel<gtsam::Point3>>()},
-      {BearingRangeFactorPose2Tag, std::make_shared<BearingRangeForwardModel<gtsam::Pose2>>()},
-      {BearingRangeFactorPose3Tag, std::make_shared<BearingRangeForwardModel<gtsam::Pose3>>()}
+      {BearingRangeFactorPose2Tag, std::make_shared<BearingRangeForwardModel<gtsam::Pose2, gtsam::Pose2>>()},
+      {BearingRangeFactorPose3Tag, std::make_shared<BearingRangeForwardModel<gtsam::Pose3, gtsam::Pose3>>()},
+      {BearingRangeFactor2DTag, std::make_shared<BearingRangeForwardModel<gtsam::Pose2, gtsam::Point2>>()},
+      {BearingRangeFactor3DTag, std::make_shared<BearingRangeForwardModel<gtsam::Pose3, gtsam::Point3>>()}
   };
   // clang-format on
   return forward_models;
@@ -42,7 +44,9 @@ std::map<std::string, size_t> Initializer::loadDefaultForwardModelPriorities() {
       {BetweenFactorPoint2Tag,      1},
       {BetweenFactorPoint3Tag,      1},
       {BearingRangeFactorPose2Tag,  2}, // Bearing+Range gets third since it cant initialize orientation
-      {BearingRangeFactorPose3Tag,  2}
+      {BearingRangeFactorPose3Tag,  2},
+      {BearingRangeFactor2DTag,     2},
+      {BearingRangeFactor3DTag,     2}
   };
   // clang-format on
   return model_priorities;
@@ -217,8 +221,8 @@ gtsam::Values Initializer::computeInitialization(const gtsam::KeySet& new_variab
   // Go through the ordering and use the designated factor to generate the variable
   for (const gtsam::Key& key : ordering) {
     size_t gen_idx = variable_generators[key];
-    gtsam::Values forward_model_output = measurement_forward_models_.at(entry.measurement_types[gen_idx])->predict(
-        entry.measurements.at(gen_idx), solutions);
+    gtsam::Values forward_model_output = measurement_forward_models_.at(entry.measurement_types[gen_idx])
+                                             ->predict(entry.measurements.at(gen_idx), solutions);
     new_variable_initialization.insert(key, forward_model_output.at(key));
     solutions.insert(key, forward_model_output.at(key));
   }
@@ -227,15 +231,31 @@ gtsam::Values Initializer::computeInitialization(const gtsam::KeySet& new_variab
 
 /**********************************************************************************************************************/
 template <>
-typename gtsam::Pose2::Translation BearingRangeForwardModel<gtsam::Pose2>::project(
+gtsam::Pose2 BearingRangeForwardModel<gtsam::Pose2, gtsam::Pose2>::project(
     gtsam::Pose2 origin, gtsam::BearingRange<gtsam::Pose2, gtsam::Pose2> br) {
+  gtsam::Point2 position = origin.translation() + origin.rotation() * (br.range() * br.bearing().unit());
+  return gtsam::Pose2(gtsam::Rot2(), position);
+}
+
+/**********************************************************************************************************************/
+template <>
+gtsam::Pose3 BearingRangeForwardModel<gtsam::Pose3, gtsam::Pose3>::project(
+    gtsam::Pose3 origin, gtsam::BearingRange<gtsam::Pose3, gtsam::Pose3> br) {
+  gtsam::Point3 position = origin.translation() + origin.rotation() * (br.range() * br.bearing());
+  return gtsam::Pose3(gtsam::Rot3(), position);
+}
+
+/**********************************************************************************************************************/
+template <>
+gtsam::Point2 BearingRangeForwardModel<gtsam::Pose2, gtsam::Point2>::project(
+    gtsam::Pose2 origin, gtsam::BearingRange<gtsam::Pose2, gtsam::Point2> br) {
   return origin.translation() + origin.rotation() * (br.range() * br.bearing().unit());
 }
 
 /**********************************************************************************************************************/
 template <>
-typename gtsam::Pose3::Translation BearingRangeForwardModel<gtsam::Pose3>::project(
-    gtsam::Pose3 origin, gtsam::BearingRange<gtsam::Pose3, gtsam::Pose3> br) {
+gtsam::Point3 BearingRangeForwardModel<gtsam::Pose3, gtsam::Point3>::project(
+    gtsam::Pose3 origin, gtsam::BearingRange<gtsam::Pose3, gtsam::Point3> br) {
   return origin.translation() + origin.rotation() * (br.range() * br.bearing());
 }
 
