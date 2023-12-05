@@ -212,7 +212,7 @@ gtsam::Values Initializer::computeInitialization(const gtsam::KeySet& new_variab
 
   // Construct a mapping from variables to factors
   std::map<gtsam::Key, size_t> variable_generators;
-  size_t key_idx;
+  size_t key_idx = 0;
   for (auto& key : new_variables) {
     variable_generators[key] = factor_combination[key_idx];
     key_idx++;
