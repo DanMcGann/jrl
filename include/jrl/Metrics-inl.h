@@ -113,11 +113,11 @@ inline std::pair<double, double> computeSVE(Results results) {
 }
 
 /**********************************************************************************************************************/
-inline double computeMeanResidual(Dataset dataset, Results results, std::optional<size_t> step_idx) {
+inline double computeMeanResidual(Dataset dataset, Results results, std::optional<std::map<char, size_t>> step_idxes) {
   double graph_residual = 0.0;
   for (auto& rid : dataset.robots()) {
     auto entries = dataset.measurements(rid);
-    size_t stop_idx = step_idx.has_value() ? *step_idx : entries.size();
+    size_t stop_idx = step_idxes.has_value() ? step_idxes->at(rid) : entries.size();
     for (size_t i = 0; i < stop_idx; i++) {
       auto entry = entries[i];
       for (auto& factor : entry.measurements) {
@@ -155,14 +155,14 @@ inline double computeMeanResidual(Dataset dataset, Results results, std::optiona
 /**********************************************************************************************************************/
 template <class POSE_TYPE>
 inline MetricSummary computeMetricSummary(Dataset dataset, Results results, bool align_with_scale,
-                                          std::optional<size_t> step_idx) {
+                                          std::optional<std::map<char, size_t>> step_idxes) {
   MetricSummary summary;
   summary.dataset_name = dataset.name();
   summary.robots = dataset.robots();
   summary.method_name = results.method_name;
 
   // Compute the Mean Residual
-  summary.mean_residual = computeMeanResidual(dataset, results, step_idx);
+  summary.mean_residual = computeMeanResidual(dataset, results, step_idxes);
 
   // Compute ATE if possible
   if (dataset.containsGroundTruth()) {
@@ -170,7 +170,7 @@ inline MetricSummary computeMetricSummary(Dataset dataset, Results results, bool
     summary.total_ate = std::make_pair(0, 0);
     for (char rid : summary.robots) {
       boost::optional<std::pair<double, double>> robot_ate =
-          computeATE<POSE_TYPE>(rid, dataset, results, false, step_idx.has_value());
+          computeATE<POSE_TYPE>(rid, dataset, results, false, step_idxes.has_value());
       (*summary.robot_ate)[rid] = *robot_ate;
       (*summary.total_ate) = std::make_pair((*summary.total_ate).first + (*robot_ate).first,
                                             (*summary.total_ate).second + (*robot_ate).second);
