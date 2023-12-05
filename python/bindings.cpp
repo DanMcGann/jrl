@@ -6,6 +6,7 @@
 #include "jrl/DatasetBuilder.h"
 #include "jrl/IOMeasurements.h"
 #include "jrl/IOValues.h"
+#include "jrl/Initialization.h"
 #include "jrl/Metrics.h"
 #include "jrl/Parser.h"
 #include "jrl/Results.h"
@@ -245,4 +246,15 @@ PYBIND11_MODULE(jrl_python, m) {
   m.def("computeATEPose3", &metrics::computeATE<gtsam::Pose3>, py::return_value_policy::copy, py::arg("rid"),
         py::arg("dataset"), py::arg("results"), py::arg("align_with_scale") = false,
         py::arg("allow_partial_results") = false);
+
+  /**
+   * #### ##    ## #### ######## ####    ###    ##       #### ########    ###    ######## ####  #######  ##    ##
+   *  ##  ###   ##  ##     ##     ##    ## ##   ##        ##       ##    ## ##      ##     ##  ##     ## ###   ##
+   *  ##  ####  ##  ##     ##     ##   ##   ##  ##        ##      ##    ##   ##     ##     ##  ##     ## ####  ##
+   *  ##  ## ## ##  ##     ##     ##  ##     ## ##        ##     ##    ##     ##    ##     ##  ##     ## ## ## ##
+   *  ##  ##  ####  ##     ##     ##  ######### ##        ##    ##     #########    ##     ##  ##     ## ##  ####
+   *  ##  ##   ###  ##     ##     ##  ##     ## ##        ##   ##      ##     ##    ##     ##  ##     ## ##   ###
+   * #### ##    ## ####    ##    #### ##     ## ######## #### ######## ##     ##    ##    ####  #######  ##    ##
+   */
+  py::class_<Initializer>(m, "Initializer").def(py::init<>()).def("initialization", &Initializer::initialization);
 }
