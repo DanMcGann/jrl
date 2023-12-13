@@ -87,7 +87,7 @@ inline std::pair<double, double> computeSVE(Results results);
  * @returns The Mean Residual
  */
 inline double computeMeanResidual(Dataset dataset, Results results,
-                                  std::optional<std::map<char, size_t>> step_idx = std::nullopt);
+                                  std::optional<std::map<char, std::optional<size_t>>> step_idx = std::nullopt);
 
 /** @brief Computes all metrics possible for the given datasets.
  *  Conditions to compute different metrics
@@ -98,7 +98,7 @@ inline double computeMeanResidual(Dataset dataset, Results results,
  */
 template <class POSE_TYPE>
 inline MetricSummary computeMetricSummary(Dataset dataset, Results results, bool align_with_scale = false,
-                                          std::optional<std::map<char, size_t>> step_idx = std::nullopt);
+                                          std::optional<std::map<char, std::optional<size_t>>> step_idx = std::nullopt);
 
 }  // namespace metrics
 

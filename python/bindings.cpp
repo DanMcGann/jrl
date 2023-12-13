@@ -100,6 +100,7 @@ PYBIND11_MODULE(jrl_python, m) {
       .def("initializationWithTypes", &Dataset::initializationWithTypes)
       .def("containsInitialization", &Dataset::containsInitialization)
       .def("measurements", &Dataset::measurements)
+      .def("factorGraph", &Dataset::factorGraph)
       .def(py::pickle(
           [](const Dataset &dataset) {  // __getstate__
             std::map<char, std::vector<Entry>> measurements;

@@ -45,6 +45,11 @@ inline boost::optional<std::pair<double, double>> computeATE(char rid, Dataset d
       filtered_ref = ref.filter([&est](gtsam::Key key) { return est.exists(key); });
     }
 
+    // Early exit if there are no poses
+    if (filtered_ref.empty()) {
+      return std::make_pair(0.0, 0.0);
+    }
+
     // Run Umeyama alignment
     gtsam::Values aligned_est = alignment::align<POSE_TYPE>(est, filtered_ref, align_with_scale);
 
@@ -113,11 +118,22 @@ inline std::pair<double, double> computeSVE(Results results) {
 }
 
 /**********************************************************************************************************************/
-inline double computeMeanResidual(Dataset dataset, Results results, std::optional<std::map<char, size_t>> step_idxes) {
+inline double computeMeanResidual(Dataset dataset, Results results,
+                                  std::optional<std::map<char, std::optional<size_t>>> step_idxes) {
   double graph_residual = 0.0;
   for (auto& rid : dataset.robots()) {
     auto entries = dataset.measurements(rid);
-    size_t stop_idx = step_idxes.has_value() ? step_idxes->at(rid) : entries.size();
+    size_t stop_idx;
+    if (!step_idxes.has_value()) {
+      // No step idxes provided so compute on all entries
+      stop_idx = entries.size();
+    } else if (step_idxes->at(rid).has_value()) {
+      // Step idxes is provided and has a value for this robot
+      stop_idx = *(step_idxes->at(rid));
+    } else {
+      // Step idxes provided but robot has not started
+      stop_idx = 0;
+    }
     for (size_t i = 0; i < stop_idx; i++) {
       auto entry = entries[i];
       for (auto& factor : entry.measurements) {
@@ -155,7 +171,7 @@ inline double computeMeanResidual(Dataset dataset, Results results, std::optiona
 /**********************************************************************************************************************/
 template <class POSE_TYPE>
 inline MetricSummary computeMetricSummary(Dataset dataset, Results results, bool align_with_scale,
-                                          std::optional<std::map<char, size_t>> step_idxes) {
+                                          std::optional<std::map<char, std::optional<size_t>>> step_idxes) {
   MetricSummary summary;
   summary.dataset_name = dataset.name();
   summary.robots = dataset.robots();
