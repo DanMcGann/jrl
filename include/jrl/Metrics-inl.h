@@ -31,7 +31,7 @@ inline std::pair<double, double> squaredPoseError<gtsam::Pose2>(gtsam::Pose2 est
 
 /**********************************************************************************************************************/
 template <class POSE_TYPE>
-inline boost::optional<std::pair<double, double>> computeATE(char rid, Dataset dataset, Results results,
+inline boost::optional<std::pair<double, double>> computeATE(char rid, Dataset dataset, Results results, bool align,
                                                              bool align_with_scale, bool allow_partial_results) {
   // We have groundtruth so we can compute ATE
   if (dataset.containsGroundTruth()) {
@@ -51,7 +51,10 @@ inline boost::optional<std::pair<double, double>> computeATE(char rid, Dataset d
     }
 
     // Run Umeyama alignment
-    gtsam::Values aligned_est = alignment::align<POSE_TYPE>(est, filtered_ref, align_with_scale);
+    gtsam::Values aligned_est = est;
+    if (align) {
+      aligned_est = alignment::align<POSE_TYPE>(est, filtered_ref, align_with_scale);
+    }
 
     double squared_translation_error = 0.0;
     double squared_rotation_error = 0.0;
@@ -170,7 +173,7 @@ inline double computeMeanResidual(Dataset dataset, Results results,
 
 /**********************************************************************************************************************/
 template <class POSE_TYPE>
-inline MetricSummary computeMetricSummary(Dataset dataset, Results results, bool align_with_scale,
+inline MetricSummary computeMetricSummary(Dataset dataset, Results results, bool align, bool align_with_scale,
                                           std::optional<std::map<char, std::optional<size_t>>> step_idxes) {
   MetricSummary summary;
   summary.dataset_name = dataset.name();
@@ -186,7 +189,7 @@ inline MetricSummary computeMetricSummary(Dataset dataset, Results results, bool
     summary.total_ate = std::make_pair(0, 0);
     for (char rid : summary.robots) {
       boost::optional<std::pair<double, double>> robot_ate =
-          computeATE<POSE_TYPE>(rid, dataset, results, false, step_idxes.has_value());
+          computeATE<POSE_TYPE>(rid, dataset, results, align, align_with_scale, step_idxes.has_value());
       (*summary.robot_ate)[rid] = *robot_ate;
       (*summary.total_ate) = std::make_pair((*summary.total_ate).first + (*robot_ate).first,
                                             (*summary.total_ate).second + (*robot_ate).second);

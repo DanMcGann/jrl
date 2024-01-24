@@ -64,7 +64,7 @@ inline std::pair<double, double> squaredPoseError<gtsam::Pose2>(gtsam::Pose2 est
  */
 template <class POSE_TYPE>
 inline boost::optional<std::pair<double, double>> computeATE(char rid, Dataset dataset, Results results,
-                                                             bool align_with_scale = false,
+                                                             bool align = true, bool align_with_scale = false,
                                                              bool allow_partial_results = false);
 
 /** @brief Computes the SVE for the dataset
@@ -97,7 +97,8 @@ inline double computeMeanResidual(Dataset dataset, Results results,
  * Note: If step_idx is provided it is provided to computeMeanResidual, and computeATE is set to allow partial results
  */
 template <class POSE_TYPE>
-inline MetricSummary computeMetricSummary(Dataset dataset, Results results, bool align_with_scale = false,
+inline MetricSummary computeMetricSummary(Dataset dataset, Results results, bool align = true,
+                                          bool align_with_scale = false,
                                           std::optional<std::map<char, std::optional<size_t>>> step_idx = std::nullopt);
 
 }  // namespace metrics
