@@ -6,7 +6,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(GTSAM REQUIRED)
 find_package(nlohmann_json 3.2.0 REQUIRED)
-add_subdirectory(${CMAKE_SOURCE_DIR}/thirdparty/pybind11)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/pybind11)
 
 # Custom Cmake
 include(cmake/HandleUninstall.cmake)        # for "make uninstall"
