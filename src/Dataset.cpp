@@ -63,7 +63,7 @@ RETURN_TYPE Dataset::accessor(const std::string& func_name, boost::optional<std:
     stream << "Dataset:" << func_name << "requested but dataset does not contain " << func_name << "information";
     throw std::runtime_error(stream.str());
   } else if (robot_id == boost::none) {
-    if (num_robots_ == 0) {
+    if (robots_.size() == 1) {
       return (*robot_mapping)[robots_[0]];
     } else {
       std::stringstream stream;

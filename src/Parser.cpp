@@ -84,7 +84,12 @@ std::vector<Entry> Parser::parseMeasurements(json measurements_json) const {
       type_tags.push_back(tag);
       entry_measurements.push_back(measurement_parsers_.at(tag)(measurement));
     }
-    measurements.push_back(Entry(stamp, type_tags, entry_measurements));
+    std::map<gtsam::FactorIndex, bool> potential_outlier_statuses;
+    if (entry_element.contains("potential_outlier_statuses")) {
+      potential_outlier_statuses =
+          entry_element["potential_outlier_statuses"].get<std::map<gtsam::FactorIndex, bool>>();
+    }
+    measurements.push_back(Entry(stamp, type_tags, entry_measurements, potential_outlier_statuses));
   }
   return measurements;
 }

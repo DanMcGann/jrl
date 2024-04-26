@@ -16,7 +16,6 @@ class DatasetBuilder {
  private:
   std::string name_;
   std::vector<char> robots_;
-  size_t num_robots_;
 
   std::map<char, TypedValues> ground_truth_;
   std::map<char, TypedValues> initial_estimates_;
@@ -28,6 +27,7 @@ class DatasetBuilder {
 
   void addEntry(char robot, uint64_t stamp, gtsam::NonlinearFactorGraph measurements,
                 std::vector<std::string> measurement_types,
+                std::map<gtsam::FactorIndex, bool> potential_outlier_statuses = {},
                 const boost::optional<TypedValues> initialization = boost::none,
                 const boost::optional<TypedValues> groundtruth = boost::none);
 

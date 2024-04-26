@@ -14,9 +14,10 @@ DatasetBuilder::DatasetBuilder(const std::string name, std::vector<char> robots)
 
 void DatasetBuilder::addEntry(char robot, uint64_t stamp, gtsam::NonlinearFactorGraph measurements,
                               std::vector<std::string> measurement_types,
+                              std::map<gtsam::FactorIndex, bool> potential_outlier_statuses,
                               const boost::optional<TypedValues> initialization,
                               const boost::optional<TypedValues> groundtruth) {
-  measurements_[robot].push_back(Entry(stamp, measurement_types, measurements));
+  measurements_[robot].push_back(Entry(stamp, measurement_types, measurements, potential_outlier_statuses));
   if (initialization) {
     initial_estimates_[robot].values.insert((*initialization).values);
     initial_estimates_[robot].types.insert((*initialization).types.begin(), (*initialization).types.end());

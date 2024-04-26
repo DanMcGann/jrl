@@ -22,10 +22,7 @@ class Dataset {
 
   /// @brief The robots for which this dataset defines trajectories
   std::vector<char> robots_;
-
-  /// @brief The number of robots in this dataset
-  size_t num_robots_;
-
+  
   /// @brief The dataset ground-truth for each robot. Each robot's ground truth should contain all values that that
   /// robot observed. This means some values may appear multiple times if multiple robots observe them. Any values
   /// appearing multiple times MUST be the same.

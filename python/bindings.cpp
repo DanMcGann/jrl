@@ -59,17 +59,22 @@ PYBIND11_MODULE(jrl_python, m) {
    */
   /**********************************************************************************************************************/
   py::class_<Entry>(m, "Entry")
-      .def(py::init<uint64_t &, std::vector<std::string> &, gtsam::NonlinearFactorGraph &>())
+      .def(py::init<uint64_t &, std::vector<std::string> &, gtsam::NonlinearFactorGraph &,
+                    std::map<gtsam::FactorIndex, bool> &>(),
+           py::arg("stamp"), py::arg("measurement_types"), py::arg("measurements"),
+           py::arg("potential_outlier_statuses") = {})
       .def_readwrite("stamp", &Entry::stamp)
       .def_readwrite("measurement_types", &Entry::measurement_types)
       .def_readwrite("measurements", &Entry::measurements)
+      .def_readwrite("potential_outlier_statuses", &Entry::potential_outlier_statuses)
       .def(py::pickle(
           [](const Entry &entry) {  // __getstate__
-            return py::make_tuple(entry.stamp, entry.measurement_types, entry.measurements);
+            return py::make_tuple(entry.stamp, entry.measurement_types, entry.measurements,
+                                  entry.potential_outlier_statuses);
           },
           [](py::tuple tup) {  // __setstate__
             Entry entry(tup[0].cast<uint64_t>(), tup[1].cast<std::vector<std::string>>(),
-                        tup[2].cast<gtsam::NonlinearFactorGraph>());
+                        tup[2].cast<gtsam::NonlinearFactorGraph>(), tup[3].cast<std::map<gtsam::FactorIndex, bool>>());
             return entry;
           }));
 
@@ -135,7 +140,8 @@ PYBIND11_MODULE(jrl_python, m) {
   py::class_<DatasetBuilder>(m, "DatasetBuilder")
       .def(py::init<const std::string &, std::vector<char> &>())
       .def("addEntry", &DatasetBuilder::addEntry, py::arg("robot"), py::arg("stamp"), py::arg("measurements"),
-           py::arg("measurement_types"), py::arg("initialization") = py::none(), py::arg("groundtruth") = py::none())
+           py::arg("measurement_types"), py::arg("potential_outlier_statuses") = {},
+           py::arg("initialization") = py::none(), py::arg("groundtruth") = py::none())
       .def("build", &DatasetBuilder::build);
 
   /**
