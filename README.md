@@ -13,7 +13,7 @@ In support of this dataset format we further define a file format for solutions 
 
 Combined, these formats support defining and distributing datasets for SLAM back-end algorithms as well as storing results from these optimization algorithm.  
 
-This package also defines a library that's purpose is to make working with JRL in C++ / Python easy and convenient. It provides classes to contain information from Dataset, Result, and Metric Files as well as functionality to compute, serialize, and parse these files. While we provide support for only C++ and Python in this library, the JRL format itself is based on the generic JSON standard and can be used (with some extra work) with any language/development environment.
+This package also defines a library that's purpose is to make working with JRL in C++ / Python easy and convenient. It provides classes to contain information from Dataset, Result, and Metric Files as well as functionality to compute, serialize, and parse these files. While we provide support for only C++ and Python in this library, the JRL format itself is based on the generic JSON standard and can be used (with some extra work) with any language/development environment. For more info on the library itself see `LIBRARY.md`.
 
 ## Structure
 The project is structured as follows
@@ -50,43 +50,3 @@ Collaborative SLAM (C-SLAM) has been a significant focus of robotics research in
 
 #### Outliers
 Real world robots are going to experience outlier measurements due to issues with front-end processes and perceptual aliasing. To properly evaluate our SLAM back-end algorithms we need datasets that include such outlier measurements and (optimally) datasets that explicitly mark such measurements for downstream evaluation. Towards, this JRL supports marking of measurements as potential outliers and explicit marking of these measurements as either a true inlier or true outlier.
-
-## Library Design Decisions
-
-#### Optional
-We use `boost::optional` over the c++17 supported `std::optional` as that is what is used by GTSAM.
-
-#### Containers
-We use `stl` containers over GTSAM "fast" containers to allow implicit conversion via pybind11's `stl.h`
-
-#### Dependencies (Ubuntu 20.04)
-Since C++ does not have a native support for parsing JSON we use a 3rd party library for JSON support. We specifically choose [nlohmann-json](https://github.com/nlohmann/json) because of its ease of use, quality design + implementation, and support across platforms.
-* `sudo apt-get install nlohmann-json3-dev`
-
-#### Compression
-The Parser and Writer classes have options to enable [cbor](https://cbor.io/) compression to decrease the resulting file size. This can be incredibly important if you are saving intermediate results of an algorithm. This appears to typically reduce result file size by half!
-
-For portability of datasets, we recommend that you do not compress datasets as you typically have only a few of them. Compression is most useful for limiting storage requirements iterative/incremental result files. 
-
-## Install Instructions
-```
-mkdir build
-cd build
-cmake ..
-make
-
-# To install the c++ library
-sudo make install
-
-# To install the python module
-sudo make python-install
-```
-
-## Uninstall Instructions
-```
-cd build
-sudo make uninstall # to uninstall the c++ library
-sudo make python-uninstall # to uninstall the python module
-# Note to uninstall python module you can also just use
-sudo pip uninstall jrl
-```
