@@ -16,5 +16,5 @@ When evaluating SLAM algorithms we often need to save out results. To provide a 
   "solutions": {"a": {...}, ...}
 }
 ```
-
+Result files are saved with `.jrr` (JSON Robot Results) extensions.
 For a definition of `Values` format see `VALUE_FORMAT.md`

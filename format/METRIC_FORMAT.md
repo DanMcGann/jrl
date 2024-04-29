@@ -25,7 +25,7 @@ In addition to recording the actual solutions to state variables it can also be 
   "mean_residual": 1234
 }
 ```
-
+Result files are saved with `.jrm` (JSON Robot Metrics) extensions.
 Where we concretely define how each of these metrics are computed below.
 
 

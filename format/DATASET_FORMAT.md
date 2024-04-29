@@ -1,5 +1,5 @@
 # Dataset Format
-This file defines the format of JRL dataset files (extension .jrl)
+This file defines the format of JRL dataset files. These files are stored with `.jrl` (JSON Robot Log) extensions.
 
 A dataset is a JSON object that contains the following components:
 ```
