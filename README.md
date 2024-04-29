@@ -26,13 +26,13 @@ In support of this dataset format we further define a file format for solutions 
 
 Combined, these formats support defining and distributing datasets for SLAM back-end algorithms as well as storing results from these optimization algorithm.  
 
-This package also defines a library that's purpose is to make working with JRL in C++ / Python easy and convenient. It provides classes to contain information from Dataset, Result, and Metric Files as well as functionality to compute, serialize, and parse these files. While we provide support for only C++ and Python in this library, the JRL format itself is based on the generic JSON standard and can be used (with some extra work) with any language/development environment. For more info on the library itself see `LIBRARY.md`.
+This package also defines a library that's purpose is to make working with JRL in C++ / Python easy and convenient. It provides classes to contain information from Dataset, Result, and Metric Files as well as functionality to compute, serialize, and parse these files. While we provide support for only C++ and Python in this library, the JRL format itself is based on the generic JSON standard and can be used (with some extra work) with any language/development environment. For more info on the library itself see [`LIBRARY.md`](LIBRARY.md).
 
 ## Structure
 The project is structured as follows
 * `format/` - Contains the format definition of JRL, JRR, and JRM files
 * `include/` + `src/` - Contain the C++ implementation of our convenience library. 
-    * Additional documentation can be found in `Library.md`
+    * Additional documentation can be found in [`LIBRARY.md`](LIBRARY.md)
 * `python/` - Contains the definitions for python wrappers of our C++ library
 * `test/` - Contains unit tests for our library
 * `thirdparty/` - Contains thirdparty code (included via git submodules) namely pybind11
@@ -40,13 +40,13 @@ The project is structured as follows
 ## Format Design Decisions / Conventions
 
 #### JSON
-JRL is defined around the JSON standard to provide a platform agnostic dataset format. Unlike a specialized formats like ROS-bags JSON files are simple text files that can be read by any platform, and most (if not all) modern programming languages provide support (potentially through libraries) for JSON parsing to make it easy to read and work with JRL datasets in your preferred development environment.
+JRL is defined around the JSON standard to provide a platform agnostic dataset format. Unlike a specialized formats like ROS-bags, JSON files are simple text files that can be read by any platform, and most (if not all) modern programming languages provide support (potentially through libraries) for JSON parsing to make it easy to read and work with JRL datasets in your preferred development environment.
 
 #### Symbols
 We seek to abide by the GTSAM symbol convention for ease of use with GTSAM as a backend. This, however limits us as GTSAM Symbols allow for only a single character making it impossible to encode both a robot identifier and semantic variable type identifier. By convention JRL uses the symbol as a robot identifier, and differentiates variable types by partitioning the integer space of the key.
 
 * Variable Type
-    * Pose (Point2/3 or Pose2/2 depending on linearity of problem) : `0 - 999,999,999` (`0-Billions`)
+    * Pose (Point2/3 or Pose2/3 depending on linearity of problem) : `0 - 999,999,999` (`0-Billions`)
     * Landmark (Point2/3) : `1,000,000,000` - `1,999,999,999` (`1-Billions`)
     * Linear Velocities (Vector): `2-Billions`
     * Angular Velocities (Vector): `3-Billions`
