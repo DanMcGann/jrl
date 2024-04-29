@@ -1,5 +1,7 @@
 # JSON Robot Log
+ [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)  
 
+This package defines and provides c++/python support for the JSON Robot Log (JRL) file format. The file format's purpose is to provide a general purpose format for SLAM back-end datasets.
 
 <p align="center">
 <img src="media/ex_dataset_5000_poses.png"
@@ -12,8 +14,6 @@
     alt="Example JRL Dataset with 25 Robots." 
     width="32%"/>
 </p>
-
-This package defines and provides c++/python support for the JSON Robot Log (JRL) file format. The file format's purpose is to provide a general purpose format for SLAM back-end datasets.
 
 JRL format seeks to improve existing file formats like `g2o`, or the much less popular `toro` by supporting...
 - Explicit temporal information to evaluate real-time performance
