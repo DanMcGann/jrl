@@ -23,6 +23,9 @@ The library also provides some additional helper modules:
 ## Python Bindings
 Python bindings are provided for all modules in `python/`. Python bindings follow the same naming conventions as the C++ implementation, with the caveat that template types are realized by appending the type to the class name. For example given a C++ class `jrl::Class<Type>` the corresponding python binding will be `jrl.ClassType`. 
 
+## Tests
+Some modules are tested via unit tests in `tests/`. If you want to run these tests you can find them in the build directory under `build/tests/test-name`. We of course are are always looking for help to build out our test suite, and appreciate all contributions to do so!
+
 ## Library Design Decisions
 The following document some implementation / design decisions so that users can understand some of our rationale.
 
@@ -63,3 +66,6 @@ sudo make python-uninstall # to uninstall the python module
 # Note to uninstall python module you can also just use
 sudo pip uninstall jrl
 ```
+
+# Issues
+If you find any bugs / issues with this library please submit a bug report via the github issue tracker. If the issue pertains to an implementation bug, please include a unit tests that demonstrates the issue.
