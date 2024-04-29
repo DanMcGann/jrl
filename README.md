@@ -1,5 +1,18 @@
 # JSON Robot Log
 
+
+<p align="center">
+<img src="media/ex_dataset_5000_poses.png"
+    alt="Example JRL 2D Bearing & Range Dataset." 
+    width="32%"/>
+<img src="media/ex_dataset_3d_pgo.png"
+    alt="Example JRL 3D PGO Dataset." 
+    width="32%"/>
+<img src="media/ex_dataset_25_robots.png"
+    alt="Example JRL Dataset with 25 Robots." 
+    width="32%"/>
+</p>
+
 This package defines and provides c++/python support for the JSON Robot Log (JRL) file format. The file format's purpose is to provide a general purpose format for SLAM back-end datasets.
 
 JRL format seeks to improve existing file formats like `g2o`, or the much less popular `toro` by supporting...
