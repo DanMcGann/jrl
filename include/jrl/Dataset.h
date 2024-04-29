@@ -9,10 +9,8 @@
 
 namespace jrl {
 
-/**
- *
- *
- *
+/** @brief Representation of a JRL Dataset.
+ * Contains robot measurements, groundtruth values, and optionally initialization.
  */
 class Dataset {
   /* FIELDS */

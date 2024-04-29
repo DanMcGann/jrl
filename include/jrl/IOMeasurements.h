@@ -30,6 +30,7 @@ static const std::string PriorFactorPoint3Tag = "PriorFactorPoint3";
 namespace io_measurements {
 
 /**********************************************************************************************************************/
+/// @brief Parses a covariance matrix from json
 gtsam::Matrix parseCovariance(json input_json, int d);
 json serializeCovariance(gtsam::Matrix covariance);
 

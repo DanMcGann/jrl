@@ -22,6 +22,12 @@ static const std::string BearingRangeTag = "BearingRange";
 
 namespace io_values {
 
+/** @brief Generic function to accumulate a value (represented as json) into a gtsam::Values struct
+ * @param parser: The parser function to parse input_json
+ * @param input_json: The value to accumulate represented as json
+ * @param key: The unique identifier of the value
+ * @param accum: The values to which we add the value
+*/
 template <typename VALUE>
 void valueAccumulator(std::function<VALUE(json)> parser, json input_json, gtsam::Key key, gtsam::Values& accum) {
   accum.insert(key, parser(input_json));
@@ -42,6 +48,7 @@ json serialize(T obj) {  // Base Parse function for builtins. Specialization pro
 }
 
 
+/// Below we have declarations for template specializations for each value supported by iovalues
 /**********************************************************************************************************************/
 // Rot2
 template <>
