@@ -34,6 +34,11 @@ class DatasetBuilder {
                 const boost::optional<TypedValues> initialization = boost::none,
                 const boost::optional<TypedValues> groundtruth = boost::none);
 
+  /// @brief 
+  void addGroundTruth(char robot, TypedValues groundtruth);
+
+  void addInitialization(char robot, TypedValues initialization);
+
   /// @brief Compiles a dataset from all the added entries
   Dataset build();
 };

@@ -68,9 +68,19 @@ class Writer {
   void writeMetricSummary(MetricSummary metric_summary, std::string output_file_name,
                           bool compress_to_cbor = false) const;
 
-  // TODO
-  // void registerValueSerializer(std::string tag, ValueSerializer serializer_fn);
-  // void registerMeasurementParser(std::string tag, MeasurementSerializer serializer_fn);
+  /// @brief Register a custom value serializer
+  /// @param tag Tag to associate with the value
+  /// @param serializer_fn Serializer function to serialize the value
+  void registerValueSerializer(std::string tag, ValueSerializer serializer_fn) {
+    value_serializers_[tag] = serializer_fn;
+  };
+
+  /// @brief Register a custom measurement serializer
+  /// @param tag Tag to associate with the measurement
+  /// @param serializer_fn Serializer function to serialize the measurement
+  void registerMeasurementSerializer(std::string tag, MeasurementSerializer serializer_fn) {
+    measurement_serializers_[tag] = serializer_fn;
+  };
 };
 
 }  // namespace jrl
