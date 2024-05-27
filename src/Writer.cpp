@@ -25,12 +25,12 @@ Writer::Writer() {
 std::map<std::string, ValueSerializer> Writer::loadDefaultValueSerializers() {
   // clang-format off
   std::map<std::string, ValueSerializer> serializer_functions = {
-    {Pose2Tag, [](gtsam::Key key, gtsam::Values& vals) { return serialize<gtsam::Pose2>(vals.at<gtsam::Pose2>(key)); }},
-    {Pose3Tag, [](gtsam::Key key, gtsam::Values& vals) { return serialize<gtsam::Pose3>(vals.at<gtsam::Pose3>(key)); }},
-    {Point2Tag, [](gtsam::Key key, gtsam::Values& vals) { return serialize<gtsam::Point2>(vals.at<gtsam::Point2>(key)); }},
-    {Point3Tag, [](gtsam::Key key, gtsam::Values& vals) { return serialize<gtsam::Point3>(vals.at<gtsam::Point3>(key)); }},
-    {VectorTag, [](gtsam::Key key, gtsam::Values& vals) { return serialize<gtsam::Vector>(vals.at<gtsam::Vector>(key)); }},
-    {ScalarTag, [](gtsam::Key key, gtsam::Values& vals) { return serialize<double>(vals.at<double>(key)); }},
+    {Pose2Tag,  [](gtsam::Key key, gtsam::Values& vals) { return io_values::serialize<gtsam::Pose2>(vals.at<gtsam::Pose2>(key)); }},
+    {Pose3Tag,  [](gtsam::Key key, gtsam::Values& vals) { return io_values::serialize<gtsam::Pose3>(vals.at<gtsam::Pose3>(key)); }},
+    {Point2Tag, [](gtsam::Key key, gtsam::Values& vals) { return io_values::serialize<gtsam::Point2>(vals.at<gtsam::Point2>(key)); }},
+    {Point3Tag, [](gtsam::Key key, gtsam::Values& vals) { return io_values::serialize<gtsam::Point3>(vals.at<gtsam::Point3>(key)); }},
+    {VectorTag, [](gtsam::Key key, gtsam::Values& vals) { return io_values::serialize<gtsam::Vector>(vals.at<gtsam::Vector>(key)); }},
+    {ScalarTag, [](gtsam::Key key, gtsam::Values& vals) { return io_values::serialize<double>(vals.at<double>(key)); }},
   };
   // clang-format on
   return serializer_functions;
@@ -83,7 +83,8 @@ json Writer::serializeMeasurements(std::vector<Entry> entries) const {
   for (auto& entry : entries) {
     json entry_obj;
     entry_obj["stamp"] = entry.stamp;
-    for (int i = 0; i < entry.measurements.nrFactors(); i++) {
+    size_t numFactors = entry.measurements.nrFactors();
+    for (int i = 0; i < numFactors; i++) {
       std::string measurement_type = entry.measurement_types[i];
       gtsam::NonlinearFactor::shared_ptr factor = entry.measurements.at(i);
       entry_obj["measurements"].push_back(measurement_serializers_.at(measurement_type)(factor));
