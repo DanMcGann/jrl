@@ -55,7 +55,7 @@ json serialize<gtsam::Rot3>(gtsam::Rot3 rot) {
   json output;
   output["type"] = Rot3Tag;
   gtsam::Vector q = rot.quaternion();
-  output["r"] = {q(0), q(1), q(2), q(3)};
+  output["rotation"] = {q(0), q(1), q(2), q(3)};
   return output;
 }
 
