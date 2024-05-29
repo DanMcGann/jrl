@@ -120,8 +120,8 @@ template <typename A1, typename A2, typename B = typename gtsam::Bearing<A1, A2>
 json serializeBearingRange(gtsam::BearingRange<A1, A2> bearingrange) {
   json output;
   output["type"] = BearingRangeTag;
-  output["bearing"] = io_values::serialize<B>(bearingrange.bearing());
-  output["range"] = io_values::serialize<R>(bearingrange.range());
+  output["bearing"] = serialize<B>(bearingrange.bearing());
+  output["range"] = serialize<R>(bearingrange.range());
   return output;
 }
 
