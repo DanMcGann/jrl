@@ -9,7 +9,7 @@ namespace io_values {
 /**********************************************************************************************************************/
 // Rot2
 template <>
-gtsam::Rot2 parse<gtsam::Rot2>(json input_json) {
+gtsam::Rot2 parse<gtsam::Rot2>(const json& input_json) {
   double theta = input_json["theta"].get<double>();
   return gtsam::Rot2(theta);
 }
@@ -25,7 +25,7 @@ json serialize<gtsam::Rot2>(gtsam::Rot2 rot) {
 /**********************************************************************************************************************/
 // POSE2
 template <>
-gtsam::Pose2 parse<gtsam::Pose2>(json input_json) {
+gtsam::Pose2 parse<gtsam::Pose2>(const json& input_json) {
   double x = input_json["x"].get<double>();
   double y = input_json["y"].get<double>();
   double theta = input_json["theta"].get<double>();
@@ -45,7 +45,7 @@ json serialize<gtsam::Pose2>(gtsam::Pose2 pose) {
 /**********************************************************************************************************************/
 // Rot3
 template <>
-gtsam::Rot3 parse<gtsam::Rot3>(json input_json) {
+gtsam::Rot3 parse<gtsam::Rot3>(const json& input_json) {
   std::vector<double> q = input_json["rotation"].get<std::vector<double>>();
   return gtsam::Rot3::Quaternion(q[0], q[1], q[2], q[3]);
 }
@@ -62,7 +62,7 @@ json serialize<gtsam::Rot3>(gtsam::Rot3 rot) {
 /**********************************************************************************************************************/
 // POSE3
 template <>
-gtsam::Pose3 parse<gtsam::Pose3>(json input_json) {
+gtsam::Pose3 parse<gtsam::Pose3>(const json& input_json) {
   std::vector<double> t = input_json["translation"].get<std::vector<double>>();
   gtsam::Vector3 translation(t.data());
   std::vector<double> q = input_json["rotation"].get<std::vector<double>>();
@@ -83,7 +83,7 @@ json serialize<gtsam::Pose3>(gtsam::Pose3 pose) {
 /**********************************************************************************************************************/
 // VECTOR
 template <>
-gtsam::Vector parse<gtsam::Vector>(json input_json) {
+gtsam::Vector parse<gtsam::Vector>(const json& input_json) {
   std::vector<double> stdvec = input_json["data"].get<std::vector<double>>();
   gtsam::Vector eigvec = Eigen::Map<gtsam::Vector>(stdvec.data(), stdvec.size());
   return eigvec;
@@ -100,7 +100,7 @@ json serialize<gtsam::Vector>(gtsam::Vector vec) {
 /**********************************************************************************************************************/
 // Point2
 template <>
-gtsam::Point2 parse<gtsam::Point2>(json input_json) {
+gtsam::Point2 parse<gtsam::Point2>(const json& input_json) {
   double x = input_json["x"].get<double>();
   double y = input_json["y"].get<double>();
   return gtsam::Point2(x, y);
@@ -118,7 +118,7 @@ json serialize<gtsam::Point2>(gtsam::Point2 point) {
 /**********************************************************************************************************************/
 // Point3
 template <>
-gtsam::Point3 parse<gtsam::Point3>(json input_json) {
+gtsam::Point3 parse<gtsam::Point3>(const json& input_json) {
   double x = input_json["x"].get<double>();
   double y = input_json["y"].get<double>();
   double z = input_json["z"].get<double>();
@@ -139,7 +139,7 @@ json serialize<gtsam::Point3>(gtsam::Point3 point) {
 /**********************************************************************************************************************/
 // Unit3
 template <>
-gtsam::Unit3 parse<gtsam::Unit3>(json input_json) {
+gtsam::Unit3 parse<gtsam::Unit3>(const json& input_json) {
   double i = input_json["i"].get<double>();
   double j = input_json["j"].get<double>();
   double k = input_json["k"].get<double>();

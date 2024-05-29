@@ -34,13 +34,13 @@ class Parser {
    *  @param values_json Input JSON containing the serialized values
    *  @return Parsed Values as GTSAM types
    **/
-  TypedValues parseValues(json values_json) const;
+  TypedValues parseValues(const json& values_json) const;
 
   /** @brief Parses all measurements using the loaded measurement parsers
    *  @param measurements_json Input JSON containing the serialized measurement entries
    *  @return Parsed measurement entries
    **/
-  std::vector<Entry> parseMeasurements(json measurements_json) const;
+  std::vector<Entry> parseMeasurements(const json& measurements_json) const;
 
   /** @brief Reads arbitrary JSON from file
    * @param input_file_name: The file from which to read the json
