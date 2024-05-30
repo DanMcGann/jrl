@@ -1,4 +1,5 @@
 #pragma once
+#include <gtsam/nonlinear/NonlinearFactorGraph.h>
 #include <gtsam/nonlinear/Values.h>
 
 namespace jrl {
@@ -25,6 +26,12 @@ struct Entry {
         measurement_types(measurement_types),
         measurements(measurements),
         potential_outlier_statuses(potential_outlier_statuses) {}
+
+  // Remove all factors of a certain type
+  Entry remove(std::vector<std::string> remove_types);
+
+  // Only include factors of a certain type
+  Entry filter(std::vector<std::string> filter_types);
 };
 
 }  // namespace jrl

@@ -37,6 +37,9 @@ class Dataset {
   /// @brief The set measurements made by each robot unordered in a factor graph
   std::map<char, gtsam::NonlinearFactorGraph> factor_graphs_;
 
+  /// @brief The type of measurements made by each robot in it's graph
+  std::map<char, std::set<std::string>> measurement_types_;
+
   /* INTERFACE */
  public:
   /** @brief Constructs a raw dataset
@@ -78,6 +81,8 @@ class Dataset {
    * @returns The specified robot's factor graph
    */
   gtsam::NonlinearFactorGraph factorGraph(const boost::optional<char>& robot_id = boost::none) const;
+
+  std::set<std::string> measurementTypes(const boost::optional<char>& robot_id = boost::none) const;
 
   /* HELPERS */
  private:
