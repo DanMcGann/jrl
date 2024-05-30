@@ -79,10 +79,12 @@ std::vector<Entry> Parser::parseMeasurements(const json& measurements_json) cons
     uint64_t stamp = entry_element["stamp"].get<uint64_t>();
     gtsam::NonlinearFactorGraph entry_measurements;
     std::vector<std::string> type_tags;
-    for (auto& measurement : entry_element["measurements"]) {
-      std::string tag = measurement["type"].get<std::string>();
-      type_tags.push_back(tag);
-      entry_measurements.push_back(measurement_parsers_.at(tag)(measurement));
+    if(entry_element.contains("measurements")) {
+      for (auto& measurement : entry_element["measurements"]) {
+        std::string tag = measurement["type"].get<std::string>();
+        type_tags.push_back(tag);
+        entry_measurements.push_back(measurement_parsers_.at(tag)(measurement));
+      }
     }
     std::map<gtsam::FactorIndex, bool> potential_outlier_statuses;
     if (entry_element.contains("potential_outlier_statuses")) {

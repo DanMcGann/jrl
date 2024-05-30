@@ -54,8 +54,9 @@ template <>
 json serialize<gtsam::Rot3>(gtsam::Rot3 rot) {
   json output;
   output["type"] = Rot3Tag;
-  gtsam::Vector q = rot.quaternion();
-  output["rotation"] = {q(0), q(1), q(2), q(3)};
+  // Eigen::Quaternion returns coeffs in the order (x, y, z, w)
+  gtsam::Vector q = rot.toQuaternion().coeffs();
+  output["rotation"] = {q(3), q(0), q(1), q(2)};
   return output;
 }
 
@@ -74,9 +75,10 @@ template <>
 json serialize<gtsam::Pose3>(gtsam::Pose3 pose) {
   json output;
   output["type"] = Pose3Tag;
-  gtsam::Vector q = pose.rotation().quaternion();
+  // Eigen::Quaternion returns coeffs in the order (x, y, z, w)
+  gtsam::Vector q = pose.rotation().toQuaternion().coeffs();
   output["translation"] = {pose.x(), pose.y(), pose.z()};
-  output["rotation"] = {q(0), q(1), q(2), q(3)};
+  output["rotation"] = {q(3), q(0), q(1), q(2)};
   return output;
 }
 
