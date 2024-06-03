@@ -68,8 +68,9 @@ PYBIND11_MODULE(jrl_python, m) {
       .def_readwrite("measurement_types", &Entry::measurement_types)
       .def_readwrite("measurements", &Entry::measurements)
       .def_readwrite("potential_outlier_statuses", &Entry::potential_outlier_statuses)
-      .def("remove", &Entry::remove)
-      .def("filter", &Entry::filter)
+      .def("filtered", &Entry::filtered)
+      .def_static("KeepTypes", &Entry::KeepTypes)
+      .def_static("RemoveTypes", &Entry::RemoveTypes)
       .def(py::pickle(
           [](const Entry &entry) {  // __getstate__
             return py::make_tuple(entry.stamp, entry.measurement_types, entry.measurements,

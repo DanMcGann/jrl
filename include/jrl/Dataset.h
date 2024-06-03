@@ -82,6 +82,11 @@ class Dataset {
    */
   gtsam::NonlinearFactorGraph factorGraph(const boost::optional<char>& robot_id = boost::none) const;
 
+
+/** @brief Returns the measurement types for a specific robot
+ * @param robot_id: The robot identifier for the measurement types to return. Not required for single robot dataset.
+ * @returns The specified robot's measurement types
+ */
   std::set<std::string> measurementTypes(const boost::optional<char>& robot_id = boost::none) const;
 
   /* HELPERS */
