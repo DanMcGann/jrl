@@ -32,7 +32,8 @@ TEST(Types, EntryRemove){
     std::map<gtsam::FactorIndex, bool> potential_outlier_statuses{{0, false}, {1, true}};
     jrl::Entry entry = jrl::Entry(0, tags, graph, potential_outlier_statuses);
 
-    jrl::Entry split = entry.remove({jrl::BetweenFactorPose2Tag});
+    auto pred = jrl::Entry::RemoveTypes({jrl::BetweenFactorPose2Tag});
+    jrl::Entry split = entry.filtered(pred);
     
     EXPECT_EQ(1, split.measurements.size());
     EXPECT_EQ(1, split.measurement_types.size());
@@ -41,7 +42,7 @@ TEST(Types, EntryRemove){
     EXPECT_FALSE(split.potential_outlier_statuses[0]);
 }
 
-TEST(Types, EntryFilter){
+TEST(Types, EntryKeep){
     // Make dummy factors
     gtsam::noiseModel::Gaussian::shared_ptr cov = gtsam::noiseModel::Gaussian::Covariance(Eigen::Matrix3d::Identity());
     gtsam::PriorFactor<gtsam::Pose2> factor_prior(X(0), gtsam::Pose2::Identity(), cov);
@@ -56,7 +57,8 @@ TEST(Types, EntryFilter){
     std::map<gtsam::FactorIndex, bool> potential_outlier_statuses{{0, false}, {1, true}};
     jrl::Entry entry = jrl::Entry(0, tags, graph, potential_outlier_statuses);
 
-    jrl::Entry split = entry.filter({jrl::BetweenFactorPose2Tag});
+    auto pred = jrl::Entry::KeepTypes({jrl::BetweenFactorPose2Tag});
+    jrl::Entry split = entry.filtered(pred);
     
     EXPECT_EQ(1, split.measurements.size());
     EXPECT_EQ(1, split.measurement_types.size());

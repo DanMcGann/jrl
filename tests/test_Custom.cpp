@@ -27,8 +27,7 @@ TEST(Custom, Factor){
     // Make dataset
     gtsam::NonlinearFactorGraph graph;
     graph.push_back(prior);
-    jrl::DatasetBuilder builder("test", {'a'});
-    builder.addEntry('a', 0, graph, {customType});
+    jrl::Entry entry(0, {customType}, graph);
 
     // Make custom writer/parser (Copied from prior information)
     jrl::Writer writer;
@@ -38,9 +37,9 @@ TEST(Custom, Factor){
     parser.registerMeasurementParser(customType, [](const json& input){ return jrl::io_measurements::parsePrior<gtsam::Pose2>(&jrl::io_values::parse<gtsam::Pose2>, input); });
 
     // Send it round trip!
-    writer.writeDataset(builder.build(), "custom.jrl");
-    jrl::Dataset dataset = parser.parseDataset("custom.jrl");
-    gtsam::PriorFactor<gtsam::Pose2>::shared_ptr read_factor = boost::dynamic_pointer_cast<gtsam::PriorFactor<gtsam::Pose2>>(dataset.factorGraph('a')[0]);
+    auto serialized = writer.serializeMeasurements({entry});
+    jrl::Entry read = parser.parseMeasurements(serialized)[0];
+    gtsam::PriorFactor<gtsam::Pose2>::shared_ptr read_factor = boost::dynamic_pointer_cast<gtsam::PriorFactor<gtsam::Pose2>>(entry.measurements.at(0));
 
     EXPECT_TRUE(prior.equals(*read_factor));
 }
@@ -58,9 +57,7 @@ TEST(Custom, Value){
     // Make dataset
     theta.insert(X(0), x);
     types[X(0)] = customType;
-
-    jrl::DatasetBuilder builder("test", {'a'});
-    builder.addEntry('a', 0, graph, {}, {}, jrl::TypedValues(theta, types));
+    jrl::TypedValues typed_values(theta, types);
 
     // Make custom writer/parser (Copied from prior information)
     jrl::Writer writer;
@@ -70,9 +67,9 @@ TEST(Custom, Value){
     parser.registerValueParser(customType, [](const json& input, gtsam::Key key, gtsam::Values& accum) { return jrl::io_values::valueAccumulator<gtsam::Pose2>(&jrl::io_values::parse<gtsam::Pose2>, input, key, accum); });
 
     // Send it round trip!
-    writer.writeDataset(builder.build(), "custom.jrl");
-    jrl::Dataset dataset = parser.parseDataset("custom.jrl");
-    gtsam::Pose2 x_read = dataset.initialization('a').at<gtsam::Pose2>(X(0));
+    auto serialized = writer.serializeValues(typed_values);
+    gtsam::Values read = parser.parseValues(serialized).values;
+    gtsam::Pose2 x_read = read.at<gtsam::Pose2>(X(0));
 
-    EXPECT_MATRICES_EQ(x.matrix(), x_read.matrix());
+    EXPECT_TRUE(x.equals(x_read));
 }

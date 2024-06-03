@@ -31,18 +31,6 @@ class Writer {
    **/
   std::map<std::string, MeasurementSerializer> loadDefaultMeasurementSerializers();
 
-  /** @brief Serializes all values using the loaded value serializers
-   *  @param typed_values Input values and types
-   *  @return JSON serialized values
-   **/
-  json serializeValues(TypedValues typed_values) const;
-
-  /** @brief Serializes all measurements using the loaded measurement serializers
-   *  @param measurements Input entries containing temporally ordered measurements
-   *  @return JSON serialized measurements
-   **/
-  json serializeMeasurements(std::vector<Entry> measurements) const;
-
   /** @brief Writes arbitrary JSON To file
    * @param output_json: The json to write
    * @param output_file_name: The file in which to save the json
@@ -67,6 +55,18 @@ class Writer {
   /// @param compress_with_cbor if true indicates that written files should be compressed with cbor
   void writeMetricSummary(MetricSummary metric_summary, std::string output_file_name,
                           bool compress_to_cbor = false) const;
+
+  /** @brief Serializes all values using the loaded value serializers
+   *  @param typed_values Input values and types
+   *  @return JSON serialized values
+   **/
+  json serializeValues(TypedValues typed_values) const;
+
+  /** @brief Serializes all measurements using the loaded measurement serializers
+   *  @param measurements Input entries containing temporally ordered measurements
+   *  @return JSON serialized measurements
+   **/
+  json serializeMeasurements(std::vector<Entry> measurements) const;
 
   /// @brief Register a custom value serializer
   /// @param tag Tag to associate with the value
