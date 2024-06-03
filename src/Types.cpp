@@ -4,18 +4,17 @@ namespace jrl {
 
 /**********************************************************************************************************************/
 EntryPredicate Entry::KeepTypes(std::vector<std::string> types) {
-    return [types](const std::string& type, const gtsam::NonlinearFactor::shared_ptr&) {
-      return std::find(types.begin(), types.end(), type) != types.end();
-    };
-  }
-
+  return [types](const std::string& type, const gtsam::NonlinearFactor::shared_ptr&) {
+    return std::find(types.begin(), types.end(), type) != types.end();
+  };
+}
 
 /**********************************************************************************************************************/
 EntryPredicate Entry::RemoveTypes(std::vector<std::string> types) {
-    return [types](const std::string& type, const gtsam::NonlinearFactor::shared_ptr&) {
-      return std::find(types.begin(), types.end(), type) == types.end();
-    };
-  }
+  return [types](const std::string& type, const gtsam::NonlinearFactor::shared_ptr&) {
+    return std::find(types.begin(), types.end(), type) == types.end();
+  };
+}
 
 /**********************************************************************************************************************/
 Entry Entry::filtered(EntryPredicate predicate) const {

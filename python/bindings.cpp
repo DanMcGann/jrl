@@ -1,7 +1,7 @@
 #include <gtsam/nonlinear/NonlinearFactor.h>
+#include <pybind11/functional.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <pybind11/functional.h>
 
 #include "jrl/Dataset.h"
 #include "jrl/DatasetBuilder.h"
