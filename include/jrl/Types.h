@@ -5,7 +5,7 @@
 namespace jrl {
 
 typedef std::map<gtsam::Key, std::string> ValueTypes;
-typedef std::function<bool(std::string, gtsam::NonlinearFactor::shared_ptr&)> EntryPredicate;
+typedef std::function<bool(const std::string&, const gtsam::NonlinearFactor::shared_ptr&)> EntryPredicate;
 
 struct TypedValues {
   gtsam::Values values;
@@ -41,7 +41,7 @@ struct Entry {
   /// @brief Returns a new Entry with only the measurements that satisfy the predicate
   /// @param predicate Function that returns true if the measurement should be included
   /// @return New Entry with only the measurements that satisfy the predicate
-  Entry filtered(EntryPredicate predicate);
+  Entry filtered(EntryPredicate predicate) const;
 
 };
 
