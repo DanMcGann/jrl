@@ -20,7 +20,7 @@ class Dataset {
 
   /// @brief The robots for which this dataset defines trajectories
   std::vector<char> robots_;
-  
+
   /// @brief The dataset ground-truth for each robot. Each robot's ground truth should contain all values that that
   /// robot observed. This means some values may appear multiple times if multiple robots observe them. Any values
   /// appearing multiple times MUST be the same.
@@ -36,6 +36,11 @@ class Dataset {
 
   /// @brief The set measurements made by each robot unordered in a factor graph
   std::map<char, gtsam::NonlinearFactorGraph> factor_graphs_;
+
+  /// @brief The set of measurements that may be outliers for each robot.
+  /// All measurements appearing in this set should be considered as possible outliers (i.e. loop closures).
+  /// The status indicates which measurements are true outliers.
+  std::map<char, std::map<gtsam::FactorIndex, bool>> potential_outlier_statuses_;
 
   /* INTERFACE */
  public:

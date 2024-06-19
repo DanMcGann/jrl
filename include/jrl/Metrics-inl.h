@@ -201,6 +201,12 @@ inline MetricSummary computeMetricSummary(Dataset dataset, Results results, bool
     summary.sve = computeSVE<POSE_TYPE>(results);
   }
 
+  // Compute Precision+Recall if possible
+  if (results.robot_outliers) {
+    std::tie(summary.precision_recall, summary.robot_precision_recall) =
+        computePrecisionRecall(dataset, results, step_idxes);
+  }
+
   return summary;
 }
 

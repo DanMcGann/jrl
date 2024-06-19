@@ -33,7 +33,8 @@ Where an entry represents a set of measurements taken at a specific time and has
   # (Optional) Map[uint64_t -> bool] - Mapping of factor indicies (in "measurements") to their outlier status
   # If a factor index appears as a key it is possibly an outlier measurement (e.g. loop-closures)
   # The value for each key indicates if the meaurement is actually an outlier
-  "potential_outlier_statuses": {"2": false, "6": true, ...}
+  # Note: The factor index is the index of the factor in the given robots total graph
+  "potential_outlier_statuses": {"201": false, "202": true, ...}
 }
 ```
 

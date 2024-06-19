@@ -34,6 +34,11 @@ struct MetricSummary {
 
   /// @brief The Mean Residual
   boost::optional<double> mean_residual{boost::none};
+
+  /// @brief The individual precision and recall for each robot
+  boost::optional<std::map<char, std::pair<double, double>>> robot_precision_recall{boost::none};
+  /// @brief The total precision and recall
+  boost::optional<std::pair<double, double>> precision_recall{boost::none};
 };
 
 namespace metrics {
@@ -89,12 +94,28 @@ inline std::pair<double, double> computeSVE(Results results);
 inline double computeMeanResidual(Dataset dataset, Results results,
                                   std::optional<std::map<char, std::optional<size_t>>> step_idx = std::nullopt);
 
+/** @brief Computes Precision and Recall statistics for the given solution
+ * Precision and recall are computed on measurement classifications (inlier vs. outlier) using the set of potential
+ * outliers / true outliers marked in the dataset, along with the set of measurements rejected as outliers in the
+ * solution.
+ * NOTE: Inlier is considered the POSITIVE class for metrics despite results marking outliers
+ * NOTE: If precision or recall cannot be computed this function reports -1
+ * @param dataset: The dataset
+ * @param results: The estimation results
+ * @param step_idx: The number of entries from which we will compute the residual (used if we only have partial results)
+ * if nullopt we use all entries
+ * @returns The overall precision and recall, and the per-robot precision and recall
+ */
+std::pair<std::pair<double, double>, std::map<char, std::pair<double, double>>> computePrecisionRecall(
+    Dataset dataset, Results results, std::optional<std::map<char, std::optional<size_t>>> step_idx = std::nullopt);
+
 /** @brief Computes all metrics possible for the given datasets.
  *  Conditions to compute different metrics
  *  - ATE: dataset must contain groundtruth
  *  - SVE: dataset must be multi-robot
  *  - Mean Residual: always computable
- * Note: If step_idx is provided it is provided to computeMeanResidual, and computeATE is set to allow partial results
+ * Note: If step_idx is provided it is provided to computeMeanResidual, and computeATE is set to allow partial
+ * results
  */
 template <class POSE_TYPE>
 inline MetricSummary computeMetricSummary(Dataset dataset, Results results, bool align = true,
