@@ -162,6 +162,16 @@ void Writer::writeResults(Results results, std::string output_file_name, bool co
     solution_json[std::string(1, robot)] = serializeValues(results.robot_solutions[robot]);
   }
   output_json["solutions"] = solution_json;
+
+  // Serialize Outliers
+  if (results.robot_outliers) {
+    json outliers_json;
+    for (auto& robot : results.robots) {
+      solution_json[std::string(1, robot)] = (*results.robot_outliers)[robot];
+    }
+    output_json["outliers"] = solution_json;
+  }
+
   // Write the file
   writeJson(output_json, output_file_name, compress_to_cbor);
 }
@@ -179,6 +189,9 @@ void Writer::writeMetricSummary(MetricSummary metric_summary, std::string output
   if (metric_summary.total_ate) output_json["total_ate"] = *metric_summary.total_ate;
   if (metric_summary.sve) output_json["sve"] = *metric_summary.sve;
   if (metric_summary.mean_residual) output_json["mean_residual"] = *metric_summary.mean_residual;
+  if (metric_summary.robot_precision_recall)
+    output_json["robot_precision_recall"] = *metric_summary.robot_precision_recall;
+  if (metric_summary.precision_recall) output_json["precision_recall"] = *metric_summary.precision_recall;
 
   // Write the file
   writeJson(output_json, output_file_name, compress_to_cbor);

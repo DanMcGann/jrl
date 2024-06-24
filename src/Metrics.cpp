@@ -8,7 +8,7 @@ namespace jrl {
 namespace metrics {
 
 /**********************************************************************************************************************/
-inline std::pair<std::pair<double, double>, std::map<char, std::pair<double, double>>> computePrecisionRecall(
+std::pair<std::pair<double, double>, std::map<char, std::pair<double, double>>> computePrecisionRecall(
     Dataset dataset, Results results, std::optional<std::map<char, std::optional<size_t>>> step_idxes) {
   // Setup overall counts Positive Class = Inliers
   double tp = 0;

@@ -161,13 +161,16 @@ PYBIND11_MODULE(jrl_python, m) {
       .def_readwrite("method_name", &Results::method_name)
       .def_readwrite("robots", &Results::robots)
       .def_readwrite("robot_solutions", &Results::robot_solutions)
+      .def_readwrite("robot_outliers", &Results::robot_outliers)
       .def(py::pickle(
           [](const Results &results) {  // __getstate__
-            return py::make_tuple(results.dataset_name, results.method_name, results.robots, results.robot_solutions);
+            return py::make_tuple(results.dataset_name, results.method_name, results.robots, results.robot_solutions,
+                                  results.robot_outliers);
           },
           [](py::tuple tup) {  // __setstate__
             Results result(tup[0].cast<std::string>(), tup[1].cast<std::string>(), tup[2].cast<std::vector<char>>(),
-                           tup[3].cast<std::map<char, TypedValues>>());
+                           tup[3].cast<std::map<char, TypedValues>>(),
+                           tup[4].cast<boost::optional<std::map<char, std::set<gtsam::FactorIndex>>>>());
             return result;
           }));
 
@@ -214,7 +217,9 @@ PYBIND11_MODULE(jrl_python, m) {
       .def_readwrite("robot_ate", &MetricSummary::robot_ate)
       .def_readwrite("total_ate", &MetricSummary::total_ate)
       .def_readwrite("sve", &MetricSummary::sve)
-      .def_readwrite("mean_residual", &MetricSummary::mean_residual);
+      .def_readwrite("mean_residual", &MetricSummary::mean_residual)
+      .def_readwrite("robot_precision_recall", &MetricSummary::robot_precision_recall)
+      .def_readwrite("precision_recall", &MetricSummary::precision_recall);
 
   /**********************************************************************************************************************/
   m.def("computeMetricSummaryPoint2", &metrics::computeMetricSummary<gtsam::Point2>, py::return_value_policy::copy,

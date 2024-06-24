@@ -5,6 +5,7 @@
 #include <gtsam/slam/PriorFactor.h>
 
 #include <fstream>
+#include <set>
 
 #include "jrl/IOMeasurements.h"
 #include "jrl/IOValues.h"
@@ -79,7 +80,7 @@ std::vector<Entry> Parser::parseMeasurements(const json& measurements_json) cons
     uint64_t stamp = entry_element["stamp"].get<uint64_t>();
     gtsam::NonlinearFactorGraph entry_measurements;
     std::vector<std::string> type_tags;
-    if(entry_element.contains("measurements")) {
+    if (entry_element.contains("measurements")) {
       for (auto& measurement : entry_element["measurements"]) {
         std::string tag = measurement["type"].get<std::string>();
         type_tags.push_back(tag);
@@ -153,12 +154,22 @@ Results Parser::parseResults(std::string results_file, bool decompress_from_cbor
   std::string method_name = results_json["method_name"];
   std::vector<char> robots = results_json["robots"].get<std::vector<char>>();
 
-  // Parse Ground truth if it exists
+  // Parse the solutions
   std::map<char, TypedValues> solutions;
   for (auto& el : results_json["solutions"].items()) {
     solutions[el.key()[0]] = parseValues(el.value());
   }
-  return Results(dataset_name, method_name, robots, solutions);
+
+  // Parse the marked outliers
+  boost::optional<std::map<char, std::set<gtsam::FactorIndex>>> outliers = boost::none;
+  if (results_json.contains("outliers")) {
+    outliers = std::map<char, std::set<gtsam::FactorIndex>>();
+    for (auto& el : results_json["outliers"].items()) {
+      (*outliers)[el.key()[0]] = el.value().get<std::set<gtsam::FactorIndex>>();
+    }
+  }
+
+  return Results(dataset_name, method_name, robots, solutions, outliers);
 }
 
 /**********************************************************************************************************************/
@@ -180,6 +191,14 @@ MetricSummary Parser::parseMetricSummary(std::string metric_summary_file, bool d
   }
   if (results_json.contains("mean_residual")) {
     metric_summary.mean_residual = results_json["mean_residual"].get<double>();
+  }
+
+  if (results_json.contains("robot_precision_recall")) {
+    metric_summary.robot_precision_recall =
+        results_json["robot_precision_recall"].get<std::map<char, std::pair<double, double>>>();
+  }
+  if (results_json.contains("precision_recall")) {
+    metric_summary.precision_recall = results_json["precision_recall"].get<std::pair<double, double>>();
   }
 
   return metric_summary;
