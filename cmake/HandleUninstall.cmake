@@ -6,11 +6,11 @@ configure_file(
   "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
   IMMEDIATE @ONLY)
 
-if (NOT TARGET uninstall) # avoid duplicating this target
-  add_custom_target(uninstall
+if (NOT TARGET jrl-uninstall) # avoid duplicating this target
+  add_custom_target(jrl-uninstall
     "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
 else()
     add_custom_target(uninstall_jrl
       "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
-    add_dependencies(uninstall uninstall_jrl)
+    add_dependencies(jrl-uninstall uninstall_jrl)
 endif()
