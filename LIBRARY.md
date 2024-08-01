@@ -21,7 +21,9 @@ The library also provides some additional helper modules:
 * `Initialization` - Helper for user scripts, provides functionality to compute the initialization of new variables in an entry given the solution to the problem defined up to and including the previous entry.
 
 ## Python Bindings
-Python bindings are provided for all modules in `python/`. Python bindings follow the same naming conventions as the C++ implementation, with the caveat that template types are realized by appending the type to the class name. For example given a C++ class `jrl::Class<Type>` the corresponding python binding will be `jrl.ClassType`. Enable building the python bindings with `JRL_BUILD_PYTHON` CMake option. The bindings can be installed with `make jrl-python-install` and uninstalled with `jrl-python-uninstall`. These commands delegate to pip under the hood and can work with conda environments by ... TODO  
+Python bindings are provided for all modules in `python/`. Python bindings follow the same naming conventions as the C++ implementation, with the caveat that template types are realized by appending the type to the class name. For example given a C++ class `jrl::Class<Type>` the corresponding python binding will be `jrl.ClassType`. 
+
+Enable building the python bindings with `JRL_BUILD_PYTHON` CMake option. The bindings can be installed with `make jrl-python-install` and uninstalled with `jrl-python-uninstall`. These commands delegate to pip under the hood and can work with virtual environments by setting the CMake variable `PYTHON_EXECUTABLE` to the proper path for your environment (find by running `which python` when the environment is active). For this to work GTSAM must also be installed in the environment which can be done in a similar manner to the method described here for JRL.
 
 ## Tests
 Some modules are tested via unit tests in `tests/`. Enable building tests with `JRL_BUILD_TESTS` CMake option, and run tests with `make jrl-test`. We of course are are always looking for help to build out our test suite, and appreciate all contributions to do so!
