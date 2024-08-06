@@ -1,3 +1,4 @@
+/// @brief This module implements a C++ class for representing JRL Dataset.
 #pragma once
 #include <gtsam/nonlinear/NonlinearFactor.h>
 #include <gtsam/nonlinear/NonlinearFactorGraph.h>

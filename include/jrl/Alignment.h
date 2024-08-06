@@ -1,3 +1,6 @@
+/** @brief This module implements the Umeyama alignment algorithm. 
+ * It is used for aligning trajectories for computation of metrics
+ */
 #pragma once
 #include <gtsam/base/Vector.h>
 #include <gtsam/geometry/Pose2.h>

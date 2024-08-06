@@ -1,3 +1,4 @@
+/// @brief This module implements all functionality for input and output of measurements.
 #pragma once
 #include <gtsam/geometry/Pose2.h>
 #include <gtsam/geometry/Pose3.h>

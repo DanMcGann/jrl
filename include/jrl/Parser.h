@@ -1,3 +1,4 @@
+/// @brief Implements the main interface for reading JRL files (datasets, results, metrics).
 #pragma once
 #include <gtsam/nonlinear/Values.h>
 
