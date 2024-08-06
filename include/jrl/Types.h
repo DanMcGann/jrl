@@ -17,14 +17,15 @@ struct Entry {
   uint64_t stamp;
   std::vector<std::string> measurement_types;
   gtsam::NonlinearFactorGraph measurements;
-  std::map<gtsam::FactorIndex, bool> potential_outlier_statuses;
 
-  Entry(uint64_t stamp, std::vector<std::string> measurement_types, gtsam::NonlinearFactorGraph measurements,
-        std::map<gtsam::FactorIndex, bool> potential_outlier_statuses = {})
-      : stamp(stamp),
-        measurement_types(measurement_types),
-        measurements(measurements),
-        potential_outlier_statuses(potential_outlier_statuses) {}
+  Entry(uint64_t stamp, std::vector<std::string> measurement_types, gtsam::NonlinearFactorGraph measurements)
+      : stamp(stamp), measurement_types(measurement_types), measurements(measurements) {}
 };
+
+/** @brief A unique identifier for a factor in a dataset. [Entry Idx, Measurement Idx]
+ * Each factor can be uniquely identified by its entry index, and the index that the
+ * factor appears in that entry which we refer to as its Measurement Index.
+ */
+typedef std::pair<size_t, gtsam::FactorIndex> FactorId;
 
 }  // namespace jrl

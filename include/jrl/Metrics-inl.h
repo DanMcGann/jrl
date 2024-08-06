@@ -10,19 +10,19 @@ namespace metrics {
 namespace internal {
 // For any linear object, the translation is itself
 template <class T>
-inline std::pair<double, double> squaredPoseError(T est, T ref) {
+inline PoseError squaredPoseError(T est, T ref) {
   return std::make_pair((est - ref).squaredNorm(), 0);
 }
 
 // Pose Specializations
 template <>
-inline std::pair<double, double> squaredPoseError<gtsam::Pose3>(gtsam::Pose3 est, gtsam::Pose3 ref) {
+inline PoseError squaredPoseError<gtsam::Pose3>(gtsam::Pose3 est, gtsam::Pose3 ref) {
   gtsam::Pose3 error_pose = ref.inverse().compose(est);
   double angle_error = error_pose.rotation().axisAngle().second;
   return std::make_pair(error_pose.translation().squaredNorm(), angle_error * angle_error);
 }
 template <>
-inline std::pair<double, double> squaredPoseError<gtsam::Pose2>(gtsam::Pose2 est, gtsam::Pose2 ref) {
+inline PoseError squaredPoseError<gtsam::Pose2>(gtsam::Pose2 est, gtsam::Pose2 ref) {
   gtsam::Pose2 error_pose = ref.inverse().compose(est);
   double angle_error = error_pose.theta();
   return std::make_pair(error_pose.translation().squaredNorm(), angle_error * angle_error);
@@ -31,8 +31,8 @@ inline std::pair<double, double> squaredPoseError<gtsam::Pose2>(gtsam::Pose2 est
 
 /**********************************************************************************************************************/
 template <class POSE_TYPE>
-inline boost::optional<std::pair<double, double>> computeATE(char rid, Dataset dataset, Results results, bool align,
-                                                             bool align_with_scale, bool allow_partial_results) {
+inline boost::optional<PoseError> computeATE(char rid, Dataset dataset, Results results, bool align,
+                                             bool align_with_scale, bool allow_partial_results) {
   // We have groundtruth so we can compute ATE
   if (dataset.containsGroundTruth()) {
     // Grab the estimated and reference trajectories
@@ -59,7 +59,7 @@ inline boost::optional<std::pair<double, double>> computeATE(char rid, Dataset d
     double squared_translation_error = 0.0;
     double squared_rotation_error = 0.0;
     for (auto& key : filtered_ref.keys()) {
-      std::pair<double, double> squared_pose_error =
+      PoseError squared_pose_error =
           internal::squaredPoseError<POSE_TYPE>(aligned_est.at<POSE_TYPE>(key), filtered_ref.at<POSE_TYPE>(key));
 
       squared_translation_error += squared_pose_error.first;
@@ -79,7 +79,7 @@ inline boost::optional<std::pair<double, double>> computeATE(char rid, Dataset d
 
 /**********************************************************************************************************************/
 template <class POSE_TYPE>
-inline std::pair<double, double> computeSVE(Results results) {
+inline PoseError computeSVE(Results results) {
   double squared_sve_trans = 0.0;
   double squared_sve_rot = 0.0;
   double num_shared = 0.0;
@@ -105,7 +105,7 @@ inline std::pair<double, double> computeSVE(Results results) {
           // For each pairwise relationship
           for (size_t i = 0; i < variable_owners.size(); i++) {
             for (size_t j = i + 1; j < variable_owners.size(); j++) {  // Ignore self pair
-              std::pair<double, double> squared_pose_error = internal::squaredPoseError<POSE_TYPE>(
+              PoseError squared_pose_error = internal::squaredPoseError<POSE_TYPE>(
                   results.robot_solutions[variable_owners[i]].values.at<POSE_TYPE>(key),
                   results.robot_solutions[variable_owners[j]].values.at<POSE_TYPE>(key));
               squared_sve_trans += squared_pose_error.first;
@@ -185,10 +185,10 @@ inline MetricSummary computeMetricSummary(Dataset dataset, Results results, bool
 
   // Compute ATE if possible
   if (dataset.containsGroundTruth()) {
-    summary.robot_ate = std::map<char, std::pair<double, double>>();
+    summary.robot_ate = std::map<char, PoseError>();
     summary.total_ate = std::make_pair(0, 0);
     for (char rid : summary.robots) {
-      boost::optional<std::pair<double, double>> robot_ate =
+      boost::optional<PoseError> robot_ate =
           computeATE<POSE_TYPE>(rid, dataset, results, align, align_with_scale, step_idxes.has_value());
       (*summary.robot_ate)[rid] = *robot_ate;
       (*summary.total_ate) = std::make_pair((*summary.total_ate).first + (*robot_ate).first,
@@ -199,6 +199,12 @@ inline MetricSummary computeMetricSummary(Dataset dataset, Results results, bool
   // Compute the SVE is possible
   if (summary.robots.size() > 1) {
     summary.sve = computeSVE<POSE_TYPE>(results);
+  }
+
+  // Compute Precision+Recall if possible
+  if (dataset.containsPotentialOutlierFactors() && dataset.containsOutlierFactors() && results.robot_outliers) {
+    std::tie(summary.precision_recall, summary.robot_precision_recall) =
+        computePrecisionRecall(dataset, results, step_idxes);
   }
 
   return summary;
