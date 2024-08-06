@@ -25,11 +25,17 @@ struct Results {
   /// appearing multiple times MAY be different.
   std::map<char, TypedValues> robot_solutions;
 
+  /// @brief The set of measurements rejected as outliers and not used to compute the solution.
+  /// Factors are referred to by their index in their owner robot's factor graph.
+  /// Note: Factors can only be rejected if they are declared potential outliers in the dataset.
+  boost::optional<std::map<char, std::set<FactorId>>> robot_outliers;
+
   /** @brief Constructs a results with values
    * @param dataset_json: The json object for the full dataset file.
    */
   Results(std::string dataset_name, std::string method_name, std::vector<char> robots,
-          std::map<char, TypedValues> solutions);
+          std::map<char, TypedValues> solutions,
+          boost::optional<std::map<char, std::set<FactorId>>> robot_outliers = boost::none);
 
   /** @brief Constructs an empty results
    * @param dataset_json: The json object for the full dataset file.

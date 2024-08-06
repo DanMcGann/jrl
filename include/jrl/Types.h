@@ -29,21 +29,13 @@ struct Entry {
   std::vector<std::string> measurement_types;
   /// @brief The measurements taken by the robot at this time (stamp)
   gtsam::NonlinearFactorGraph measurements;
-  /// @brief Indicates all measurements that may be outliers, and their groundtruth outlier status
-  /// TODO (dan) The Ground truth (statuses) should really be in datasets as a separate optional components to support
-  /// datasets where the true statuses is unknown
-  std::map<gtsam::FactorIndex, bool> potential_outlier_statuses;
 
   /// @brief Function that takes in a type and a factor and returns true if the factor should be kept
   typedef std::function<bool(const std::string&, const gtsam::NonlinearFactor::shared_ptr&)> FilterPredicate;
 
   /// @brief Explicit constructor for an Entry
-  Entry(uint64_t stamp, std::vector<std::string> measurement_types, gtsam::NonlinearFactorGraph measurements,
-        std::map<gtsam::FactorIndex, bool> potential_outlier_statuses = {})
-      : stamp(stamp),
-        measurement_types(measurement_types),
-        measurements(measurements),
-        potential_outlier_statuses(potential_outlier_statuses) {}
+  Entry(uint64_t stamp, std::vector<std::string> measurement_types, gtsam::NonlinearFactorGraph measurements)
+      : stamp(stamp), measurement_types(measurement_types), measurements(measurements) {}
 
   /// @brief Helper to make predicate for filtering based on types
   /// @param types List of jrl tags to keep
@@ -60,5 +52,11 @@ struct Entry {
   /// @return New Entry with only the measurements that satisfy the predicate
   Entry filtered(FilterPredicate predicate) const;
 };
+
+/** @brief A unique identifier for a factor in a dataset. [Entry Idx, Measurement Idx]
+ * Each factor can be uniquely identified by its entry index, and the index that the
+ * factor appears in that entry which we refer to as its Measurement Index.
+ */
+typedef std::pair<size_t, gtsam::FactorIndex> FactorId;
 
 }  // namespace jrl

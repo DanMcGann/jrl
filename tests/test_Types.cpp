@@ -28,8 +28,7 @@ TEST(Types, EntryRemove) {
   graph.push_back(factor_between);
 
   std::vector<std::string> tags{jrl::PriorFactorPose2Tag, jrl::BetweenFactorPose2Tag};
-  std::map<gtsam::FactorIndex, bool> potential_outlier_statuses{{0, false}, {1, true}};
-  jrl::Entry entry = jrl::Entry(0, tags, graph, potential_outlier_statuses);
+  jrl::Entry entry = jrl::Entry(0, tags, graph);
 
   auto pred = jrl::Entry::RemoveTypes({jrl::BetweenFactorPose2Tag});
   jrl::Entry split = entry.filtered(pred);
@@ -38,7 +37,6 @@ TEST(Types, EntryRemove) {
   EXPECT_EQ(1, split.measurement_types.size());
   EXPECT_EQ(jrl::PriorFactorPose2Tag, split.measurement_types[0]);
   EXPECT_TRUE(factor_prior.equals(*split.measurements[0]));
-  EXPECT_FALSE(split.potential_outlier_statuses[0]);
 }
 
 TEST(Types, EntryKeep) {
@@ -53,8 +51,7 @@ TEST(Types, EntryKeep) {
   graph.push_back(factor_between);
 
   std::vector<std::string> tags{jrl::PriorFactorPose2Tag, jrl::BetweenFactorPose2Tag};
-  std::map<gtsam::FactorIndex, bool> potential_outlier_statuses{{0, false}, {1, true}};
-  jrl::Entry entry = jrl::Entry(0, tags, graph, potential_outlier_statuses);
+  jrl::Entry entry = jrl::Entry(0, tags, graph);
 
   auto pred = jrl::Entry::KeepTypes({jrl::BetweenFactorPose2Tag});
   jrl::Entry split = entry.filtered(pred);
@@ -63,5 +60,4 @@ TEST(Types, EntryKeep) {
   EXPECT_EQ(1, split.measurement_types.size());
   EXPECT_EQ(jrl::BetweenFactorPose2Tag, split.measurement_types[0]);
   EXPECT_TRUE(factor_between.equals(*split.measurements[0]));
-  EXPECT_TRUE(split.potential_outlier_statuses[0]);
 }
