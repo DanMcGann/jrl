@@ -1,9 +1,9 @@
-#pragma once
 /** @brief This class provides an interface to generate initialization for dataset entries
  * This can be used while building datasets, or while solving datasets incrementally.
  * Note: Because the initialization is written generically it will not be the fastest method.
  * Projects requiring fast runtime should use custom initialization techniques.
  **/
+#pragma once
 #include <gtsam/geometry/BearingRange.h>
 
 #include "jrl/Dataset.h"

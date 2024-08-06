@@ -1,3 +1,4 @@
+/// @brief This module defines a container for storing the results produced by an algorithm running on a JRL dataset.
 #pragma once
 #include <gtsam/nonlinear/NonlinearFactor.h>
 #include <gtsam/nonlinear/NonlinearFactorGraph.h>
