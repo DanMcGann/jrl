@@ -1,3 +1,6 @@
+/** @brief This module implements a convience class for incrementally constructing datasets.
+ * The builder interface is useful for creating datasets in simulation.
+ */
 #pragma once
 #include <boost/optional.hpp>
 #include <nlohmann/json.hpp>

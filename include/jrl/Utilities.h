@@ -1,7 +1,7 @@
-#pragma once
 /** @brief The utilities module provides implementation of generic algorithms
  * and used throughout the jrl library.
  */
+#pragma once
 #include <vector>
 
 namespace jrl {

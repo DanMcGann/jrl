@@ -1,3 +1,6 @@
+/** @brief This module implements a number of metrics that can be computed on dataset results.
+ * We also provide a container for storing metrics for later processing and evaluation.
+ */
 #pragma once
 #include <gtsam/base/Vector.h>
 #include <gtsam/geometry/Pose2.h>
