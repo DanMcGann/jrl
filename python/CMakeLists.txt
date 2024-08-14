@@ -1,4 +1,8 @@
 message(STATUS "================  PYTHON BINDINGS ENABLED. BUILDING BINDINGS  ======================")
+
+# Find Python Interpreter
+find_package(Python COMPONENTS Interpreter Development REQUIRED)
+
 # Fetch pybind to build the python bindings
 find_package(pybind11 QUIET)
 if(NOT pybind11_FOUND)
@@ -37,13 +41,13 @@ file(GENERATE OUTPUT ${JRL_PYTHON_BUILD_DIRECTORY}/jrl/__init__.py CONTENT "from
 # Setup the install command. Simply delegates to pip (should work with environmets)
 find_package(Python COMPONENTS Interpreter Development REQUIRED)
 add_custom_target(jrl-python-install
-        COMMAND ${PYTHON_EXECUTABLE} -m pip install .
+        COMMAND ${Python_EXECUTABLE} -m pip install .
         DEPENDS jrl_python
         WORKING_DIRECTORY ${JRL_PYTHON_BUILD_DIRECTORY})
 
 # Setup uninstall command. This can also be done with pip
 add_custom_target(jrl-python-uninstall
-        COMMAND ${PYTHON_EXECUTABLE} -m pip uninstall jrl
+        COMMAND ${Python_EXECUTABLE} -m pip uninstall jrl
         WORKING_DIRECTORY ${JRL_PYTHON_BUILD_DIRECTORY})
 
 
