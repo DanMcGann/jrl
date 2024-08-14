@@ -3,21 +3,21 @@
 namespace jrl {
 
 /**********************************************************************************************************************/
-EntryPredicate Entry::KeepTypes(std::vector<std::string> types) {
+Entry::FilterPredicate Entry::KeepTypes(std::vector<std::string> types) {
   return [types](const std::string& type, const gtsam::NonlinearFactor::shared_ptr&) {
     return std::find(types.begin(), types.end(), type) != types.end();
   };
 }
 
 /**********************************************************************************************************************/
-EntryPredicate Entry::RemoveTypes(std::vector<std::string> types) {
+Entry::FilterPredicate Entry::RemoveTypes(std::vector<std::string> types) {
   return [types](const std::string& type, const gtsam::NonlinearFactor::shared_ptr&) {
     return std::find(types.begin(), types.end(), type) == types.end();
   };
 }
 
 /**********************************************************************************************************************/
-Entry Entry::filtered(EntryPredicate predicate) const {
+Entry Entry::filtered(Entry::FilterPredicate predicate) const {
   std::vector<std::string> out_measurement_types;
   gtsam::NonlinearFactorGraph out_measurements;
   std::map<gtsam::FactorIndex, bool> out_potential_outlier_statuses;
