@@ -1,12 +1,15 @@
 message(STATUS "================  PYTHON BINDINGS ENABLED. BUILDING BINDINGS  ======================")
 # Fetch pybind to build the python bindings
-include(FetchContent)
-FetchContent_Declare(
-  pybind11
-  GIT_REPOSITORY https://github.com/pybind/pybind11.git
-  GIT_TAG        v2.11.0
-)
-FetchContent_MakeAvailable(pybind11)
+find_package(pybind11 QUIET)
+if(NOT pybind11_FOUND)
+    include(FetchContent)
+    FetchContent_Declare(
+    pybind11
+    GIT_REPOSITORY https://github.com/pybind/pybind11.git
+    GIT_TAG        v2.11.0
+    )
+    FetchContent_MakeAvailable(pybind11)
+endif()
 
 # Python Bindings
 file(GLOB_RECURSE pybind_srcs "*.cpp" "*.h")

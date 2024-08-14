@@ -56,7 +56,7 @@ For portability of datasets, we recommend that you do not compress datasets as y
 ```
 mkdir build
 cd build
-cmake ..
+cmake .. -DJRL_BUILD_PYTHON=On -DJRL_BUILD_TESTS=On # Building Python and Tests are Optional
 make
 
 # To install the c++ library
