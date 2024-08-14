@@ -63,7 +63,7 @@ PYBIND11_MODULE(jrl_python, m) {
       .def(py::init<uint64_t &, std::vector<std::string> &, gtsam::NonlinearFactorGraph &,
                     std::map<gtsam::FactorIndex, bool> &>(),
            py::arg("stamp"), py::arg("measurement_types"), py::arg("measurements"),
-           py::arg("potential_outlier_statuses") = {})
+           py::arg("potential_outlier_statuses") = std::map<gtsam::FactorIndex, bool>())
       .def_readwrite("stamp", &Entry::stamp)
       .def_readwrite("measurement_types", &Entry::measurement_types)
       .def_readwrite("measurements", &Entry::measurements)
@@ -144,7 +144,7 @@ PYBIND11_MODULE(jrl_python, m) {
   py::class_<DatasetBuilder>(m, "DatasetBuilder")
       .def(py::init<const std::string &, std::vector<char> &>())
       .def("addEntry", &DatasetBuilder::addEntry, py::arg("robot"), py::arg("stamp"), py::arg("measurements"),
-           py::arg("measurement_types"), py::arg("potential_outlier_statuses") = {},
+           py::arg("measurement_types"), py::arg("potential_outlier_statuses") = std::map<gtsam::FactorIndex, bool>(),
            py::arg("initialization") = py::none(), py::arg("groundtruth") = py::none())
       .def("addGroundTruth", &DatasetBuilder::addGroundTruth, py::arg("robot"), py::arg("groundtruth"))
       .def("addInitialization", &DatasetBuilder::addInitialization, py::arg("robot"), py::arg("initialization"))
