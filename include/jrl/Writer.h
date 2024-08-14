@@ -31,18 +31,6 @@ class Writer {
    **/
   std::map<std::string, MeasurementSerializer> loadDefaultMeasurementSerializers();
 
-  /** @brief Serializes all values using the loaded value serializers
-   *  @param typed_values Input values and types
-   *  @return JSON serialized values
-   **/
-  json serializeValues(TypedValues typed_values) const;
-
-  /** @brief Serializes all measurements using the loaded measurement serializers
-   *  @param measurements Input entries containing temporally ordered measurements
-   *  @return JSON serialized measurements
-   **/
-  json serializeMeasurements(std::vector<Entry> measurements) const;
-
   /** @brief Writes arbitrary JSON To file
    * @param output_json: The json to write
    * @param output_file_name: The file in which to save the json
@@ -68,9 +56,31 @@ class Writer {
   void writeMetricSummary(MetricSummary metric_summary, std::string output_file_name,
                           bool compress_to_cbor = false) const;
 
-  // TODO
-  // void registerValueSerializer(std::string tag, ValueSerializer serializer_fn);
-  // void registerMeasurementParser(std::string tag, MeasurementSerializer serializer_fn);
+  /** @brief Serializes all values using the loaded value serializers
+   *  @param typed_values Input values and types
+   *  @return JSON serialized values
+   **/
+  json serializeValues(TypedValues typed_values) const;
+
+  /** @brief Serializes all measurements using the loaded measurement serializers
+   *  @param measurements Input entries containing temporally ordered measurements
+   *  @return JSON serialized measurements
+   **/
+  json serializeMeasurements(std::vector<Entry> measurements) const;
+
+  /// @brief Register a custom value serializer
+  /// @param tag Tag to associate with the value
+  /// @param serializer_fn Serializer function to serialize the value
+  void registerValueSerializer(std::string tag, ValueSerializer serializer_fn) {
+    value_serializers_[tag] = serializer_fn;
+  };
+
+  /// @brief Register a custom measurement serializer
+  /// @param tag Tag to associate with the measurement
+  /// @param serializer_fn Serializer function to serialize the measurement
+  void registerMeasurementSerializer(std::string tag, MeasurementSerializer serializer_fn) {
+    measurement_serializers_[tag] = serializer_fn;
+  };
 };
 
 }  // namespace jrl

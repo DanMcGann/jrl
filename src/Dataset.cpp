@@ -15,8 +15,10 @@ Dataset::Dataset(const std::string name, std::vector<char> robots, std::map<char
   // Construct the factor graphs for each robot from the temporally ordered measurements
   for (const char& rid : robots_) {
     factor_graphs_[rid] = gtsam::NonlinearFactorGraph();
+    measurement_types_[rid] = std::set<std::string>();
     for (const Entry& entry : measurements_[rid]) {
       factor_graphs_[rid].push_back(entry.measurements);
+      measurement_types_[rid].insert(entry.measurement_types.begin(), entry.measurement_types.end());
     }
   }
 }
@@ -52,6 +54,11 @@ std::vector<Entry> Dataset::measurements(const boost::optional<char>& robot_id) 
 /**********************************************************************************************************************/
 gtsam::NonlinearFactorGraph Dataset::factorGraph(const boost::optional<char>& robot_id) const {
   return accessor<gtsam::NonlinearFactorGraph>("factorGraph", factor_graphs_, robot_id);
+}
+
+/**********************************************************************************************************************/
+std::set<std::string> Dataset::measurementTypes(const boost::optional<char>& robot_id) const {
+  return accessor<std::set<std::string>>("measurementTypes", measurement_types_, robot_id);
 }
 
 /**********************************************************************************************************************/

@@ -1,4 +1,5 @@
 #include <gtsam/nonlinear/NonlinearFactor.h>
+#include <pybind11/functional.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
@@ -44,7 +45,7 @@ PYBIND11_MODULE(jrl_python, m) {
   m.attr("BearingRangeFactor2DTag") = py::str(BearingRangeFactor2DTag);
   m.attr("BearingRangeFactor3DTag") = py::str(BearingRangeFactor3DTag);
   m.attr("PriorFactorPoint2Tag") = py::str(PriorFactorPoint2Tag);
-  m.attr("PriorFactorPointTag") = py::str(PriorFactorPoint3Tag);
+  m.attr("PriorFactorPoint3Tag") = py::str(PriorFactorPoint3Tag);
   m.attr("BetweenFactorPoint2Tag") = py::str(BetweenFactorPoint2Tag);
   m.attr("BetweenFactorPoint3Tag") = py::str(BetweenFactorPoint3Tag);
 
@@ -67,6 +68,9 @@ PYBIND11_MODULE(jrl_python, m) {
       .def_readwrite("measurement_types", &Entry::measurement_types)
       .def_readwrite("measurements", &Entry::measurements)
       .def_readwrite("potential_outlier_statuses", &Entry::potential_outlier_statuses)
+      .def("filtered", &Entry::filtered)
+      .def_static("KeepTypes", &Entry::KeepTypes)
+      .def_static("RemoveTypes", &Entry::RemoveTypes)
       .def(py::pickle(
           [](const Entry &entry) {  // __getstate__
             return py::make_tuple(entry.stamp, entry.measurement_types, entry.measurements,
@@ -142,6 +146,8 @@ PYBIND11_MODULE(jrl_python, m) {
       .def("addEntry", &DatasetBuilder::addEntry, py::arg("robot"), py::arg("stamp"), py::arg("measurements"),
            py::arg("measurement_types"), py::arg("potential_outlier_statuses") = std::map<gtsam::FactorIndex, bool>(),
            py::arg("initialization") = py::none(), py::arg("groundtruth") = py::none())
+      .def("addGroundTruth", &DatasetBuilder::addGroundTruth, py::arg("robot"), py::arg("groundtruth"))
+      .def("addInitialization", &DatasetBuilder::addInitialization, py::arg("robot"), py::arg("initialization"))
       .def("build", &DatasetBuilder::build);
 
   /**

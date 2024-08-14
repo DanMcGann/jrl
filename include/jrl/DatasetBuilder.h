@@ -34,6 +34,12 @@ class DatasetBuilder {
                 const boost::optional<TypedValues> initialization = boost::none,
                 const boost::optional<TypedValues> groundtruth = boost::none);
 
+  /// @brief Adds ground truth information for a single robot. Can be used incrementally or in bulk.
+  void addGroundTruth(char robot, TypedValues groundtruth);
+
+  /// @brief Adds initial estimate information for a single robot. Can be used incrementally or in bulk.
+  void addInitialization(char robot, TypedValues initialization);
+
   /// @brief Compiles a dataset from all the added entries
   Dataset build();
 };

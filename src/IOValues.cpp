@@ -137,7 +137,6 @@ json serialize<gtsam::Point3>(gtsam::Point3 point) {
   return output;
 }
 
-
 /**********************************************************************************************************************/
 // Unit3
 template <>
@@ -158,7 +157,6 @@ json serialize<gtsam::Unit3>(gtsam::Unit3 unit) {
   output["k"] = p.z();
   return output;
 }
-
 
 }  // namespace io_values
 }  // namespace jrl

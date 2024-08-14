@@ -30,18 +30,6 @@ class Parser {
   /// @return The default measurement parsers, which are loaded into measurement_parsers_ on initialization
   std::map<std::string, MeasurementParser> loadDefaultMeasurementParsers();
 
-  /** @brief Parses all values using the loaded value accumulators
-   *  @param values_json Input JSON containing the serialized values
-   *  @return Parsed Values as GTSAM types
-   **/
-  TypedValues parseValues(const json& values_json) const;
-
-  /** @brief Parses all measurements using the loaded measurement parsers
-   *  @param measurements_json Input JSON containing the serialized measurement entries
-   *  @return Parsed measurement entries
-   **/
-  std::vector<Entry> parseMeasurements(const json& measurements_json) const;
-
   /** @brief Reads arbitrary JSON from file
    * @param input_file_name: The file from which to read the json
    * @param decompress_from_cbor: if true indicates that input file is compressed with cbor
@@ -68,9 +56,29 @@ class Parser {
   /// before parsing
   MetricSummary parseMetricSummary(std::string metric_summary_file, bool decompress_from_cbor = false) const;
 
-  // TODO
-  // void registerValueParser(std::string tag, ValueParser parser_fn);
-  // void registerMeasurementParser(std::string tag, MeasurementParser parser_fn);
+  /** @brief Parses all values using the loaded value accumulators
+   *  @param values_json Input JSON containing the serialized values
+   *  @return Parsed Values as GTSAM types
+   **/
+  TypedValues parseValues(const json& values_json) const;
+
+  /** @brief Parses all measurements using the loaded measurement parsers
+   *  @param measurements_json Input JSON containing the serialized measurement entries
+   *  @return Parsed measurement entries
+   **/
+  std::vector<Entry> parseMeasurements(const json& measurements_json) const;
+
+  /// @brief Add a custom value parser
+  /// @param tag The tag to associate with the value
+  /// @param parser_fn The parser function to parse the value
+  void registerValueParser(std::string tag, ValueParser parser_fn) { value_accumulators_[tag] = parser_fn; };
+
+  /// @brief Add a custom measurement parser
+  /// @param tag The tag to associate with the measurement
+  /// @param parser_fn The parser function to parse the measurement
+  void registerMeasurementParser(std::string tag, MeasurementParser parser_fn) {
+    measurement_parsers_[tag] = parser_fn;
+  };
 };
 
 }  // namespace jrl
