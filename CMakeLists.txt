@@ -12,6 +12,7 @@ find_package(nlohmann_json 3.2.0 REQUIRED)
 file(GLOB_RECURSE jrl_srcs "src/*.cpp")
 file(GLOB_RECURSE jrl_headers "include/*.h")
 add_library(jrl ${jrl_srcs} ${jrl_headers})
+set_target_properties(jrl PROPERTIES PUBLIC_HEADER "${jrl_headers}")
 target_link_libraries(jrl gtsam nlohmann_json::nlohmann_json)
 target_include_directories(jrl PUBLIC 
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -19,13 +20,13 @@ target_include_directories(jrl PUBLIC
 )
 
 # INSTALL: JRL Library
-install(FILES ${jrl_headers} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/jrl)
 install(
 	TARGETS jrl
     EXPORT jrl-exports
 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/jrl)
 include(cmake/HandleUninstall.cmake) # for "make jrl-uninstall"
 
 
