@@ -242,17 +242,17 @@ PYBIND11_MODULE(jrl_python, m) {
 
   /**********************************************************************************************************************/
   m.def("computeMetricSummaryPoint2", &metrics::computeMetricSummary<gtsam::Point2>, py::return_value_policy::copy,
-        py::arg("dataset"), py::arg("results"), py::arg("align") = true, py::arg("align_with_scale") = false,
-        py::arg("step_idx") = std::nullopt);
+        py::arg("dataset"), py::arg("results"), py::arg("ate_align") = true, py::arg("ate_align_with_scale") = false,
+        py::arg("ate_include_shared_variables") = true, py::arg("step_idx") = std::nullopt);
   m.def("computeMetricSummaryPoint3", &metrics::computeMetricSummary<gtsam::Point3>, py::return_value_policy::copy,
-        py::arg("dataset"), py::arg("results"), py::arg("align") = true, py::arg("align_with_scale") = false,
-        py::arg("step_idx") = std::nullopt);
+        py::arg("dataset"), py::arg("results"), py::arg("ate_align") = true, py::arg("ate_align_with_scale") = false,
+        py::arg("ate_include_shared_variables") = true, py::arg("step_idx") = std::nullopt);
   m.def("computeMetricSummaryPose2", &metrics::computeMetricSummary<gtsam::Pose2>, py::return_value_policy::copy,
-        py::arg("dataset"), py::arg("results"), py::arg("align") = true, py::arg("align_with_scale") = false,
-        py::arg("step_idx") = std::nullopt);
+        py::arg("dataset"), py::arg("results"), py::arg("ate_align") = true, py::arg("ate_align_with_scale") = false,
+        py::arg("ate_include_shared_variables") = true, py::arg("step_idx") = std::nullopt);
   m.def("computeMetricSummaryPose3", &metrics::computeMetricSummary<gtsam::Pose3>, py::return_value_policy::copy,
-        py::arg("dataset"), py::arg("results"), py::arg("align") = true, py::arg("align_with_scale") = false,
-        py::arg("step_idx") = std::nullopt);
+        py::arg("dataset"), py::arg("results"), py::arg("ate_align") = true, py::arg("ate_align_with_scale") = false,
+        py::arg("ate_include_shared_variables") = true, py::arg("step_idx") = std::nullopt);
 
   /**********************************************************************************************************************/
   m.def("computeMeanResidual", &metrics::computeMeanResidual, py::return_value_policy::copy, py::arg("dataset"),
@@ -267,16 +267,16 @@ PYBIND11_MODULE(jrl_python, m) {
   /**********************************************************************************************************************/
   m.def("computeATEPoint2", &metrics::computeATE<gtsam::Point2>, py::return_value_policy::copy, py::arg("rid"),
         py::arg("dataset"), py::arg("results"), py::arg("align") = true, py::arg("align_with_scale") = false,
-        py::arg("allow_partial_results") = false);
+        py::arg("allow_partial_results") = false, py::arg("include_shared_variables") = false);
   m.def("computeATEPoint3", &metrics::computeATE<gtsam::Point3>, py::return_value_policy::copy, py::arg("rid"),
         py::arg("dataset"), py::arg("results"), py::arg("align") = true, py::arg("align_with_scale") = false,
-        py::arg("allow_partial_results") = false);
+        py::arg("allow_partial_results") = false, py::arg("include_shared_variables") = false);
   m.def("computeATEPose2", &metrics::computeATE<gtsam::Pose2>, py::return_value_policy::copy, py::arg("rid"),
         py::arg("dataset"), py::arg("results"), py::arg("align") = true, py::arg("align_with_scale") = false,
-        py::arg("allow_partial_results") = false);
+        py::arg("allow_partial_results") = false, py::arg("include_shared_variables") = false);
   m.def("computeATEPose3", &metrics::computeATE<gtsam::Pose3>, py::return_value_policy::copy, py::arg("rid"),
         py::arg("dataset"), py::arg("results"), py::arg("align") = true, py::arg("align_with_scale") = false,
-        py::arg("allow_partial_results") = false);
+        py::arg("allow_partial_results") = false, py::arg("include_shared_variables") = false);
 
   /**
    * #### ##    ## #### ######## ####    ###    ##       #### ########    ###    ######## ####  #######  ##    ##

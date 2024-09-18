@@ -32,12 +32,19 @@ inline PoseError squaredPoseError<gtsam::Pose2>(gtsam::Pose2 est, gtsam::Pose2 r
 /**********************************************************************************************************************/
 template <class POSE_TYPE>
 inline boost::optional<PoseError> computeATE(char rid, Dataset dataset, Results results, bool align,
-                                             bool align_with_scale, bool allow_partial_results) {
+                                             bool align_with_scale, bool allow_partial_results,
+                                             bool include_shared_variables) {
   // We have groundtruth so we can compute ATE
   if (dataset.containsGroundTruth()) {
     // Grab the estimated and reference trajectories
     gtsam::Values ref = dataset.groundTruth(rid).filter<POSE_TYPE>();
     gtsam::Values est = results.robot_solutions[rid].values.filter<POSE_TYPE>();
+
+    // Filter out any shared vars unless flagged to be included
+    if (!include_shared_variables) {
+      ref = ref.filter([&rid](gtsam::Key key) { return gtsam::Symbol(key).chr() == rid; });
+      est = est.filter([&rid](gtsam::Key key) { return gtsam::Symbol(key).chr() == rid; });
+    }
 
     // If we allow partial solution get only the applicable section of the reference trajectory
     gtsam::Values filtered_ref = ref;
@@ -173,7 +180,8 @@ inline double computeMeanResidual(Dataset dataset, Results results,
 
 /**********************************************************************************************************************/
 template <class POSE_TYPE>
-inline MetricSummary computeMetricSummary(Dataset dataset, Results results, bool align, bool align_with_scale,
+inline MetricSummary computeMetricSummary(Dataset dataset, Results results, bool ate_align, bool ate_align_with_scale,
+                                          bool ate_include_shared_variables,
                                           std::optional<std::map<char, std::optional<size_t>>> step_idxes) {
   MetricSummary summary;
   summary.dataset_name = dataset.name();
@@ -188,8 +196,8 @@ inline MetricSummary computeMetricSummary(Dataset dataset, Results results, bool
     summary.robot_ate = std::map<char, PoseError>();
     summary.total_ate = std::make_pair(0, 0);
     for (char rid : summary.robots) {
-      boost::optional<PoseError> robot_ate =
-          computeATE<POSE_TYPE>(rid, dataset, results, align, align_with_scale, step_idxes.has_value());
+      boost::optional<PoseError> robot_ate = computeATE<POSE_TYPE>(
+          rid, dataset, results, ate_align, ate_align_with_scale, step_idxes.has_value(), ate_include_shared_variables);
       (*summary.robot_ate)[rid] = *robot_ate;
       (*summary.total_ate) = std::make_pair((*summary.total_ate).first + (*robot_ate).first,
                                             (*summary.total_ate).second + (*robot_ate).second);

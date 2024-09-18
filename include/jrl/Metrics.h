@@ -76,11 +76,14 @@ inline PoseError squaredPoseError<gtsam::Pose2>(gtsam::Pose2 est, gtsam::Pose2 r
  * @param results: The estimation results to be compared with the groundtruth
  * @param align_with_scale: If true aligns scale while preforming Umeyama alignment
  * @param allow_partial_results: If true we compute ATE for only the poses in results
+ * @param include_shared_variables: If true we compute ATE including variables from other robots that a robot has
+ * observed.
  * @returns Pair containing (ATE Translation, ATE Rotation) or boost::none if the dataset does not contain ground truth
  */
 template <class POSE_TYPE>
 inline boost::optional<PoseError> computeATE(char rid, Dataset dataset, Results results, bool align = true,
-                                             bool align_with_scale = false, bool allow_partial_results = false);
+                                             bool align_with_scale = false, bool allow_partial_results = false,
+                                             bool include_shared_variables = true);
 
 /** @brief Computes the SVE for the dataset
  * SVE is defined as the mean error between all combination of shared variable estimates
@@ -95,7 +98,7 @@ inline PoseError computeSVE(Results results);
  * Because each robot can vary in their estimate of shared variables. We compute a "Mean Residual"
  * To compute the "Mean Residual", for each factor we compute the residual for each possible combination of variable
  * estimates. When all robots agree perfectly, this would match the residual without evaluating all combinations.
- * @param dataset: The dataset 
+ * @param dataset: The dataset
  * @param results: The estimation results
  * @param step_idx: The number of entries from which we will compute the residual (used if we only have partial results)
  * if nullopt we use all entries
@@ -128,8 +131,8 @@ std::pair<PrecisionRecall, std::map<char, PrecisionRecall>> computePrecisionReca
  * results
  */
 template <class POSE_TYPE>
-inline MetricSummary computeMetricSummary(Dataset dataset, Results results, bool align = true,
-                                          bool align_with_scale = false,
+inline MetricSummary computeMetricSummary(Dataset dataset, Results results, bool ate_align = true,
+                                          bool ate_align_with_scale = false, bool ate_include_shared_variables = true,
                                           std::optional<std::map<char, std::optional<size_t>>> step_idx = std::nullopt);
 
 }  // namespace metrics
