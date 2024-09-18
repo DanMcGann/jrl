@@ -6,12 +6,16 @@ namespace jrl {
 /**********************************************************************************************************************/
 Dataset::Dataset(const std::string name, std::vector<char> robots, std::map<char, std::vector<Entry>> measurements,
                  boost::optional<std::map<char, TypedValues>> ground_truth,
-                 boost::optional<std::map<char, TypedValues>> initial_estimates)
+                 boost::optional<std::map<char, TypedValues>> initial_estimates,
+                 boost::optional<std::map<char, std::set<FactorId>>> potential_outlier_factors,
+                 boost::optional<std::map<char, std::set<FactorId>>> outlier_factors)
     : name_(name),
       robots_(robots),
       measurements_(measurements),
       ground_truth_(ground_truth),
-      initial_estimates_(initial_estimates) {
+      initial_estimates_(initial_estimates),
+      potential_outlier_factors_(potential_outlier_factors),
+      outlier_factors_(outlier_factors) {
   // Construct the factor graphs for each robot from the temporally ordered measurements
   for (const char& rid : robots_) {
     factor_graphs_[rid] = gtsam::NonlinearFactorGraph();
@@ -28,6 +32,16 @@ std::string Dataset::name() const { return name_; }
 
 /**********************************************************************************************************************/
 std::vector<char> Dataset::robots() const { return robots_; }
+
+/**********************************************************************************************************************/
+std::vector<Entry> Dataset::measurements(const boost::optional<char>& robot_id) const {
+  return accessor<std::vector<Entry>>("measurements", measurements_, robot_id);
+}
+
+/**********************************************************************************************************************/
+gtsam::NonlinearFactorGraph Dataset::factorGraph(const boost::optional<char>& robot_id) const {
+  return accessor<gtsam::NonlinearFactorGraph>("factorGraph", factor_graphs_, robot_id);
+}
 
 /**********************************************************************************************************************/
 TypedValues Dataset::groundTruthWithTypes(const boost::optional<char>& robot_id) const {
@@ -47,15 +61,14 @@ gtsam::Values Dataset::initialization(const boost::optional<char>& robot_id) con
 }
 
 /**********************************************************************************************************************/
-std::vector<Entry> Dataset::measurements(const boost::optional<char>& robot_id) const {
-  return accessor<std::vector<Entry>>("measurements", measurements_, robot_id);
+std::set<FactorId> Dataset::potentialOutlierFactors(const boost::optional<char>& robot_id) const {
+  return accessor<std::set<FactorId>>("potentialOutlierFactors", potential_outlier_factors_, robot_id);
 }
 
 /**********************************************************************************************************************/
-gtsam::NonlinearFactorGraph Dataset::factorGraph(const boost::optional<char>& robot_id) const {
-  return accessor<gtsam::NonlinearFactorGraph>("factorGraph", factor_graphs_, robot_id);
+std::set<FactorId> Dataset::outlierFactors(const boost::optional<char>& robot_id) const {
+  return accessor<std::set<FactorId>>("outlierFactors", outlier_factors_, robot_id);
 }
-
 /**********************************************************************************************************************/
 std::set<std::string> Dataset::measurementTypes(const boost::optional<char>& robot_id) const {
   return accessor<std::set<std::string>>("measurementTypes", measurement_types_, robot_id);
