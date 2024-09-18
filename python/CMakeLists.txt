@@ -49,9 +49,3 @@ add_custom_target(jrl-python-install
 add_custom_target(jrl-python-uninstall
         COMMAND ${Python_EXECUTABLE} -m pip uninstall jrl
         WORKING_DIRECTORY ${JRL_PYTHON_BUILD_DIRECTORY})
-
-
-# Setup configuration for find_package
-include(../cmake/MakeConfigFile.cmake)
-MakeConfigFile(jrl)
-export(EXPORT jrl-exports FILE ${CMAKE_CURRENT_BINARY_DIR}/jrl-exports.cmake)

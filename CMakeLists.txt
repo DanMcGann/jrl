@@ -19,17 +19,6 @@ target_include_directories(jrl PUBLIC
     $<INSTALL_INTERFACE:include/>
 )
 
-# INSTALL: JRL Library
-install(
-	TARGETS jrl
-    EXPORT jrl-exports
-	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/jrl)
-include(cmake/HandleUninstall.cmake) # for "make jrl-uninstall"
-
-
 # Build Tests for JRL if configured
 option(JRL_BUILD_TESTS "Build unit tests" OFF)
 if (${JRL_BUILD_TESTS})
@@ -41,3 +30,18 @@ option(JRL_BUILD_PYTHON "Build python bindings" OFF)
 if (${JRL_BUILD_PYTHON})
     add_subdirectory(python)
 endif()
+
+# INSTALL: JRL Library
+install(
+	TARGETS jrl
+    EXPORT jrl-exports
+	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/jrl)
+include(cmake/HandleUninstall.cmake) # for "make jrl-uninstall"
+
+# Setup configuration for find_package
+include(../cmake/MakeConfigFile.cmake)
+MakeConfigFile(jrl)
+export(EXPORT jrl-exports FILE ${CMAKE_CURRENT_BINARY_DIR}/jrl-exports.cmake)
