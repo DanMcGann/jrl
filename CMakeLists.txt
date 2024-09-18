@@ -42,6 +42,6 @@ install(
 include(cmake/HandleUninstall.cmake) # for "make jrl-uninstall"
 
 # Setup configuration for find_package
-include(../cmake/MakeConfigFile.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/MakeConfigFile.cmake)
 MakeConfigFile(jrl)
 export(EXPORT jrl-exports FILE ${CMAKE_CURRENT_BINARY_DIR}/jrl-exports.cmake)
