@@ -38,7 +38,7 @@ We use `boost::optional` over the c++17 supported `std::optional` as that is wha
 We use `stl` containers over GTSAM "fast" containers to allow implicit conversion via pybind11's `stl.h`
 
 #### Dependencies (Ubuntu 20.04)
-JRL relies heavily on GTSAM for its geometry, factor, and container types. GTSAM should be installed on the machine or a local build of GTSAM should be linked by setting `GTSAM_DIR` and `GTSAM_INCLUDE_DIR` CMake options. 
+JRL relies heavily on GTSAM for its geometry, factor, and container types. GTSAM should be installed on the machine or a local build of GTSAM should be linked by setting `GTSAM_DIR` and `GTSAM_INCLUDE_DIR` CMake options. JRL currently targets GTSAM v4.2.0.
 
 Since C++ does not have a native support for parsing JSON we use a 3rd party library for JSON support. We specifically choose [nlohmann-json](https://github.com/nlohmann/json) because of its ease of use, quality design + implementation, and support across platforms.
 * `sudo apt-get install nlohmann-json3-dev`

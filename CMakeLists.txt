@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Dependencies
-find_package(GTSAM REQUIRED)
+find_package(GTSAM 4.2.0 REQUIRED)
 find_package(nlohmann_json 3.2.0 REQUIRED)
 
 # BUILD: JRL Library
