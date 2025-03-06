@@ -21,7 +21,13 @@ class Dataset {
 
   /// @brief The robots for which this dataset defines trajectories
   std::vector<char> robots_;
-  
+
+  /// @brief The measurements made by each robot. Ordered temporally.
+  std::map<char, std::vector<Entry>> measurements_;
+
+  /// @brief The set measurements made by each robot unordered in a factor graph
+  std::map<char, gtsam::NonlinearFactorGraph> factor_graphs_;
+
   /// @brief The dataset ground-truth for each robot. Each robot's ground truth should contain all values that that
   /// robot observed. This means some values may appear multiple times if multiple robots observe them. Any values
   /// appearing multiple times MUST be the same.
@@ -32,11 +38,14 @@ class Dataset {
   /// appearing multiple times MAY be different.
   boost::optional<std::map<char, TypedValues>> initial_estimates_;
 
-  /// @brief The measurements made by each robot. Ordered temporally.
-  std::map<char, std::vector<Entry>> measurements_;
+  /// @brief The set of measurements that may be outliers for each robot.
+  /// All measurements appearing in this set should be considered as possible outliers (i.e. loop closures).
+  /// Measurements are identified by their FactorId which is their entry index and measurement index in that entry
+  boost::optional<std::map<char, std::set<FactorId>>> potential_outlier_factors_;
 
-  /// @brief The set measurements made by each robot unordered in a factor graph
-  std::map<char, gtsam::NonlinearFactorGraph> factor_graphs_;
+  /// @brief The set of true measurements that are actually outliers (if known) for each robot
+  /// Measurements are identified by their FactorId which is their entry index and measurement index in that entry
+  boost::optional<std::map<char, std::set<FactorId>>> outlier_factors_;
 
   /// @brief The type of measurements made by each robot in it's graph
   std::map<char, std::set<std::string>> measurement_types_;
@@ -46,14 +55,28 @@ class Dataset {
   /** @brief Constructs a raw dataset
    */
   Dataset(const std::string name, std::vector<char> robots, std::map<char, std::vector<Entry>> measurements,
-          boost::optional<std::map<char, TypedValues>> ground_truth,
-          boost::optional<std::map<char, TypedValues>> initial_estimates);
+          boost::optional<std::map<char, TypedValues>> ground_truth = boost::none,
+          boost::optional<std::map<char, TypedValues>> initial_estimates = boost::none,
+          boost::optional<std::map<char, std::set<FactorId>>> potential_outlier_factors = boost::none,
+          boost::optional<std::map<char, std::set<FactorId>>> outlier_factors = boost::none);
 
   /// @brief returns the name of the dataset
   std::string name() const;
 
   /// @brief Returns a list of the robots active in this dataset
   std::vector<char> robots() const;
+
+  /** @brief Returns the measurements for a specific robot
+   * @param robot_id: The robot identifier for the measurements to return. Not required for single robot dataset.
+   * @returns The specified robot's measurements
+   */
+  std::vector<Entry> measurements(const boost::optional<char>& robot_id = boost::none) const;
+
+  /** @brief Returns the factor graph for a specific robot containing all measurements
+   * @param robot_id: The robot identifier for the measurements to return. Not required for single robot dataset.
+   * @returns The specified robot's factor graph
+   */
+  gtsam::NonlinearFactorGraph factorGraph(const boost::optional<char>& robot_id = boost::none) const;
 
   /** @brief Returns the ground truth values for a specific robot.
    * @param robot_id: The robot identifier for the ground truth to return. Not required for single robot dataset.
@@ -71,17 +94,19 @@ class Dataset {
   TypedValues initializationWithTypes(const boost::optional<char>& robot_id = boost::none) const;
   bool containsInitialization() const { return initial_estimates_.is_initialized(); }
 
-  /** @brief Returns the measurements for a specific robot
+  /** @brief Returns the set of measurements that may be outliers (i.e. loop-closures)
    * @param robot_id: The robot identifier for the measurements to return. Not required for single robot dataset.
-   * @returns The specified robot's measurements
+   * @returns The specified robot's potential outlier measurements
    */
-  std::vector<Entry> measurements(const boost::optional<char>& robot_id = boost::none) const;
+  std::set<FactorId> potentialOutlierFactors(const boost::optional<char>& robot_id = boost::none) const;
+  bool containsPotentialOutlierFactors() const { return potential_outlier_factors_.is_initialized(); }
 
-  /** @brief Returns the factor graph for a specific robot containing all measurements
-   * @param robot_id: The robot identifier for the measurements to return. Not required for single robot dataset.
-   * @returns The specified robot's factor graph
+  /** @brief Returns the ground truth outlier measurements for a specific robot.
+   * @param robot_id: The robot identifier for the ground truth to return. Not required for single robot dataset.
+   * @returns The specified robot's ground outlier measurements
    */
-  gtsam::NonlinearFactorGraph factorGraph(const boost::optional<char>& robot_id = boost::none) const;
+  std::set<FactorId> outlierFactors(const boost::optional<char>& robot_id = boost::none) const;
+  bool containsOutlierFactors() const { return outlier_factors_.is_initialized(); }
 
 
 /** @brief Returns the measurement types for a specific robot

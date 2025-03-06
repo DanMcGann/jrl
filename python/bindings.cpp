@@ -60,25 +60,21 @@ PYBIND11_MODULE(jrl_python, m) {
    */
   /**********************************************************************************************************************/
   py::class_<Entry>(m, "Entry")
-      .def(py::init<uint64_t &, std::vector<std::string> &, gtsam::NonlinearFactorGraph &,
-                    std::map<gtsam::FactorIndex, bool> &>(),
-           py::arg("stamp"), py::arg("measurement_types"), py::arg("measurements"),
-           py::arg("potential_outlier_statuses") = std::map<gtsam::FactorIndex, bool>())
+      .def(py::init<uint64_t &, std::vector<std::string> &, gtsam::NonlinearFactorGraph &>(), py::arg("stamp"),
+           py::arg("measurement_types"), py::arg("measurements"))
       .def_readwrite("stamp", &Entry::stamp)
       .def_readwrite("measurement_types", &Entry::measurement_types)
       .def_readwrite("measurements", &Entry::measurements)
-      .def_readwrite("potential_outlier_statuses", &Entry::potential_outlier_statuses)
       .def("filtered", &Entry::filtered)
       .def_static("KeepTypes", &Entry::KeepTypes)
       .def_static("RemoveTypes", &Entry::RemoveTypes)
       .def(py::pickle(
           [](const Entry &entry) {  // __getstate__
-            return py::make_tuple(entry.stamp, entry.measurement_types, entry.measurements,
-                                  entry.potential_outlier_statuses);
+            return py::make_tuple(entry.stamp, entry.measurement_types, entry.measurements);
           },
           [](py::tuple tup) {  // __setstate__
             Entry entry(tup[0].cast<uint64_t>(), tup[1].cast<std::vector<std::string>>(),
-                        tup[2].cast<gtsam::NonlinearFactorGraph>(), tup[3].cast<std::map<gtsam::FactorIndex, bool>>());
+                        tup[2].cast<gtsam::NonlinearFactorGraph>());
             return entry;
           }));
 
@@ -98,45 +94,63 @@ PYBIND11_MODULE(jrl_python, m) {
 
   /**********************************************************************************************************************/
   py::class_<Dataset>(m, "Dataset")
-      .def(py::init<const std::string &, std::vector<char> &, std::map<char, std::vector<Entry>>,
-                    boost::optional<std::map<char, TypedValues>> &, boost::optional<std::map<char, TypedValues>> &>())
+      .def(py::init<const std::string &, std::vector<char> &, std::map<char, std::vector<Entry>> &,
+                    boost::optional<std::map<char, TypedValues>> &, boost::optional<std::map<char, TypedValues>> &,
+                    boost::optional<std::map<char, std::set<FactorId>>> &,
+                    boost::optional<std::map<char, std::set<FactorId>>> &>())
       .def("name", &Dataset::name)
       .def("robots", &Dataset::robots)
+      .def("measurements", &Dataset::measurements)
+      .def("factorGraph", &Dataset::factorGraph)
       .def("groundTruth", &Dataset::groundTruth)
       .def("groundTruthWithTypes", &Dataset::groundTruthWithTypes)
       .def("containsGroundTruth", &Dataset::containsGroundTruth)
       .def("initialization", &Dataset::initialization)
       .def("initializationWithTypes", &Dataset::initializationWithTypes)
       .def("containsInitialization", &Dataset::containsInitialization)
-      .def("measurements", &Dataset::measurements)
-      .def("factorGraph", &Dataset::factorGraph)
+      .def("potentialOutlierFactors", &Dataset::potentialOutlierFactors)
+      .def("containsPotentialOutlierFactors", &Dataset::containsPotentialOutlierFactors)
+      .def("outlierFactors", &Dataset::outlierFactors)
+      .def("containsOutlierFactors", &Dataset::containsOutlierFactors)
       .def(py::pickle(
           [](const Dataset &dataset) {  // __getstate__
             std::map<char, std::vector<Entry>> measurements;
             boost::optional<std::map<char, TypedValues>> ground_truth = boost::none;
             boost::optional<std::map<char, TypedValues>> initialization = boost::none;
+            boost::optional<std::map<char, std::set<FactorId>>> potential_outlier_factors = boost::none;
+            boost::optional<std::map<char, std::set<FactorId>>> outlier_factors = boost::none;
 
             if (dataset.containsGroundTruth()) {
               ground_truth = std::map<char, TypedValues>();
             }
-
             if (dataset.containsInitialization()) {
               initialization = std::map<char, TypedValues>();
+            }
+            if (dataset.containsPotentialOutlierFactors()) {
+              potential_outlier_factors = std::map<char, std::set<FactorId>>();
+            }
+            if (dataset.containsOutlierFactors()) {
+              outlier_factors = std::map<char, std::set<FactorId>>();
             }
 
             for (auto &rid : dataset.robots()) {
               measurements[rid] = dataset.measurements(rid);
               if (ground_truth) (*ground_truth)[rid] = dataset.groundTruthWithTypes(rid);
               if (initialization) (*initialization)[rid] = dataset.initializationWithTypes(rid);
+              if (potential_outlier_factors) (*potential_outlier_factors)[rid] = dataset.potentialOutlierFactors(rid);
+              if (outlier_factors) (*outlier_factors)[rid] = dataset.outlierFactors(rid);
             }
 
-            return py::make_tuple(dataset.name(), dataset.robots(), measurements, ground_truth, initialization);
+            return py::make_tuple(dataset.name(), dataset.robots(), measurements, ground_truth, initialization,
+                                  potential_outlier_factors, outlier_factors);
           },
           [](py::tuple tup) {  // __setstate__
             Dataset dataset(tup[0].cast<std::string>(), tup[1].cast<std::vector<char>>(),
                             tup[2].cast<std::map<char, std::vector<Entry>>>(),
                             tup[3].cast<boost::optional<std::map<char, TypedValues>>>(),
-                            tup[4].cast<boost::optional<std::map<char, TypedValues>>>());
+                            tup[4].cast<boost::optional<std::map<char, TypedValues>>>(),
+                            tup[5].cast<boost::optional<std::map<char, std::set<FactorId>>>>(),
+                            tup[6].cast<boost::optional<std::map<char, std::set<FactorId>>>>());
             return dataset;
           }));
 
@@ -144,10 +158,11 @@ PYBIND11_MODULE(jrl_python, m) {
   py::class_<DatasetBuilder>(m, "DatasetBuilder")
       .def(py::init<const std::string &, std::vector<char> &>())
       .def("addEntry", &DatasetBuilder::addEntry, py::arg("robot"), py::arg("stamp"), py::arg("measurements"),
-           py::arg("measurement_types"), py::arg("potential_outlier_statuses") = std::map<gtsam::FactorIndex, bool>(),
-           py::arg("initialization") = py::none(), py::arg("groundtruth") = py::none())
+           py::arg("measurement_types"), py::arg("initialization") = py::none(), py::arg("groundtruth") = py::none())
       .def("addGroundTruth", &DatasetBuilder::addGroundTruth, py::arg("robot"), py::arg("groundtruth"))
       .def("addInitialization", &DatasetBuilder::addInitialization, py::arg("robot"), py::arg("initialization"))
+      .def("setPotentialOutlierFactors", &DatasetBuilder::setPotentialOutlierFactors, py::arg("robot"), py::arg("potential_outlier_factors"))
+      .def("setOutlierFactors", &DatasetBuilder::setOutlierFactors, py::arg("robot"), py::arg("outlier_factors"))
       .def("build", &DatasetBuilder::build);
 
   /**
@@ -167,13 +182,16 @@ PYBIND11_MODULE(jrl_python, m) {
       .def_readwrite("method_name", &Results::method_name)
       .def_readwrite("robots", &Results::robots)
       .def_readwrite("robot_solutions", &Results::robot_solutions)
+      .def_readwrite("robot_outliers", &Results::robot_outliers)
       .def(py::pickle(
           [](const Results &results) {  // __getstate__
-            return py::make_tuple(results.dataset_name, results.method_name, results.robots, results.robot_solutions);
+            return py::make_tuple(results.dataset_name, results.method_name, results.robots, results.robot_solutions,
+                                  results.robot_outliers);
           },
           [](py::tuple tup) {  // __setstate__
             Results result(tup[0].cast<std::string>(), tup[1].cast<std::string>(), tup[2].cast<std::vector<char>>(),
-                           tup[3].cast<std::map<char, TypedValues>>());
+                           tup[3].cast<std::map<char, TypedValues>>(),
+                           tup[4].cast<boost::optional<std::map<char, std::set<FactorId>>>>());
             return result;
           }));
 
@@ -219,22 +237,25 @@ PYBIND11_MODULE(jrl_python, m) {
       .def_readwrite("method_name", &MetricSummary::method_name)
       .def_readwrite("robot_ate", &MetricSummary::robot_ate)
       .def_readwrite("total_ate", &MetricSummary::total_ate)
+      .def_readwrite("joint_aligned_ate", &MetricSummary::joint_aligned_ate)
       .def_readwrite("sve", &MetricSummary::sve)
-      .def_readwrite("mean_residual", &MetricSummary::mean_residual);
+      .def_readwrite("mean_residual", &MetricSummary::mean_residual)
+      .def_readwrite("robot_precision_recall", &MetricSummary::robot_precision_recall)
+      .def_readwrite("precision_recall", &MetricSummary::precision_recall);
 
   /**********************************************************************************************************************/
   m.def("computeMetricSummaryPoint2", &metrics::computeMetricSummary<gtsam::Point2>, py::return_value_policy::copy,
-        py::arg("dataset"), py::arg("results"), py::arg("align") = true, py::arg("align_with_scale") = false,
-        py::arg("step_idx") = std::nullopt);
+        py::arg("dataset"), py::arg("results"), py::arg("ate_align") = true, py::arg("ate_align_with_scale") = false,
+        py::arg("ate_include_shared_variables") = true, py::arg("step_idx") = std::nullopt);
   m.def("computeMetricSummaryPoint3", &metrics::computeMetricSummary<gtsam::Point3>, py::return_value_policy::copy,
-        py::arg("dataset"), py::arg("results"), py::arg("align") = true, py::arg("align_with_scale") = false,
-        py::arg("step_idx") = std::nullopt);
+        py::arg("dataset"), py::arg("results"), py::arg("ate_align") = true, py::arg("ate_align_with_scale") = false,
+        py::arg("ate_include_shared_variables") = true, py::arg("step_idx") = std::nullopt);
   m.def("computeMetricSummaryPose2", &metrics::computeMetricSummary<gtsam::Pose2>, py::return_value_policy::copy,
-        py::arg("dataset"), py::arg("results"), py::arg("align") = true, py::arg("align_with_scale") = false,
-        py::arg("step_idx") = std::nullopt);
+        py::arg("dataset"), py::arg("results"), py::arg("ate_align") = true, py::arg("ate_align_with_scale") = false,
+        py::arg("ate_include_shared_variables") = true, py::arg("step_idx") = std::nullopt);
   m.def("computeMetricSummaryPose3", &metrics::computeMetricSummary<gtsam::Pose3>, py::return_value_policy::copy,
-        py::arg("dataset"), py::arg("results"), py::arg("align") = true, py::arg("align_with_scale") = false,
-        py::arg("step_idx") = std::nullopt);
+        py::arg("dataset"), py::arg("results"), py::arg("ate_align") = true, py::arg("ate_align_with_scale") = false,
+        py::arg("ate_include_shared_variables") = true, py::arg("step_idx") = std::nullopt);
 
   /**********************************************************************************************************************/
   m.def("computeMeanResidual", &metrics::computeMeanResidual, py::return_value_policy::copy, py::arg("dataset"),
@@ -249,16 +270,16 @@ PYBIND11_MODULE(jrl_python, m) {
   /**********************************************************************************************************************/
   m.def("computeATEPoint2", &metrics::computeATE<gtsam::Point2>, py::return_value_policy::copy, py::arg("rid"),
         py::arg("dataset"), py::arg("results"), py::arg("align") = true, py::arg("align_with_scale") = false,
-        py::arg("allow_partial_results") = false);
+        py::arg("allow_partial_results") = false, py::arg("include_shared_variables") = false);
   m.def("computeATEPoint3", &metrics::computeATE<gtsam::Point3>, py::return_value_policy::copy, py::arg("rid"),
         py::arg("dataset"), py::arg("results"), py::arg("align") = true, py::arg("align_with_scale") = false,
-        py::arg("allow_partial_results") = false);
+        py::arg("allow_partial_results") = false, py::arg("include_shared_variables") = false);
   m.def("computeATEPose2", &metrics::computeATE<gtsam::Pose2>, py::return_value_policy::copy, py::arg("rid"),
         py::arg("dataset"), py::arg("results"), py::arg("align") = true, py::arg("align_with_scale") = false,
-        py::arg("allow_partial_results") = false);
+        py::arg("allow_partial_results") = false, py::arg("include_shared_variables") = false);
   m.def("computeATEPose3", &metrics::computeATE<gtsam::Pose3>, py::return_value_policy::copy, py::arg("rid"),
         py::arg("dataset"), py::arg("results"), py::arg("align") = true, py::arg("align_with_scale") = false,
-        py::arg("allow_partial_results") = false);
+        py::arg("allow_partial_results") = false, py::arg("include_shared_variables") = false);
 
   /**
    * #### ##    ## #### ######## ####    ###    ##       #### ########    ###    ######## ####  #######  ##    ##
@@ -270,4 +291,18 @@ PYBIND11_MODULE(jrl_python, m) {
    * #### ##    ## ####    ##    #### ##     ## ######## #### ######## ##     ##    ##    ####  #######  ##    ##
    */
   py::class_<Initializer>(m, "Initializer").def(py::init<>()).def("initialization", &Initializer::initialization);
+
+  /**
+   *    ###    ##       ####  ######   ##    ## ##     ## ######## ##    ## ########
+   *   ## ##   ##        ##  ##    ##  ###   ## ###   ### ##       ###   ##    ##
+   *  ##   ##  ##        ##  ##        ####  ## #### #### ##       ####  ##    ##
+   * ##     ## ##        ##  ##   #### ## ## ## ## ### ## ######   ## ## ##    ##
+   * ######### ##        ##  ##    ##  ##  #### ##     ## ##       ##  ####    ##
+   * ##     ## ##        ##  ##    ##  ##   ### ##     ## ##       ##   ###    ##
+   * ##     ## ######## ####  ######   ##    ## ##     ## ######## ##    ##    ##
+   */
+  m.def("alignPose2", &alignment::align<gtsam::Pose2>, py::return_value_policy::copy,
+        py::arg("estimate_trajectory"), py::arg("reference_trajectory"), py::arg("align_with_scale") = false);
+  m.def("alignPose3", &alignment::align<gtsam::Pose3>, py::return_value_policy::copy,
+        py::arg("estimate_trajectory"), py::arg("reference_trajectory"), py::arg("align_with_scale") = false);
 }

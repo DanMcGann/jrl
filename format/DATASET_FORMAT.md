@@ -18,6 +18,13 @@ A dataset is a JSON object that contains the following components:
 
   # (Optional) Map[char -> Values] - The initial estimate for the values for each robot in the dataset (used for batch algorithms)
   "initialization": {"a": {...}, "b": {...}}
+
+  # (Optional) Map[char -> [List-of-FactorId]] - The set of factors that are potentially outliers for each robot (i.e. Loop Closures)
+  # If not included all measurements are assumed to be known inliers
+  "potential_outlier_factors": {"a": [ [0, 2], [4, 0] ...], ...}
+
+  # (Optional) Map[char -> [List-of-FactorId]] - The set of ground truth outlier factors for each robot
+  "outlier_factors": {"a": [[4, 0], ...], ...}
 }
 ```
 
@@ -29,13 +36,12 @@ Where an entry represents a set of measurements taken at a specific time and has
 
   # List-of-Measurement - The measurements taken at timestamp stamp
   "measurements": [...]
-
-  # (Optional) Map[uint64_t -> bool] - Mapping of factor indicies (in "measurements") to their outlier status
-  # If a factor index appears as a key it is possibly an outlier measurement (e.g. loop-closures)
-  # The value for each key indicates if the meaurement is actually an outlier
-  "potential_outlier_statuses": {"2": false, "6": true, ...}
 }
 ```
+
+And a FactorId = `Pair[uint64_t, uint64_t]` represents a unique identifier of a measurement by:
+  - "Entry Index" - The index of the entry to which the factor belongs
+  - "Measurement Index" - The index of the measurement within the entry at the Entry Index
 
 For the definition of Values format see `VALUE_FORMAT.md`.
 For the definition of Measurement formats see `MEASUREMENT_FORMAT.md`.

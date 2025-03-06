@@ -89,9 +89,6 @@ json Writer::serializeMeasurements(std::vector<Entry> entries) const {
       gtsam::NonlinearFactor::shared_ptr factor = entry.measurements.at(i);
       entry_obj["measurements"].push_back(measurement_serializers_.at(measurement_type)(factor));
     }
-    if (!entry.potential_outlier_statuses.empty()) {
-      entry_obj["potential_outlier_statuses"] = entry.potential_outlier_statuses;
-    }
     output.push_back(entry_obj);
   }
   return output;
@@ -118,7 +115,7 @@ void Writer::writeDataset(Dataset dataset, std::string output_file_name, bool co
   output_json["name"] = dataset.name();
   output_json["robots"] = dataset.robots();
 
-  // serialize Measurements
+  // Serialize measurements
   json measurements_json;
   for (auto& robot : dataset.robots()) {
     measurements_json[std::string(1, robot)] = serializeMeasurements(dataset.measurements(robot));
@@ -133,7 +130,6 @@ void Writer::writeDataset(Dataset dataset, std::string output_file_name, bool co
     }
     output_json["groundtruth"] = groundtruth_json;
   }
-
   // Serialize Initialization if it exists
   json initialization_json;
   if (dataset.containsInitialization()) {
@@ -141,6 +137,24 @@ void Writer::writeDataset(Dataset dataset, std::string output_file_name, bool co
       initialization_json[std::string(1, robot)] = serializeValues(dataset.initializationWithTypes(robot));
     }
     output_json["initialization"] = initialization_json;
+  }
+
+  // Serialize potential outliers
+  json potential_outlier_factors_json;
+  if (dataset.containsPotentialOutlierFactors()) {
+    for (auto& robot : dataset.robots()) {
+      potential_outlier_factors_json[std::string(1, robot)] = dataset.potentialOutlierFactors(robot);
+    }
+    output_json["potential_outlier_factors"] = potential_outlier_factors_json;
+  }
+
+  // Serialize Inlier Factors if it exists
+  json outlier_factors_json;
+  if (dataset.containsOutlierFactors()) {
+    for (auto& robot : dataset.robots()) {
+      outlier_factors_json[std::string(1, robot)] = dataset.outlierFactors(robot);
+    }
+    output_json["outlier_factors"] = outlier_factors_json;
   }
 
   // Write the file
@@ -162,6 +176,16 @@ void Writer::writeResults(Results results, std::string output_file_name, bool co
     solution_json[std::string(1, robot)] = serializeValues(results.robot_solutions[robot]);
   }
   output_json["solutions"] = solution_json;
+
+  // Serialize Outliers
+  if (results.robot_outliers) {
+    json outliers_json;
+    for (auto& robot : results.robots) {
+      solution_json[std::string(1, robot)] = (*results.robot_outliers)[robot];
+    }
+    output_json["outliers"] = solution_json;
+  }
+
   // Write the file
   writeJson(output_json, output_file_name, compress_to_cbor);
 }
@@ -177,8 +201,12 @@ void Writer::writeMetricSummary(MetricSummary metric_summary, std::string output
   output_json["robots"] = metric_summary.robots;
   if (metric_summary.robot_ate) output_json["robot_ate"] = *metric_summary.robot_ate;
   if (metric_summary.total_ate) output_json["total_ate"] = *metric_summary.total_ate;
+  if (metric_summary.joint_aligned_ate) output_json["joint_aligned_ate"] = *metric_summary.joint_aligned_ate;
   if (metric_summary.sve) output_json["sve"] = *metric_summary.sve;
   if (metric_summary.mean_residual) output_json["mean_residual"] = *metric_summary.mean_residual;
+  if (metric_summary.robot_precision_recall)
+    output_json["robot_precision_recall"] = *metric_summary.robot_precision_recall;
+  if (metric_summary.precision_recall) output_json["precision_recall"] = *metric_summary.precision_recall;
 
   // Write the file
   writeJson(output_json, output_file_name, compress_to_cbor);

@@ -5,6 +5,7 @@
 #include <gtsam/slam/PriorFactor.h>
 
 #include <fstream>
+#include <set>
 
 #include "jrl/IOMeasurements.h"
 #include "jrl/IOValues.h"
@@ -79,19 +80,14 @@ std::vector<Entry> Parser::parseMeasurements(const json& measurements_json) cons
     uint64_t stamp = entry_element["stamp"].get<uint64_t>();
     gtsam::NonlinearFactorGraph entry_measurements;
     std::vector<std::string> type_tags;
-    if(entry_element.contains("measurements")) {
+    if (entry_element.contains("measurements")) {
       for (auto& measurement : entry_element["measurements"]) {
         std::string tag = measurement["type"].get<std::string>();
         type_tags.push_back(tag);
         entry_measurements.push_back(measurement_parsers_.at(tag)(measurement));
       }
     }
-    std::map<gtsam::FactorIndex, bool> potential_outlier_statuses;
-    if (entry_element.contains("potential_outlier_statuses")) {
-      potential_outlier_statuses =
-          entry_element["potential_outlier_statuses"].get<std::map<gtsam::FactorIndex, bool>>();
-    }
-    measurements.emplace_back(stamp, type_tags, entry_measurements, potential_outlier_statuses);
+    measurements.emplace_back(stamp, type_tags, entry_measurements);
   }
   return measurements;
 }
@@ -117,6 +113,12 @@ Dataset Parser::parseDataset(std::string dataset_file, bool decompress_from_cbor
   std::string name = dataset_json["name"];
   std::vector<char> robots = dataset_json["robots"].get<std::vector<char>>();
 
+  // Parse Measurements
+  std::map<char, std::vector<Entry>> measurements;
+  for (auto& el : dataset_json["measurements"].items()) {
+    measurements[el.key()[0]] = parseMeasurements(el.value());
+  }
+
   // Parse Ground truth if it exists
   boost::optional<std::map<char, TypedValues>> groundtruth = boost::none;
   if (dataset_json.contains("groundtruth")) {
@@ -135,13 +137,25 @@ Dataset Parser::parseDataset(std::string dataset_file, bool decompress_from_cbor
     }
   }
 
-  // Parse Measurements if it exists
-  std::map<char, std::vector<Entry>> measurements;
-  for (auto& el : dataset_json["measurements"].items()) {
-    measurements[el.key()[0]] = parseMeasurements(el.value());
+  // Parse Potential Outliers
+  boost::optional<std::map<char, std::set<FactorId>>> potential_outlier_factors = boost::none;
+  if (dataset_json.contains("potential_outlier_factors")) {
+    potential_outlier_factors = std::map<char, std::set<FactorId>>();
+    for (auto& el : dataset_json["potential_outlier_factors"].items()) {
+      (*potential_outlier_factors)[el.key()[0]] = el.value().get<std::set<FactorId>>();
+    }
   }
 
-  return Dataset(name, robots, measurements, groundtruth, initialization);
+  // Parse the ground truth inliers if they exist
+  boost::optional<std::map<char, std::set<FactorId>>> outlier_factors = boost::none;
+  if (dataset_json.contains("outlier_factors")) {
+    outlier_factors = std::map<char, std::set<FactorId>>();
+    for (auto& el : dataset_json["outlier_factors"].items()) {
+      (*outlier_factors)[el.key()[0]] = el.value().get<std::set<FactorId>>();
+    }
+  }
+
+  return Dataset(name, robots, measurements, groundtruth, initialization, potential_outlier_factors, outlier_factors);
 }
 
 /**********************************************************************************************************************/
@@ -153,12 +167,22 @@ Results Parser::parseResults(std::string results_file, bool decompress_from_cbor
   std::string method_name = results_json["method_name"];
   std::vector<char> robots = results_json["robots"].get<std::vector<char>>();
 
-  // Parse Ground truth if it exists
+  // Parse the solutions
   std::map<char, TypedValues> solutions;
   for (auto& el : results_json["solutions"].items()) {
     solutions[el.key()[0]] = parseValues(el.value());
   }
-  return Results(dataset_name, method_name, robots, solutions);
+
+  // Parse the marked outliers
+  boost::optional<std::map<char, std::set<FactorId>>> outliers = boost::none;
+  if (results_json.contains("outliers")) {
+    outliers = std::map<char, std::set<FactorId>>();
+    for (auto& el : results_json["outliers"].items()) {
+      (*outliers)[el.key()[0]] = el.value().get<std::set<FactorId>>();
+    }
+  }
+
+  return Results(dataset_name, method_name, robots, solutions, outliers);
 }
 
 /**********************************************************************************************************************/
@@ -170,16 +194,27 @@ MetricSummary Parser::parseMetricSummary(std::string metric_summary_file, bool d
   metric_summary.robots = results_json["robots"].get<std::vector<char>>();
 
   if (results_json.contains("robot_ate")) {
-    metric_summary.robot_ate = results_json["robot_ate"].get<std::map<char, std::pair<double, double>>>();
+    metric_summary.robot_ate = results_json["robot_ate"].get<std::map<char, metrics::PoseError>>();
   }
   if (results_json.contains("total_ate")) {
-    metric_summary.total_ate = results_json["total_ate"].get<std::pair<double, double>>();
+    metric_summary.total_ate = results_json["total_ate"].get<metrics::PoseError>();
+  }
+  if (results_json.contains("joint_aligned_ate")) {
+    metric_summary.joint_aligned_ate = results_json["joint_aligned_ate"].get<metrics::PoseError>();
   }
   if (results_json.contains("sve")) {
-    metric_summary.sve = results_json["sve"].get<std::pair<double, double>>();
+    metric_summary.sve = results_json["sve"].get<metrics::PoseError>();
   }
   if (results_json.contains("mean_residual")) {
     metric_summary.mean_residual = results_json["mean_residual"].get<double>();
+  }
+
+  if (results_json.contains("robot_precision_recall")) {
+    metric_summary.robot_precision_recall =
+        results_json["robot_precision_recall"].get<std::map<char, metrics::PrecisionRecall>>();
+  }
+  if (results_json.contains("precision_recall")) {
+    metric_summary.precision_recall = results_json["precision_recall"].get<metrics::PrecisionRecall>();
   }
 
   return metric_summary;
