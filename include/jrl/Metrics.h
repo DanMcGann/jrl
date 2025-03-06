@@ -39,6 +39,8 @@ struct MetricSummary {
   boost::optional<std::map<char, metrics::PoseError>> robot_ate{boost::none};
   /// @brief The total ate (sum of robot_ate's) with format: (ATE Translation, ATE Rotation)
   boost::optional<metrics::PoseError> total_ate{boost::none};
+  /// @brief The joint ate after preforming a joint Uymeuama alignment with format: (ATE Translation, ATE Rotation)
+  boost::optional<metrics::PoseError> joint_aligned_ate{boost::none};
 
   /// @brief The total Shared Variable Error (sum of robot_sve's)
   boost::optional<metrics::PoseError> sve{boost::none};
@@ -69,7 +71,7 @@ inline PoseError squaredPoseError<gtsam::Pose2>(gtsam::Pose2 est, gtsam::Pose2 r
 }  // namespace internal
 
 /** @brief Computes the ATE for the specified robot.
- * This involves aligning the estiamted and reference trajectories with Umeyama alignment,
+ * This involves aligning the estimated and reference trajectories with Umeyama alignment,
  * then comparing each pose to retrieve a translation and rotation error.
  * @param rid: The robot id of the robot for which to compute ATE
  * @param dataset: The dataset containing groundtruth
@@ -84,6 +86,20 @@ template <class POSE_TYPE>
 inline boost::optional<PoseError> computeATE(char rid, Dataset dataset, Results results, bool align = true,
                                              bool align_with_scale = false, bool allow_partial_results = false,
                                              bool include_shared_variables = true);
+
+/** @brief Computes the Joint Aligned ATE for all robots.
+ * This involves aligning the joint estimated and  joint reference trajectories with Umeyama alignment,
+ * then comparing each pose to retrieve a translation and rotation error.
+ * @param dataset: The dataset containing groundtruth
+ * @param results: The estimation results to be compared with the groundtruth
+ * @param align_with_scale: If true aligns scale while preforming Umeyama alignment
+ * @param allow_partial_results: If true we compute ATE for only the poses in results
+ * @returns Pair containing (ATE Translation, ATE Rotation) or boost::none if the dataset does not contain ground truth
+ */
+template <class POSE_TYPE>
+inline boost::optional<PoseError> computeJointAlignedATE(Dataset dataset, Results results,
+                                                         bool align_with_scale = false,
+                                                         bool allow_partial_results = false);
 
 /** @brief Computes the SVE for the dataset
  * SVE is defined as the mean error between all combination of shared variable estimates

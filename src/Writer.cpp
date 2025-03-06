@@ -201,6 +201,7 @@ void Writer::writeMetricSummary(MetricSummary metric_summary, std::string output
   output_json["robots"] = metric_summary.robots;
   if (metric_summary.robot_ate) output_json["robot_ate"] = *metric_summary.robot_ate;
   if (metric_summary.total_ate) output_json["total_ate"] = *metric_summary.total_ate;
+  if (metric_summary.joint_aligned_ate) output_json["joint_aligned_ate"] = *metric_summary.joint_aligned_ate;
   if (metric_summary.sve) output_json["sve"] = *metric_summary.sve;
   if (metric_summary.mean_residual) output_json["mean_residual"] = *metric_summary.mean_residual;
   if (metric_summary.robot_precision_recall)

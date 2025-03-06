@@ -199,6 +199,9 @@ MetricSummary Parser::parseMetricSummary(std::string metric_summary_file, bool d
   if (results_json.contains("total_ate")) {
     metric_summary.total_ate = results_json["total_ate"].get<metrics::PoseError>();
   }
+  if (results_json.contains("joint_aligned_ate")) {
+    metric_summary.joint_aligned_ate = results_json["joint_aligned_ate"].get<metrics::PoseError>();
+  }
   if (results_json.contains("sve")) {
     metric_summary.sve = results_json["sve"].get<metrics::PoseError>();
   }

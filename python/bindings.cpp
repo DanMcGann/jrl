@@ -235,6 +235,7 @@ PYBIND11_MODULE(jrl_python, m) {
       .def_readwrite("method_name", &MetricSummary::method_name)
       .def_readwrite("robot_ate", &MetricSummary::robot_ate)
       .def_readwrite("total_ate", &MetricSummary::total_ate)
+      .def_readwrite("joint_aligned_ate", &MetricSummary::joint_aligned_ate)
       .def_readwrite("sve", &MetricSummary::sve)
       .def_readwrite("mean_residual", &MetricSummary::mean_residual)
       .def_readwrite("robot_precision_recall", &MetricSummary::robot_precision_recall)
@@ -288,4 +289,18 @@ PYBIND11_MODULE(jrl_python, m) {
    * #### ##    ## ####    ##    #### ##     ## ######## #### ######## ##     ##    ##    ####  #######  ##    ##
    */
   py::class_<Initializer>(m, "Initializer").def(py::init<>()).def("initialization", &Initializer::initialization);
+
+  /**
+   *    ###    ##       ####  ######   ##    ## ##     ## ######## ##    ## ########
+   *   ## ##   ##        ##  ##    ##  ###   ## ###   ### ##       ###   ##    ##
+   *  ##   ##  ##        ##  ##        ####  ## #### #### ##       ####  ##    ##
+   * ##     ## ##        ##  ##   #### ## ## ## ## ### ## ######   ## ## ##    ##
+   * ######### ##        ##  ##    ##  ##  #### ##     ## ##       ##  ####    ##
+   * ##     ## ##        ##  ##    ##  ##   ### ##     ## ##       ##   ###    ##
+   * ##     ## ######## ####  ######   ##    ## ##     ## ######## ##    ##    ##
+   */
+  m.def("alignPose2", &alignment::align<gtsam::Pose2>, py::return_value_policy::copy,
+        py::arg("estimate_trajectory"), py::arg("reference_trajectory"), py::arg("align_with_scale") = false);
+  m.def("alignPose3", &alignment::align<gtsam::Pose3>, py::return_value_policy::copy,
+        py::arg("estimate_trajectory"), py::arg("reference_trajectory"), py::arg("align_with_scale") = false);
 }

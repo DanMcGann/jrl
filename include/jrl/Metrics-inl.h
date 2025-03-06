@@ -86,6 +86,58 @@ inline boost::optional<PoseError> computeATE(char rid, Dataset dataset, Results 
 
 /**********************************************************************************************************************/
 template <class POSE_TYPE>
+inline boost::optional<PoseError> computeJointAlignedATE(Dataset dataset, Results results, bool align_with_scale,
+                                                         bool allow_partial_results) {
+  // We have groundtruth so we can compute ATE
+  if (dataset.containsGroundTruth()) {
+    // Grab the estimated and reference joint trajectories
+    gtsam::Values ref;
+    gtsam::Values est;
+    for (const auto& rid : dataset.robots()) {
+      gtsam::Values robot_ref = dataset.groundTruth(rid).filter<POSE_TYPE>();
+      ref.insert(robot_ref.filter([&rid](gtsam::Key key) { return gtsam::Symbol(key).chr() == rid; }));
+
+      gtsam::Values robot_est = results.robot_solutions[rid].values.filter<POSE_TYPE>();
+      est.insert(robot_est.filter([&rid](gtsam::Key key) { return gtsam::Symbol(key).chr() == rid; }));
+    }
+
+    // If we allow partial solution get only the applicable section of the reference trajectory
+    gtsam::Values filtered_ref = ref;
+    if (allow_partial_results) {
+      filtered_ref = ref.filter([&est](gtsam::Key key) { return est.exists(key); });
+    }
+
+    // Early exit if there are no poses
+    if (filtered_ref.empty()) {
+      return std::make_pair(0.0, 0.0);
+    }
+
+    // Run Umeyama alignment
+    gtsam::Values aligned_est = alignment::align<POSE_TYPE>(est, filtered_ref, align_with_scale);
+
+    double squared_translation_error = 0.0;
+    double squared_rotation_error = 0.0;
+    for (auto& key : filtered_ref.keys()) {
+      PoseError squared_pose_error =
+          internal::squaredPoseError<POSE_TYPE>(aligned_est.at<POSE_TYPE>(key), filtered_ref.at<POSE_TYPE>(key));
+
+      squared_translation_error += squared_pose_error.first;
+      squared_rotation_error += squared_pose_error.second;
+    }
+
+    // Return the RMSE of the pose errors
+    return std::make_pair(std::sqrt(squared_translation_error / filtered_ref.size()),
+                          std::sqrt(squared_rotation_error / filtered_ref.size()));
+
+  }
+  // No ground truth, cannot compute ATE
+  else {
+    return boost::none;
+  }
+}
+
+/**********************************************************************************************************************/
+template <class POSE_TYPE>
 inline PoseError computeSVE(Results results) {
   double squared_sve_trans = 0.0;
   double squared_sve_rot = 0.0;
@@ -193,6 +245,7 @@ inline MetricSummary computeMetricSummary(Dataset dataset, Results results, bool
 
   // Compute ATE if possible
   if (dataset.containsGroundTruth()) {
+    // Compute Individual Robot ATE and Total ATE
     summary.robot_ate = std::map<char, PoseError>();
     summary.total_ate = std::make_pair(0, 0);
     for (char rid : summary.robots) {
@@ -202,6 +255,10 @@ inline MetricSummary computeMetricSummary(Dataset dataset, Results results, bool
       (*summary.total_ate) = std::make_pair((*summary.total_ate).first + (*robot_ate).first,
                                             (*summary.total_ate).second + (*robot_ate).second);
     }
+
+    // Compute the joint aligned ATE
+    summary.joint_aligned_ate =
+        computeJointAlignedATE<POSE_TYPE>(dataset, results, ate_align_with_scale, step_idxes.has_value());
   }
 
   // Compute the SVE is possible
