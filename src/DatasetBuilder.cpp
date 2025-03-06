@@ -18,7 +18,7 @@ void DatasetBuilder::addEntry(char robot, uint64_t stamp, gtsam::NonlinearFactor
                               std::vector<std::string> measurement_types,
                               const boost::optional<TypedValues> initialization,
                               const boost::optional<TypedValues> groundtruth) {
-  measurements_[robot].push_back(Entry(stamp, measurement_types, measurements));
+  measurements_[robot].emplace_back(stamp, measurement_types, measurements);
   if (initialization) {
     addInitialization(robot, *initialization);
   }
@@ -38,11 +38,11 @@ void DatasetBuilder::addInitialization(char robot, TypedValues initialization) {
   initial_estimates_[robot].types.insert(initialization.types.begin(), initialization.types.end());
 }
 
-void DatasetBuilder::addPotentialOutlierFactors(char robot, std::set<FactorId> potential_outlier_factors) {
+void DatasetBuilder::setPotentialOutlierFactors(char robot, std::set<FactorId> potential_outlier_factors) {
   potential_outlier_factors_[robot] = potential_outlier_factors;
 }
 
-void DatasetBuilder::addOutlierFactors(char robot, std::set<FactorId> outlier_factors) {
+void DatasetBuilder::setOutlierFactors(char robot, std::set<FactorId> outlier_factors) {
   outlier_factors_[robot] = outlier_factors;
 }
 

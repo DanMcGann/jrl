@@ -47,10 +47,12 @@ class DatasetBuilder {
   void addInitialization(char robot, TypedValues initialization);
 
   /// @brief Add information for the potential outliers of the dataset
-  void addPotentialOutlierFactors(char robot, std::set<FactorId> potential_outlier_factors);
+  /// WARN: Overwrites any currently stored potential outlier factors
+  void setPotentialOutlierFactors(char robot, std::set<FactorId> potential_outlier_factors);
 
   /// @brief Add information on the true inliers of the dataset
-  void addOutlierFactors(char robot, std::set<FactorId> outlier_factors);
+  /// WARN: Overwrites any currently stored potential outlier factors
+  void setOutlierFactors(char robot, std::set<FactorId> outlier_factors);
 
   /// @brief Compiles a dataset from all the added entries
   Dataset build();

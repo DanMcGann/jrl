@@ -161,6 +161,8 @@ PYBIND11_MODULE(jrl_python, m) {
            py::arg("measurement_types"), py::arg("initialization") = py::none(), py::arg("groundtruth") = py::none())
       .def("addGroundTruth", &DatasetBuilder::addGroundTruth, py::arg("robot"), py::arg("groundtruth"))
       .def("addInitialization", &DatasetBuilder::addInitialization, py::arg("robot"), py::arg("initialization"))
+      .def("setPotentialOutlierFactors", &DatasetBuilder::setPotentialOutlierFactors, py::arg("robot"), py::arg("potential_outlier_factors"))
+      .def("setOutlierFactors", &DatasetBuilder::setOutlierFactors, py::arg("robot"), py::arg("outlier_factors"))
       .def("build", &DatasetBuilder::build);
 
   /**

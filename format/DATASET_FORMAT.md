@@ -19,12 +19,12 @@ A dataset is a JSON object that contains the following components:
   # (Optional) Map[char -> Values] - The initial estimate for the values for each robot in the dataset (used for batch algorithms)
   "initialization": {"a": {...}, "b": {...}}
 
-  # (Optional) [List-of-FactorId] - The set of factors that are potentially outliers (i.e. Loop Closures)
+  # (Optional) Map[char -> [List-of-FactorId]] - The set of factors that are potentially outliers for each robot (i.e. Loop Closures)
   # If not included all measurements are assumed to be known inliers
-  "potential_outlier_factors": [ [0, 2], [4, 0] ...]
+  "potential_outlier_factors": {"a": [ [0, 2], [4, 0] ...], ...}
 
-  # (Optional) [List-of-FactorId] - The set of ground truth outlier factors
-  "outlier_factors": [[4, 0], ...]
+  # (Optional) Map[char -> [List-of-FactorId]] - The set of ground truth outlier factors for each robot
+  "outlier_factors": {"a": [[4, 0], ...], ...}
 }
 ```
 
