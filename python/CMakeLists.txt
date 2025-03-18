@@ -4,8 +4,9 @@ message(STATUS "================  PYTHON BINDINGS ENABLED. BUILDING BINDINGS  ==
 find_package(Python COMPONENTS Interpreter Development REQUIRED)
 
 # Fetch pybind to build the python bindings
-find_package(pybind11 QUIET)
+find_package(pybind11 2.11 QUIET)
 if(NOT pybind11_FOUND)
+    MESSAGE(STATUS "No compatible version of PyBind found. Retrieving via fetch content.")
     include(FetchContent)
     FetchContent_Declare(
     pybind11
@@ -28,7 +29,7 @@ set_target_properties(jrl_python PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY "${JRL_PYTHON_BUILD_DIRECTORY}/jrl"
     DEBUG_POSTFIX "" # Otherwise you will have a wrong name
     RELWITHDEBINFO_POSTFIX "" # Otherwise you will have a wrong name
-    )
+)
 
 # Install Python
 # Generate the setup.py file in the correct directory. This will be used to install the python module.
