@@ -6,6 +6,8 @@
 #pragma once
 #include <gtsam/geometry/BearingRange.h>
 
+#include <optional>
+
 #include "jrl/Dataset.h"
 #include "jrl/Types.h"
 
