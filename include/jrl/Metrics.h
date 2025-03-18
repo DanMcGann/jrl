@@ -8,6 +8,7 @@
 #include <gtsam/inference/Symbol.h>
 #include <gtsam/nonlinear/Values.h>
 
+#include <optional>
 #include <vector>
 
 #include "jrl/Dataset.h"
