@@ -10,7 +10,7 @@ function(MakeConfigFile PACKAGE_NAME)
 	write_basic_package_version_file(
 	  "${PROJECT_BINARY_DIR}/${PACKAGE_NAME}ConfigVersion.cmake"
 	  VERSION ${${PACKAGE_NAME}_VERSION}
-	  COMPATIBILITY SameMajorVersion
+	  COMPATIBILITY SameMinorVersion
 	)
 
 	# Config file
