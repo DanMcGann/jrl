@@ -37,22 +37,22 @@ struct MetricSummary {
   std::string method_name;
 
   /// @brief The individual ATE for each robot with format: (ATE Translation, ATE Rotation)
-  boost::optional<std::map<char, metrics::PoseError>> robot_ate{boost::none};
+  std::optional<std::map<char, metrics::PoseError>> robot_ate{std::nullopt};
   /// @brief The total ate (sum of robot_ate's) with format: (ATE Translation, ATE Rotation)
-  boost::optional<metrics::PoseError> total_ate{boost::none};
+  std::optional<metrics::PoseError> total_ate{std::nullopt};
   /// @brief The joint ate after preforming a joint Uymeuama alignment with format: (ATE Translation, ATE Rotation)
-  boost::optional<metrics::PoseError> joint_aligned_ate{boost::none};
+  std::optional<metrics::PoseError> joint_aligned_ate{std::nullopt};
 
   /// @brief The total Shared Variable Error (sum of robot_sve's)
-  boost::optional<metrics::PoseError> sve{boost::none};
+  std::optional<metrics::PoseError> sve{std::nullopt};
 
   /// @brief The Mean Residual
-  boost::optional<double> mean_residual{boost::none};
+  std::optional<double> mean_residual{std::nullopt};
 
   /// @brief The individual precision and recall for each robot
-  boost::optional<std::map<char, metrics::PrecisionRecall>> robot_precision_recall{boost::none};
+  std::optional<std::map<char, metrics::PrecisionRecall>> robot_precision_recall{std::nullopt};
   /// @brief The total precision and recall
-  boost::optional<metrics::PrecisionRecall> precision_recall{boost::none};
+  std::optional<metrics::PrecisionRecall> precision_recall{std::nullopt};
 };
 
 namespace metrics {
@@ -81,10 +81,10 @@ inline PoseError squaredPoseError<gtsam::Pose2>(gtsam::Pose2 est, gtsam::Pose2 r
  * @param allow_partial_results: If true we compute ATE for only the poses in results
  * @param include_shared_variables: If true we compute ATE including variables from other robots that a robot has
  * observed.
- * @returns Pair containing (ATE Translation, ATE Rotation) or boost::none if the dataset does not contain ground truth
+ * @returns Pair containing (ATE Translation, ATE Rotation) or std::nullopt if the dataset does not contain ground truth
  */
 template <class POSE_TYPE>
-inline boost::optional<PoseError> computeATE(char rid, Dataset dataset, Results results, bool align = true,
+inline std::optional<PoseError> computeATE(char rid, Dataset dataset, Results results, bool align = true,
                                              bool align_with_scale = false, bool allow_partial_results = false,
                                              bool include_shared_variables = true);
 
@@ -95,10 +95,10 @@ inline boost::optional<PoseError> computeATE(char rid, Dataset dataset, Results 
  * @param results: The estimation results to be compared with the groundtruth
  * @param align_with_scale: If true aligns scale while preforming Umeyama alignment
  * @param allow_partial_results: If true we compute ATE for only the poses in results
- * @returns Pair containing (ATE Translation, ATE Rotation) or boost::none if the dataset does not contain ground truth
+ * @returns Pair containing (ATE Translation, ATE Rotation) or std::nullopt if the dataset does not contain ground truth
  */
 template <class POSE_TYPE>
-inline boost::optional<PoseError> computeJointAlignedATE(Dataset dataset, Results results,
+inline std::optional<PoseError> computeJointAlignedATE(Dataset dataset, Results results,
                                                          bool align_with_scale = false,
                                                          bool allow_partial_results = false);
 

@@ -44,7 +44,7 @@ TEST(Custom, Factor) {
   auto serialized = writer.serializeMeasurements({entry});
   jrl::Entry read = parser.parseMeasurements(serialized)[0];
   gtsam::PriorFactor<gtsam::Pose2>::shared_ptr read_factor =
-      boost::dynamic_pointer_cast<gtsam::PriorFactor<gtsam::Pose2>>(entry.measurements.at(0));
+      std::dynamic_pointer_cast<gtsam::PriorFactor<gtsam::Pose2>>(entry.measurements.at(0));
 
   EXPECT_TRUE(prior.equals(*read_factor));
 }

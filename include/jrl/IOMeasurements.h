@@ -47,7 +47,7 @@ gtsam::NonlinearFactor::shared_ptr parsePrior(std::function<T(json)> val_parser_
   T measured = val_parser_fn(measurement_json);
   int d = gtsam::traits<T>::GetDimension(measured);
   typename gtsam::Matrix covariance = parseCovariance(input_json["covariance"], d);
-  typename gtsam::PriorFactor<T>::shared_ptr factor = boost::make_shared<gtsam::PriorFactor<T>>(
+  typename gtsam::PriorFactor<T>::shared_ptr factor = std::make_shared<gtsam::PriorFactor<T>>(
       key_json.get<uint64_t>(), measured, gtsam::noiseModel::Gaussian::Covariance(parseCovariance(covariance_json, d)));
   return factor;
 }
@@ -56,9 +56,9 @@ template <typename T>
 json serializePrior(std::function<json(T)> val_serializer_fn, std::string type_tag,
                     gtsam::NonlinearFactor::shared_ptr& factor) {
   json output;
-  typename gtsam::PriorFactor<T>::shared_ptr prior = boost::dynamic_pointer_cast<gtsam::PriorFactor<T>>(factor);
+  typename gtsam::PriorFactor<T>::shared_ptr prior = std::dynamic_pointer_cast<gtsam::PriorFactor<T>>(factor);
   gtsam::noiseModel::Gaussian::shared_ptr noise_model =
-      boost::dynamic_pointer_cast<gtsam::noiseModel::Gaussian>(prior->noiseModel());
+      std::dynamic_pointer_cast<gtsam::noiseModel::Gaussian>(prior->noiseModel());
 
   output["type"] = type_tag;
   output["key"] = prior->key();
@@ -81,7 +81,7 @@ gtsam::NonlinearFactor::shared_ptr parseNoiseModel2(std::function<MEASURE(json)>
   MEASURE measured = val_parser_fn(measurement_json);
   int d = gtsam::traits<MEASURE>::GetDimension(measured);
   typename FACTOR::shared_ptr factor =
-      boost::make_shared<FACTOR>(key1_json.get<uint64_t>(), key2_json.get<uint64_t>(), measured,
+      std::make_shared<FACTOR>(key1_json.get<uint64_t>(), key2_json.get<uint64_t>(), measured,
                                  gtsam::noiseModel::Gaussian::Covariance(parseCovariance(covariance_json, d)));
   return factor;
 }
@@ -90,9 +90,9 @@ template <typename MEASURE, typename FACTOR>
 json serializeNoiseModel2(std::function<json(MEASURE)> val_serializer_fn, std::string type_tag,
                           gtsam::NonlinearFactor::shared_ptr& factor) {
   json output;
-  typename FACTOR::shared_ptr between = boost::dynamic_pointer_cast<FACTOR>(factor);
+  typename FACTOR::shared_ptr between = std::dynamic_pointer_cast<FACTOR>(factor);
   gtsam::noiseModel::Gaussian::shared_ptr noise_model =
-      boost::dynamic_pointer_cast<gtsam::noiseModel::Gaussian>(between->noiseModel());
+      std::dynamic_pointer_cast<gtsam::noiseModel::Gaussian>(between->noiseModel());
   output["type"] = type_tag;
   output["key1"] = between->keys().front();
   output["key2"] = between->keys().back();

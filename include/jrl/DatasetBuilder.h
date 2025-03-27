@@ -37,8 +37,8 @@ class DatasetBuilder {
   /// @brief Adds information to the dataset incrementally for a single entry
   void addEntry(char robot, uint64_t stamp, gtsam::NonlinearFactorGraph measurements,
                 std::vector<std::string> measurement_types,
-                const boost::optional<TypedValues> initialization = boost::none,
-                const boost::optional<TypedValues> groundtruth = boost::none);
+                const std::optional<TypedValues> initialization = std::nullopt,
+                const std::optional<TypedValues> groundtruth = std::nullopt);
 
   /// @brief Adds ground truth information for a single robot. Can be used incrementally or in bulk.
   void addGroundTruth(char robot, TypedValues groundtruth);

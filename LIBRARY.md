@@ -1,3 +1,5 @@
+# TEMP - This branch is targeting what will eventually be gtsam 4.3
+
 # JRL Library
 
 In addition to defining the platform / language agnostic JRL formats this package also provides a library to make it easy to work with JRL data in C++ and Python. 
@@ -31,8 +33,6 @@ Some modules are tested via unit tests in `tests/`. Enable building tests with `
 ## Library Design Decisions
 The following document some implementation / design decisions so that users can understand some of our rationale.
 
-#### Optional
-We use `boost::optional` over the c++17 supported `std::optional` as that is what is used by GTSAM.
 
 #### Containers
 We use `stl` containers over GTSAM "fast" containers to allow implicit conversion via pybind11's `stl.h`

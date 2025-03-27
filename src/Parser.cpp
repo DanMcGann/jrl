@@ -120,7 +120,7 @@ Dataset Parser::parseDataset(std::string dataset_file, bool decompress_from_cbor
   }
 
   // Parse Ground truth if it exists
-  boost::optional<std::map<char, TypedValues>> groundtruth = boost::none;
+  std::optional<std::map<char, TypedValues>> groundtruth = std::nullopt;
   if (dataset_json.contains("groundtruth")) {
     groundtruth = std::map<char, TypedValues>();
     for (auto& el : dataset_json["groundtruth"].items()) {
@@ -129,7 +129,7 @@ Dataset Parser::parseDataset(std::string dataset_file, bool decompress_from_cbor
   }
 
   // Parse Initialization if it exists
-  boost::optional<std::map<char, TypedValues>> initialization = boost::none;
+  std::optional<std::map<char, TypedValues>> initialization = std::nullopt;
   if (dataset_json.contains("initialization")) {
     initialization = std::map<char, TypedValues>();
     for (auto& el : dataset_json["initialization"].items()) {
@@ -138,7 +138,7 @@ Dataset Parser::parseDataset(std::string dataset_file, bool decompress_from_cbor
   }
 
   // Parse Potential Outliers
-  boost::optional<std::map<char, std::set<FactorId>>> potential_outlier_factors = boost::none;
+  std::optional<std::map<char, std::set<FactorId>>> potential_outlier_factors = std::nullopt;
   if (dataset_json.contains("potential_outlier_factors")) {
     potential_outlier_factors = std::map<char, std::set<FactorId>>();
     for (auto& el : dataset_json["potential_outlier_factors"].items()) {
@@ -147,7 +147,7 @@ Dataset Parser::parseDataset(std::string dataset_file, bool decompress_from_cbor
   }
 
   // Parse the ground truth inliers if they exist
-  boost::optional<std::map<char, std::set<FactorId>>> outlier_factors = boost::none;
+  std::optional<std::map<char, std::set<FactorId>>> outlier_factors = std::nullopt;
   if (dataset_json.contains("outlier_factors")) {
     outlier_factors = std::map<char, std::set<FactorId>>();
     for (auto& el : dataset_json["outlier_factors"].items()) {
@@ -174,7 +174,7 @@ Results Parser::parseResults(std::string results_file, bool decompress_from_cbor
   }
 
   // Parse the marked outliers
-  boost::optional<std::map<char, std::set<FactorId>>> outliers = boost::none;
+  std::optional<std::map<char, std::set<FactorId>>> outliers = std::nullopt;
   if (results_json.contains("outliers")) {
     outliers = std::map<char, std::set<FactorId>>();
     for (auto& el : results_json["outliers"].items()) {

@@ -121,7 +121,7 @@ TEST(ForwardModels, BearingRangePose2) {
   auto b = p0.bearing(p1);
   auto r = p0.range(p1);
   gtsam::BearingRangeFactor<gtsam::Pose2, gtsam::Pose2>::shared_ptr factor =
-      boost::make_shared<gtsam::BearingRangeFactor<gtsam::Pose2, gtsam::Pose2>>(
+      std::make_shared<gtsam::BearingRangeFactor<gtsam::Pose2, gtsam::Pose2>>(
           0, 1, gtsam::BearingRange<gtsam::Pose2, gtsam::Pose2>(b, r), gtsam::noiseModel::Unit::Create(2));
   gtsam::Values inputs;
   inputs.insert(0, p0);
@@ -139,7 +139,7 @@ TEST(ForwardModels, BearingRangePose3) {
   auto b = p0.bearing(p1);
   auto r = p0.range(p1);
   gtsam::BearingRangeFactor<gtsam::Pose3, gtsam::Pose3>::shared_ptr factor =
-      boost::make_shared<gtsam::BearingRangeFactor<gtsam::Pose3, gtsam::Pose3>>(
+      std::make_shared<gtsam::BearingRangeFactor<gtsam::Pose3, gtsam::Pose3>>(
           0, 1, gtsam::BearingRange<gtsam::Pose3, gtsam::Pose3>(b, r), gtsam::noiseModel::Unit::Create(3));
   gtsam::Values inputs;
   inputs.insert(0, p0);

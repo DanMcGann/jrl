@@ -95,9 +95,9 @@ PYBIND11_MODULE(jrl_python, m) {
   /**********************************************************************************************************************/
   py::class_<Dataset>(m, "Dataset")
       .def(py::init<const std::string &, std::vector<char> &, std::map<char, std::vector<Entry>> &,
-                    boost::optional<std::map<char, TypedValues>> &, boost::optional<std::map<char, TypedValues>> &,
-                    boost::optional<std::map<char, std::set<FactorId>>> &,
-                    boost::optional<std::map<char, std::set<FactorId>>> &>())
+                    std::optional<std::map<char, TypedValues>> &, std::optional<std::map<char, TypedValues>> &,
+                    std::optional<std::map<char, std::set<FactorId>>> &,
+                    std::optional<std::map<char, std::set<FactorId>>> &>())
       .def("name", &Dataset::name)
       .def("robots", &Dataset::robots)
       .def("measurements", &Dataset::measurements)
@@ -115,10 +115,10 @@ PYBIND11_MODULE(jrl_python, m) {
       .def(py::pickle(
           [](const Dataset &dataset) {  // __getstate__
             std::map<char, std::vector<Entry>> measurements;
-            boost::optional<std::map<char, TypedValues>> ground_truth = boost::none;
-            boost::optional<std::map<char, TypedValues>> initialization = boost::none;
-            boost::optional<std::map<char, std::set<FactorId>>> potential_outlier_factors = boost::none;
-            boost::optional<std::map<char, std::set<FactorId>>> outlier_factors = boost::none;
+            std::optional<std::map<char, TypedValues>> ground_truth = std::nullopt;
+            std::optional<std::map<char, TypedValues>> initialization = std::nullopt;
+            std::optional<std::map<char, std::set<FactorId>>> potential_outlier_factors = std::nullopt;
+            std::optional<std::map<char, std::set<FactorId>>> outlier_factors = std::nullopt;
 
             if (dataset.containsGroundTruth()) {
               ground_truth = std::map<char, TypedValues>();
@@ -147,10 +147,10 @@ PYBIND11_MODULE(jrl_python, m) {
           [](py::tuple tup) {  // __setstate__
             Dataset dataset(tup[0].cast<std::string>(), tup[1].cast<std::vector<char>>(),
                             tup[2].cast<std::map<char, std::vector<Entry>>>(),
-                            tup[3].cast<boost::optional<std::map<char, TypedValues>>>(),
-                            tup[4].cast<boost::optional<std::map<char, TypedValues>>>(),
-                            tup[5].cast<boost::optional<std::map<char, std::set<FactorId>>>>(),
-                            tup[6].cast<boost::optional<std::map<char, std::set<FactorId>>>>());
+                            tup[3].cast<std::optional<std::map<char, TypedValues>>>(),
+                            tup[4].cast<std::optional<std::map<char, TypedValues>>>(),
+                            tup[5].cast<std::optional<std::map<char, std::set<FactorId>>>>(),
+                            tup[6].cast<std::optional<std::map<char, std::set<FactorId>>>>());
             return dataset;
           }));
 
@@ -191,7 +191,7 @@ PYBIND11_MODULE(jrl_python, m) {
           [](py::tuple tup) {  // __setstate__
             Results result(tup[0].cast<std::string>(), tup[1].cast<std::string>(), tup[2].cast<std::vector<char>>(),
                            tup[3].cast<std::map<char, TypedValues>>(),
-                           tup[4].cast<boost::optional<std::map<char, std::set<FactorId>>>>());
+                           tup[4].cast<std::optional<std::map<char, std::set<FactorId>>>>());
             return result;
           }));
 

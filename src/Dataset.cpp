@@ -5,10 +5,10 @@
 namespace jrl {
 /**********************************************************************************************************************/
 Dataset::Dataset(const std::string name, std::vector<char> robots, std::map<char, std::vector<Entry>> measurements,
-                 boost::optional<std::map<char, TypedValues>> ground_truth,
-                 boost::optional<std::map<char, TypedValues>> initial_estimates,
-                 boost::optional<std::map<char, std::set<FactorId>>> potential_outlier_factors,
-                 boost::optional<std::map<char, std::set<FactorId>>> outlier_factors)
+                 std::optional<std::map<char, TypedValues>> ground_truth,
+                 std::optional<std::map<char, TypedValues>> initial_estimates,
+                 std::optional<std::map<char, std::set<FactorId>>> potential_outlier_factors,
+                 std::optional<std::map<char, std::set<FactorId>>> outlier_factors)
     : name_(name),
       robots_(robots),
       measurements_(measurements),
@@ -34,55 +34,55 @@ std::string Dataset::name() const { return name_; }
 std::vector<char> Dataset::robots() const { return robots_; }
 
 /**********************************************************************************************************************/
-std::vector<Entry> Dataset::measurements(const boost::optional<char>& robot_id) const {
+std::vector<Entry> Dataset::measurements(const std::optional<char>& robot_id) const {
   return accessor<std::vector<Entry>>("measurements", measurements_, robot_id);
 }
 
 /**********************************************************************************************************************/
-gtsam::NonlinearFactorGraph Dataset::factorGraph(const boost::optional<char>& robot_id) const {
+gtsam::NonlinearFactorGraph Dataset::factorGraph(const std::optional<char>& robot_id) const {
   return accessor<gtsam::NonlinearFactorGraph>("factorGraph", factor_graphs_, robot_id);
 }
 
 /**********************************************************************************************************************/
-TypedValues Dataset::groundTruthWithTypes(const boost::optional<char>& robot_id) const {
+TypedValues Dataset::groundTruthWithTypes(const std::optional<char>& robot_id) const {
   return accessor<TypedValues>("groundTruth", ground_truth_, robot_id);
 }
 
-gtsam::Values Dataset::groundTruth(const boost::optional<char>& robot_id) const {
+gtsam::Values Dataset::groundTruth(const std::optional<char>& robot_id) const {
   return groundTruthWithTypes(robot_id).values;
 }
 
 /**********************************************************************************************************************/
-TypedValues Dataset::initializationWithTypes(const boost::optional<char>& robot_id) const {
+TypedValues Dataset::initializationWithTypes(const std::optional<char>& robot_id) const {
   return accessor<TypedValues>("initialization", initial_estimates_, robot_id);
 }
-gtsam::Values Dataset::initialization(const boost::optional<char>& robot_id) const {
+gtsam::Values Dataset::initialization(const std::optional<char>& robot_id) const {
   return initializationWithTypes(robot_id).values;
 }
 
 /**********************************************************************************************************************/
-std::set<FactorId> Dataset::potentialOutlierFactors(const boost::optional<char>& robot_id) const {
+std::set<FactorId> Dataset::potentialOutlierFactors(const std::optional<char>& robot_id) const {
   return accessor<std::set<FactorId>>("potentialOutlierFactors", potential_outlier_factors_, robot_id);
 }
 
 /**********************************************************************************************************************/
-std::set<FactorId> Dataset::outlierFactors(const boost::optional<char>& robot_id) const {
+std::set<FactorId> Dataset::outlierFactors(const std::optional<char>& robot_id) const {
   return accessor<std::set<FactorId>>("outlierFactors", outlier_factors_, robot_id);
 }
 /**********************************************************************************************************************/
-std::set<std::string> Dataset::measurementTypes(const boost::optional<char>& robot_id) const {
+std::set<std::string> Dataset::measurementTypes(const std::optional<char>& robot_id) const {
   return accessor<std::set<std::string>>("measurementTypes", measurement_types_, robot_id);
 }
 
 /**********************************************************************************************************************/
 template <typename RETURN_TYPE>
-RETURN_TYPE Dataset::accessor(const std::string& func_name, boost::optional<std::map<char, RETURN_TYPE>> robot_mapping,
-                              const boost::optional<char>& robot_id) const {
-  if (robot_mapping == boost::none) {
+RETURN_TYPE Dataset::accessor(const std::string& func_name, std::optional<std::map<char, RETURN_TYPE>> robot_mapping,
+                              const std::optional<char>& robot_id) const {
+  if (robot_mapping == std::nullopt) {
     std::stringstream stream;
     stream << "Dataset:" << func_name << "requested but dataset does not contain " << func_name << "information";
     throw std::runtime_error(stream.str());
-  } else if (robot_id == boost::none) {
+  } else if (robot_id == std::nullopt) {
     if (robots_.size() == 1) {
       return (*robot_mapping)[robots_[0]];
     } else {

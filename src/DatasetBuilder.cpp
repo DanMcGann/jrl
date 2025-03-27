@@ -16,8 +16,8 @@ DatasetBuilder::DatasetBuilder(const std::string name, std::vector<char> robots)
 
 void DatasetBuilder::addEntry(char robot, uint64_t stamp, gtsam::NonlinearFactorGraph measurements,
                               std::vector<std::string> measurement_types,
-                              const boost::optional<TypedValues> initialization,
-                              const boost::optional<TypedValues> groundtruth) {
+                              const std::optional<TypedValues> initialization,
+                              const std::optional<TypedValues> groundtruth) {
   measurements_[robot].emplace_back(stamp, measurement_types, measurements);
   if (initialization) {
     addInitialization(robot, *initialization);
@@ -47,10 +47,10 @@ void DatasetBuilder::setOutlierFactors(char robot, std::set<FactorId> outlier_fa
 }
 
 Dataset DatasetBuilder::build() {
-  boost::optional<std::map<char, TypedValues>> gt = boost::none;
-  boost::optional<std::map<char, TypedValues>> init = boost::none;
-  boost::optional<std::map<char, std::set<FactorId>>> potential_outlier_factors = boost::none;
-  boost::optional<std::map<char, std::set<FactorId>>> outlier_factors = boost::none;
+  std::optional<std::map<char, TypedValues>> gt = std::nullopt;
+  std::optional<std::map<char, TypedValues>> init = std::nullopt;
+  std::optional<std::map<char, std::set<FactorId>>> potential_outlier_factors = std::nullopt;
+  std::optional<std::map<char, std::set<FactorId>>> outlier_factors = std::nullopt;
   if (ground_truth_[robots_.front()].values.size() > 0) gt = ground_truth_;
   if (initial_estimates_[robots_.front()].values.size() > 0) init = initial_estimates_;
   if (outlier_factors_[robots_.front()].size() > 0) outlier_factors = outlier_factors_;

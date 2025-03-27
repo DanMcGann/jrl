@@ -31,7 +31,7 @@ inline PoseError squaredPoseError<gtsam::Pose2>(gtsam::Pose2 est, gtsam::Pose2 r
 
 /**********************************************************************************************************************/
 template <class POSE_TYPE>
-inline boost::optional<PoseError> computeATE(char rid, Dataset dataset, Results results, bool align,
+inline std::optional<PoseError> computeATE(char rid, Dataset dataset, Results results, bool align,
                                              bool align_with_scale, bool allow_partial_results,
                                              bool include_shared_variables) {
   // We have groundtruth so we can compute ATE
@@ -80,13 +80,13 @@ inline boost::optional<PoseError> computeATE(char rid, Dataset dataset, Results 
   }
   // No ground truth, cannot compute ATE
   else {
-    return boost::none;
+    return std::nullopt;
   }
 }
 
 /**********************************************************************************************************************/
 template <class POSE_TYPE>
-inline boost::optional<PoseError> computeJointAlignedATE(Dataset dataset, Results results, bool align_with_scale,
+inline std::optional<PoseError> computeJointAlignedATE(Dataset dataset, Results results, bool align_with_scale,
                                                          bool allow_partial_results) {
   // We have groundtruth so we can compute ATE
   if (dataset.containsGroundTruth()) {
@@ -132,7 +132,7 @@ inline boost::optional<PoseError> computeJointAlignedATE(Dataset dataset, Result
   }
   // No ground truth, cannot compute ATE
   else {
-    return boost::none;
+    return std::nullopt;
   }
 }
 
@@ -249,7 +249,7 @@ inline MetricSummary computeMetricSummary(Dataset dataset, Results results, bool
     summary.robot_ate = std::map<char, PoseError>();
     summary.total_ate = std::make_pair(0, 0);
     for (char rid : summary.robots) {
-      boost::optional<PoseError> robot_ate = computeATE<POSE_TYPE>(
+      std::optional<PoseError> robot_ate = computeATE<POSE_TYPE>(
           rid, dataset, results, ate_align, ate_align_with_scale, step_idxes.has_value(), ate_include_shared_variables);
       (*summary.robot_ate)[rid] = *robot_ate;
       (*summary.total_ate) = std::make_pair((*summary.total_ate).first + (*robot_ate).first,

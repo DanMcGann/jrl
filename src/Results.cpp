@@ -6,7 +6,7 @@ namespace jrl {
 /**********************************************************************************************************************/
 Results::Results(std::string dataset_name, std::string method_name, std::vector<char> robots,
                  std::map<char, TypedValues> solutions,
-                 boost::optional<std::map<char, std::set<FactorId>>> robot_outliers)
+                 std::optional<std::map<char, std::set<FactorId>>> robot_outliers)
     : dataset_name(dataset_name),
       method_name(method_name),
       robots(robots),
