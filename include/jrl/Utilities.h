@@ -2,6 +2,9 @@
  * and used throughout the jrl library.
  */
 #pragma once
+#include <gtsam/nonlinear/Values.h>
+
+#include <functional>
 #include <vector>
 
 namespace jrl {
@@ -18,6 +21,27 @@ namespace utils {
  */
 template <typename T>
 inline std::vector<std::vector<T>> cartesianProduct(const std::vector<std::vector<T>>& input);
+
+/** @brief Filters values according to a predicate
+ * @param values: The values to filter
+ * @param pred: The filter predicate
+ * @returns All values (key, val) for which the predicate evaluates to true
+ */
+inline gtsam::Values filter_values(const gtsam::Values& values,
+                                   std::function<bool(const gtsam::Values::ConstKeyValuePair&)> pred) {
+  gtsam::Values filtered;
+  for (const auto& kvp : values) {
+    if (pred(kvp)) filtered.insert(kvp.key, kvp.value);
+  }
+  return filtered;
+}
+
+/** @brief Filters values according to a type
+ * @param values: The values to filter
+ * @returns All values (key, val) of type T
+ */
+template <typename T>
+inline gtsam::Values filter_types(const gtsam::Values& values);
 
 }  // namespace utils
 }  // namespace jrl
